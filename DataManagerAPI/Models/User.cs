@@ -10,5 +10,4 @@ public class User
     public string? Email { get; set; }
     public UserCredentials UserCredentials { get; set; } = new UserCredentials();
     public RoleId Role { get; set; }
-    public List<UserData> UserData { get; set; } = new List<UserData>();
 }

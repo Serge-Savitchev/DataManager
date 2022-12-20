@@ -1,5 +1,6 @@
 ﻿using DataManagerAPI.Helpers;
 using DataManagerAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataManagerAPI.Repository;
 
@@ -14,15 +15,11 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<User>> AddUser(User userToAdd)
     {
-        var result = new ResultWrapper<User>();
+        var result = new ResultWrapper<User>
+        {
+            StatusCode = StatusCodes.Status201Created
+        };
 
-        //if (!Enum.IsDefined(userToAdd.Role))
-        //{
-        //    result.Success = false;
-        //    result.Message = "Invalid role value";
-        //    result.StatusCode = StatusCodes.Status400BadRequest;
-        //    return result;
-        //}
         try
         {
             await _context.Users.AddAsync(userToAdd);
@@ -37,5 +34,11 @@ public class UserRepository : IUserRepository
 
         result.Data = userToAdd;
         return result;
+    }
+
+    public async Task<UserCredentials?> GetUserCredentions(int userId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        return user?.UserCredentials;
     }
 }

@@ -1,7 +1,5 @@
 ﻿using DataManagerAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Reflection.Metadata;
 
 namespace DataManagerAPI.Repository;
 
@@ -14,6 +12,7 @@ public class UsersDBContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<UserData> UserData { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -27,13 +26,14 @@ public class UsersDBContext : DbContext
                 builder.ToTable("UserCredentials");
             });
 
-        modelBuilder.Entity<User>().OwnsMany(user => user.UserData, builder =>
-            {
-                builder.ToTable("UserData");
-            });
+        modelBuilder.Entity<UserData>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(p => p.UserId);
 
         modelBuilder.Entity<Role>()
             .ToTable("Roles");
+
         modelBuilder.Entity<Role>()
             .HasData(
                 new Role

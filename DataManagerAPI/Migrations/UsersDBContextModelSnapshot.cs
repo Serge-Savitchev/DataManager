@@ -86,6 +86,32 @@ namespace DataManagerAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("DataManagerAPI.Models.UserData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserData");
+                });
+
             modelBuilder.Entity("DataManagerAPI.Models.User", b =>
                 {
                     b.HasOne("DataManagerAPI.Models.Role", null)
@@ -115,35 +141,17 @@ namespace DataManagerAPI.Migrations
                                 .HasForeignKey("UserId");
                         });
 
-                    b.OwnsMany("DataManagerAPI.Models.UserData", "UserData", b1 =>
-                        {
-                            b1.Property<int>("UserId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<string>("Data")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Title")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("UserId", "Id");
-
-                            b1.ToTable("UserData", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
                     b.Navigation("UserCredentials")
                         .IsRequired();
+                });
 
-                    b.Navigation("UserData");
+            modelBuilder.Entity("DataManagerAPI.Models.UserData", b =>
+                {
+                    b.HasOne("DataManagerAPI.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

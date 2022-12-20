@@ -21,6 +21,8 @@ namespace DataManagerAPI.Helpers
             CreateMap<User, UserDto>()
                 .ForMember(user => user.Role, c => c.MapFrom(t => Enum.GetName(typeof(RoleId), t.Role)));
 
+            CreateMap<AddUserDataDto, UserData>();
+
             CreateMap<UserDataDto, UserData>()
                 .ReverseMap();
             //CreateMap<UserData, UserDataDto>();

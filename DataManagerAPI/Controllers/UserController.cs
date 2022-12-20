@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DataManagerAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/user/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {

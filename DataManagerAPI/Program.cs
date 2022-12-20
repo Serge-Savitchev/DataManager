@@ -25,6 +25,9 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddScoped<IUserDataService, UserDataService>();
+builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
