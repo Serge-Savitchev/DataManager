@@ -23,7 +23,7 @@ public class UsersDBContext : DbContext
     {
         modelBuilder.Entity<User>().OwnsOne(user => user.UserCredentials, builder =>
             {
-                builder.ToTable("UserCredentials");
+                builder.ToJson();
             });
 
         modelBuilder.Entity<UserData>()

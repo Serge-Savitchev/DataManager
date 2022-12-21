@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20221220172820_initial")]
+    [Migration("20221221163515_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -69,15 +69,18 @@ namespace DataManagerAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -128,6 +131,11 @@ namespace DataManagerAPI.Migrations
                             b1.Property<int>("UserId")
                                 .HasColumnType("int");
 
+                            b1.Property<string>("Login")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("nvarchar(256)");
+
                             b1.Property<byte[]>("PasswordHash")
                                 .IsRequired()
                                 .HasColumnType("varbinary(max)");
@@ -138,7 +146,9 @@ namespace DataManagerAPI.Migrations
 
                             b1.HasKey("UserId");
 
-                            b1.ToTable("UserCredentials", (string)null);
+                            b1.ToTable("Users");
+
+                            b1.ToJson("UserCredentials");
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");

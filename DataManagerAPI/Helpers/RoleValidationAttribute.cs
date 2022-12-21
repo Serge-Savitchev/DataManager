@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataManagerAPI.Helpers
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
     public sealed class RoleValidationAttribute : ValidationAttribute
     {
         public override bool IsValid(object? value)
@@ -54,7 +54,7 @@ namespace DataManagerAPI.Helpers
                 stringBuilder.Append(suit.ToString());
             }
 
-            stringBuilder.Insert(0, "Invalid role name. Possible values are: ");
+            //stringBuilder.Insert(0, "Invalid role name. Possible values are: ");
 
             return stringBuilder.ToString();
         }

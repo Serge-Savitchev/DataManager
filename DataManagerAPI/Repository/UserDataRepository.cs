@@ -35,4 +35,118 @@ public class UserDataRepository : IUserDataRepository
         result.Data = userDataToAdd;
         return result;
     }
+
+    public async Task<ResultWrapper<UserData>> DeleteUserData(int userDataId)
+    {
+        var result = new ResultWrapper<UserData>();
+        UserData? userDataToDelete = null;
+
+        try
+        {
+            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId);
+            if (userDataToDelete is null)
+            {
+                result.Success = false;
+                result.StatusCode = StatusCodes.Status404NotFound;
+                result.Message = $"UserDataId {userDataId} not found";
+
+                return result;
+            }
+
+            _context.UserData.Remove(userDataToDelete);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        result.Data = userDataToDelete;
+        return result;
+    }
+
+    public async Task<ResultWrapper<UserData>> GetUserData(int userDataId)
+    {
+        var result = new ResultWrapper<UserData>();
+        UserData? userData = null;
+
+        try
+        {
+            userData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId);
+            if (userData is null)
+            {
+                result.Success = false;
+                result.StatusCode = StatusCodes.Status404NotFound;
+                result.Message = $"UserDataId {userDataId} not found";
+
+                return result;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        result.Data = userData;
+        return result;
+    }
+
+    public async Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId)
+    {
+        var result = new ResultWrapper<List<UserData>>();
+        List<UserData>? dataList = null;
+
+        try
+        {
+            dataList = await _context.UserData.Where(x => x.UserId == userId).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        result.Data = dataList;
+        return result;
+    }
+
+    public async Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate)
+    {
+        var result = new ResultWrapper<UserData>();
+        UserData? updatedUserData = null;
+
+        try
+        {
+            updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataToUpdate.Id);
+            if (updatedUserData is null)
+            {
+                result.Success = false;
+                result.StatusCode = StatusCodes.Status404NotFound;
+                result.Message = $"UserDataId {userDataToUpdate.Id} not found";
+
+                return result;
+            }
+
+            updatedUserData.Title = userDataToUpdate.Title;
+            updatedUserData.Data = userDataToUpdate.Data;
+
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        result.Data = updatedUserData;
+        return result;
+    }
 }
