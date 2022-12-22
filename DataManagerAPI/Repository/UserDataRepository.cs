@@ -22,6 +22,12 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
+            var user = await FindUser<UserData>(userDataToAdd.UserId);
+            if (!user.Success)
+            {
+                return user;
+            }
+
             await _context.UserData.AddAsync(userDataToAdd);
             _context.SaveChanges();
         }
@@ -104,6 +110,12 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
+            var user = await FindUser<List<UserData>>(userId);
+            if (!user.Success)
+            {
+                return user;
+            }
+
             dataList = await _context.UserData.Where(x => x.UserId == userId).ToListAsync();
         }
         catch (Exception ex)
@@ -124,6 +136,12 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
+            var user = await FindUser<UserData>(userDataToUpdate.UserId);
+            if (!user.Success)
+            {
+                return user;
+            }
+
             updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataToUpdate.Id);
             if (updatedUserData is null)
             {
@@ -147,6 +165,27 @@ public class UserDataRepository : IUserDataRepository
         }
 
         result.Data = updatedUserData;
+        return result;
+    }
+
+    private async Task<ResultWrapper<T>> FindUser<T>(int userId)
+    {
+        var result = new ResultWrapper<T>();
+        try
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            if (user is null)
+            {
+                throw new Exception();
+            }
+        }
+        catch (Exception)
+        {
+            result.Success = false;
+            result.StatusCode = StatusCodes.Status404NotFound;
+            result.Message = $"UserId {userId} not found";
+        }
+
         return result;
     }
 }
