@@ -11,6 +11,6 @@ public class User
     public string LastName { get; set; } = string.Empty;
     [StringLength(256)]
     public string? Email { get; set; }
-    public UserCredentials UserCredentials { get; set; } = new UserCredentials();
+    //public UserCredentials UserCredentials { get; set; } = new UserCredentials();
     public RoleId Role { get; set; }
 }

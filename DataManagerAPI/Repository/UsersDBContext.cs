@@ -13,6 +13,7 @@ public class UsersDBContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<UserData> UserData { get; set; }
+    public DbSet<UserCredentials> UserCredentials { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -21,10 +22,15 @@ public class UsersDBContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().OwnsOne(user => user.UserCredentials, builder =>
-            {
-                builder.ToJson();
-            });
+        //modelBuilder.Entity<User>().OwnsOne(user => user.UserCredentials, builder =>
+        //    {
+        //        builder.ToJson();
+        //    });
+
+        modelBuilder.Entity<UserCredentials>()
+            .HasOne<User>()
+            .WithOne()
+            .HasForeignKey<UserCredentials>(p => p.UserId);
 
         modelBuilder.Entity<UserData>()
             .HasOne<User>()

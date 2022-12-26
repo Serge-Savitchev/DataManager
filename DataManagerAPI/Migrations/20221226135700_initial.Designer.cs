@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20221221163515_initial")]
+    [Migration("20221226135700_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -92,6 +92,32 @@ namespace DataManagerAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("DataManagerAPI.Models.UserCredentials", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserCredentials");
+                });
+
             modelBuilder.Entity("DataManagerAPI.Models.UserData", b =>
                 {
                     b.Property<int>("Id")
@@ -125,36 +151,14 @@ namespace DataManagerAPI.Migrations
                         .HasForeignKey("Role")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.OwnsOne("DataManagerAPI.Models.UserCredentials", "UserCredentials", b1 =>
-                        {
-                            b1.Property<int>("UserId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Login")
-                                .IsRequired()
-                                .HasMaxLength(256)
-                                .HasColumnType("nvarchar(256)");
-
-                            b1.Property<byte[]>("PasswordHash")
-                                .IsRequired()
-                                .HasColumnType("varbinary(max)");
-
-                            b1.Property<byte[]>("PasswordSalt")
-                                .IsRequired()
-                                .HasColumnType("varbinary(max)");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("Users");
-
-                            b1.ToJson("UserCredentials");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
-                    b.Navigation("UserCredentials")
+            modelBuilder.Entity("DataManagerAPI.Models.UserCredentials", b =>
+                {
+                    b.HasOne("DataManagerAPI.Models.User", null)
+                        .WithOne()
+                        .HasForeignKey("DataManagerAPI.Models.UserCredentials", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

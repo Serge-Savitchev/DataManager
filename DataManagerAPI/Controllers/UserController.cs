@@ -17,18 +17,18 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    [Route("add")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> AddUser([FromBody] AddUserDto user)
+    [Route("register")]
+    public async Task<ActionResult<ResultWrapper<UserDto>>> RegisterUser([FromBody] RegisterUserDto user)
     {
-        var result = await _service.AddUser(user);
+        var result = await _service.RegisterUser(user);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpPut]
-    [Route("update")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> UpdateUser([FromBody] UserDto user)
+    [HttpPost]
+    [Route("login")]
+    public async Task<ActionResult<ResultWrapper<UserDto>>> Login([FromBody] LoginUserDto user)
     {
-        var result = await _service.UpdateUser(user);
+        var result = await _service.Login(user);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -52,6 +52,9 @@ public class UserController : ControllerBase
     [Route("all")]
     public async Task<ActionResult<ResultWrapper<List<UserDto>>>> GetAllUsers()
     {
+        UserDto user = HttpContext.Items["User"] as UserDto;
+        string login = HttpContext.Items["Login"] as string;
+
         var result = await _service.GetAllUsers();
         return StatusCode(result.StatusCode, result);
     }
@@ -66,9 +69,9 @@ public class UserController : ControllerBase
 
     [HttpPut]
     [Route("credentials/{userId}")]
-    public async Task<ActionResult<ResultWrapper<string>>> UpdateUserCredentials(int userId, [FromBody] UpdateCredentials updateCredentials)
+    public async Task<ActionResult<ResultWrapper<string>>> UpdateUserPassword(int userId, [FromBody] string newPassword)
     {
-        var result = await _service.UpdateUserCredentials(userId, updateCredentials.Login, updateCredentials.Password);
+        var result = await _service.UpdateUserPassword(userId, newPassword);
         return StatusCode(result.StatusCode, result);
     }
 

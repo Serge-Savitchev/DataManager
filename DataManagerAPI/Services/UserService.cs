@@ -3,6 +3,7 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
+using System.Security.Claims;
 
 namespace DataManagerAPI.Services;
 
@@ -17,13 +18,73 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<ResultWrapper<UserDto>> AddUser(AddUserDto userToAdd)
+    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd)
     {
-        var result = await _repository.AddUser(_mapper.Map<User>(userToAdd));
+        UserCredentials userCredentials = CredentialsHelper.CreatePasswordHash(userToAdd.Password);
+        userCredentials.Login = userToAdd.Login;
+
+        var result = await _repository.RegisterUser(_mapper.Map<User>(userToAdd), userCredentials);
 
         var ret = ConvertWrapper(result);
 
         return ret;
+    }
+
+    public async Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData)
+    {
+        var result = new ResultWrapper<LoginUserResponseDto>
+        {
+            Success = false
+        };
+
+        var user = await _repository.GetUserByLogin(loginData.Login);
+        if (!user.Success)
+        {
+            result.Message = user.Message;
+            result.StatusCode = user.StatusCode;
+
+            return result;
+        }
+
+        if (!CredentialsHelper.VerifyPasswordHash(loginData.Password, user.Data!.Credentials!.PasswordHash, user.Data!.Credentials!.PasswordSalt))
+        {
+            result.Message = "Invalide login or password";
+            result.StatusCode = StatusCodes.Status401Unauthorized;
+            return result;
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim("UserId", user.Data!.User!.Id.ToString()),
+            new Claim("Login", loginData.Login),
+            new Claim("Role", Enum.GetName(typeof(RoleId), user.Data!.User!.Role)!),
+            new Claim("FirstName", user.Data!.User!.FirstName),
+            new Claim("LastName", user.Data!.User!.LastName),
+            new Claim("Email", user.Data!.User!.Email ?? string.Empty)
+        };
+
+        var accessToken = CredentialsHelper.GenerateAccessToken(claims);
+
+        var credentials = new UserCredentials
+        {
+            RefreshToken = CredentialsHelper.GenerateRefreshToken()
+        };
+
+        var loginResult = await _repository.Login(loginData.Login, credentials);
+        if (!loginResult.Success)
+        {
+            result.Message = user.Message;
+            result.StatusCode = StatusCodes.Status401Unauthorized;
+
+            return result;
+        }
+
+        result.Data = _mapper.Map<LoginUserResponseDto>(user.Data.User);
+        result.Data.Token = accessToken;
+        result.Data.RefreshToken = credentials.RefreshToken;
+        result.Success = true;
+
+        return result;
     }
 
     public async Task<ResultWrapper<UserDto>> DeleteUser(int userId)
@@ -70,27 +131,26 @@ public class UserService : IUserService
         return ret;
     }
 
-    public async Task<ResultWrapper<UserDto>> UpdateUser(UserDto userToUpdate)
-    {
-        var result = await _repository.UpdateUser(_mapper.Map<User>(userToUpdate));
+    //public async Task<ResultWrapper<UserDto>> UpdateUser(UserDto userToUpdate)
+    //{
+    //    var result = await _repository.UpdateUser(_mapper.Map<User>(userToUpdate));
 
-        var ret = ConvertWrapper(result);
+    //    var ret = ConvertWrapper(result);
 
-        return ret;
-    }
+    //    return ret;
+    //}
 
-    public async Task<ResultWrapper<string>> UpdateUserCredentials(int userId, string newLogin, string newPassword)
+    public async Task<ResultWrapper<string>> UpdateUserPassword(int userId, string newPassword)
     {
         var credentials = CredentialsHelper.CreatePasswordHash(newPassword);
-        credentials!.Login = newLogin;
 
-        var result = await _repository.UpdateUserCredentials(userId, credentials);
+        var result = await _repository.UpdateUserPassword(userId, credentials);
 
         return new ResultWrapper<string>
         {
             Success = result.Success,
             StatusCode = result.StatusCode,
-            Data = result?.Data != null ? result?.Data.UserCredentials.Login : null,
+            //Data = /*result?.Data != null ? result?.Data.UserCredentials.Login :*/ null,
             Message = result?.Message
         };
     }

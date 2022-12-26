@@ -1,5 +1,6 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
+using DataManagerAPI.Middleware;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Services;
 
@@ -38,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthorization();
 
