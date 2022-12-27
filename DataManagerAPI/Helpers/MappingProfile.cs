@@ -14,12 +14,12 @@ public class MappingProfile : Profile
         //    .ReverseMap();
 
         CreateMap<RegisterUserDto?, User>()
-            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleId>(t!.Role, true)));
+            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleIds>(t!.Role, true)));
 
         CreateMap<UserDto, User>()
-            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleId>(t!.Role, true)))
+            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleIds>(t!.Role, true)))
         .ReverseMap()
-            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.GetName(typeof(RoleId), t.Role)));
+            .ForMember(user => user.Role, c => c.MapFrom(t => t.Role.ToString()));
 
         CreateMap<AddUserDataDto, UserData>();
 
@@ -27,6 +27,6 @@ public class MappingProfile : Profile
             .ReverseMap();
 
         CreateMap<User, LoginUserResponseDto>()
-            .ForMember(user => user.Role, c => c.MapFrom(t => Enum.GetName(typeof(RoleId), t.Role)));
+            .ForMember(user => user.Role, c => c.MapFrom(t => t.Role.ToString()));
     }
 }

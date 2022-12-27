@@ -12,5 +12,5 @@ public class User
     [StringLength(256)]
     public string? Email { get; set; }
     //public UserCredentials UserCredentials { get; set; } = new UserCredentials();
-    public RoleId Role { get; set; }
+    public RoleIds Role { get; set; }
 }

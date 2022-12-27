@@ -24,7 +24,7 @@ namespace DataManagerAPI.Helpers
 
             try
             {
-                Enum.Parse<RoleId>(role, true);
+                Enum.Parse<RoleIds>(role, true);
             }
             catch (Exception)
             {
@@ -36,7 +36,7 @@ namespace DataManagerAPI.Helpers
 
         public override string FormatErrorMessage(string name)
         {
-            return $"Invalide value of {name} field. Possible values are: {_availableNames}";
+            return $"Invalid value of {name} field. Possible values are: {_availableNames}";
         }
 
         private readonly static string _availableNames = GetAvailableValues();
@@ -45,7 +45,7 @@ namespace DataManagerAPI.Helpers
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            foreach (var suit in Enum.GetValues(typeof(RoleId)))
+            foreach (var suit in RolesHelper.GetAllNames())
             {
                 if (stringBuilder.Length > 0)
                 {
@@ -53,8 +53,6 @@ namespace DataManagerAPI.Helpers
                 }
                 stringBuilder.Append(suit.ToString());
             }
-
-            //stringBuilder.Insert(0, "Invalid role name. Possible values are: ");
 
             return stringBuilder.ToString();
         }

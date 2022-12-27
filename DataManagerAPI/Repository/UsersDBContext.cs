@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Models;
+﻿using DataManagerAPI.Helpers;
+using DataManagerAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataManagerAPI.Repository;
@@ -41,28 +42,7 @@ public class UsersDBContext : DbContext
             .ToTable("Roles");
 
         modelBuilder.Entity<Role>()
-            .HasData(
-                new Role
-                {
-                    Id = RoleId.Admin,
-                    Name = Enum.GetName(typeof(RoleId), RoleId.Admin)!
-                },
-                new Role
-                {
-                    Id = RoleId.User,
-                    Name = Enum.GetName(typeof(RoleId), RoleId.User)!
-                },
-                new Role
-                {
-                    Id = RoleId.AdvancedUser,
-                    Name = Enum.GetName(typeof(RoleId), RoleId.AdvancedUser)!
-                },
-                new Role
-                {
-                    Id = RoleId.ReadOnlyUser,
-                    Name = Enum.GetName(typeof(RoleId), RoleId.ReadOnlyUser)!
-                }
-            );
+            .HasData(RolesHelper.GetAllRoles());
 
         modelBuilder.Entity<User>()
                     .HasOne<Role>()

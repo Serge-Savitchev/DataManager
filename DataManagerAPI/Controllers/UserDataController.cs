@@ -1,12 +1,13 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Helpers;
 using DataManagerAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataManagerAPI.Controllers;
 
-[Route("api/userdata/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class UserDataController : ControllerBase
 {
     private readonly IUserDataService _service;
@@ -18,41 +19,41 @@ public class UserDataController : ControllerBase
 
     [HttpPost]
     [Route("Add")]
-    public async Task<ActionResult<ResultWrapper<UserDataDto>>> AddUserData([FromBody] AddUserDataDto data)
+    public async Task<ActionResult<UserDataDto>> AddUserData([FromBody] AddUserDataDto data)
     {
         var result = await _service.AddUserData(data);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpPut]
     [Route("Update")]
-    public async Task<ActionResult<ResultWrapper<UserDataDto>>> UpdateUserData([FromBody] UserDataDto data)
+    public async Task<ActionResult<UserDataDto>> UpdateUserData([FromBody] UserDataDto data)
     {
         var result = await _service.UpdateUserData(data);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpDelete]
     [Route("{UserId}")]
-    public async Task<ActionResult<ResultWrapper<UserDataDto>>> UpdateUserData(int UserId)
+    public async Task<ActionResult<UserDataDto>> UpdateUserData(int UserId)
     {
         var result = await _service.DeleteUserData(UserId);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("{userDataId}")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> GetUser(int userDataId)
+    public async Task<ActionResult<UserDto>> GetUser(int userDataId)
     {
         var result = await _service.GetUserData(userDataId);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("all/{userId}")]
-    public async Task<ActionResult<ResultWrapper<List<UserDto>>>> GetUserDataByUserId(int userId)
+    public async Task<ActionResult<List<UserDto>>> GetUserDataByUserId(int userId)
     {
         var result = await _service.GetUserDataByUserId(userId);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 }

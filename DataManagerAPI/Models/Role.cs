@@ -5,6 +5,6 @@ namespace DataManagerAPI.Models;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public class Role
 {
-    public RoleId Id { get; set; } = RoleId.Admin;
-    public string Name { get; set; } = Enum.GetName(typeof(RoleId), RoleId.Admin)!;
+    public RoleIds Id { get; set; } = RoleIds.Admin;
+    public string Name { get; set; } = Enum.GetName(typeof(RoleIds), RoleIds.Admin)!;
 }

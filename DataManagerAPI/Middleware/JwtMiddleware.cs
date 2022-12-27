@@ -1,6 +1,5 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Helpers;
-using DataManagerAPI.Services;
 using System.Security.Claims;
 
 namespace DataManagerAPI.Middleware
@@ -17,14 +16,15 @@ namespace DataManagerAPI.Middleware
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            var clames = CredentialsHelper.ValidateToken(token!);
-            if (clames != null)
+            ClaimsPrincipal? validationData = CredentialsHelper.ValidateToken(token!, useLifetime: true);
+
+            if (validationData != null)
             {
-                UserDto user = CredentialsHelper.CreateUser(clames);
+                context.User = validationData;
+                CurrentUserDto user = CredentialsHelper.CreateCurrentUser(validationData.Claims);
 
                 // attach user to context on successful jwt validation
                 context.Items["User"] = user;
-                context.Items["Login"] = clames.First(x => x.Type == "Login");
             }
 
             await _next(context);

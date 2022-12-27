@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Dto;
+﻿using DataManagerAPI.Constants;
+using DataManagerAPI.Dto;
 using DataManagerAPI.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -32,7 +33,7 @@ public static class CredentialsHelper
             //issuer: "https://localhost:5001",
             //audience: "https://localhost:5001",
             claims: claims,
-            expires: DateTime.Now.AddMinutes(60),
+            expires: DateTime.UtcNow.AddMinutes(5),
             signingCredentials: signinCredentials
         );
 
@@ -40,7 +41,7 @@ public static class CredentialsHelper
         return tokenString;
     }
 
-    public static UserDto CreateUser(IEnumerable<Claim> claims)
+    public static CurrentUserDto CreateCurrentUser(IEnumerable<Claim> claims)
     {
         if (claims is null)
         {
@@ -49,14 +50,20 @@ public static class CredentialsHelper
 
         var user = new UserDto
         {
-            Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
-            FirstName = claims.First(x => x.Type == "FirstName").Value,
-            LastName = claims.First(x => x.Type == "LastName").Value,
-            Email = claims.First(x => x.Type == "Email").Value,
-            Role = claims.First(x => x.Type == "Email").Value
+            Id = int.Parse(claims.First(x => x.Type == ClaimNames.UserId).Value),
+            FirstName = claims.First(x => x.Type == ClaimNames.FirstName).Value,
+            LastName = claims.First(x => x.Type == ClaimNames.LastName).Value,
+            Email = claims.First(x => x.Type == ClaimNames.Email).Value,
+            Role = claims.First(x => x.Type == ClaimNames.Role).Value
         };
 
-        return user;
+        var currentUser = new CurrentUserDto
+        {
+            User = user,
+            Login = claims.First(x => x.Type == ClaimNames.Login).Value
+        };
+
+        return currentUser;
     }
 
     public static string GenerateRefreshToken()
@@ -69,57 +76,43 @@ public static class CredentialsHelper
         }
     }
 
-    /*
-    public static ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-    {
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
-            ValidateIssuer = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey)),
-            ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
-        };
-        var tokenHandler = new JwtSecurityTokenHandler();
-        SecurityToken securityToken;
-        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
-        var jwtSecurityToken = securityToken as JwtSecurityToken;
-        if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            throw new SecurityTokenException("Invalid token");
-        return principal;
-    }
-    */
-
-    public static IEnumerable<Claim> ValidateToken(string token)
+    public static ClaimsPrincipal? ValidateToken(string token, bool useLifetime)
     {
         if (token == null)
-            return null!;
+        {
+            return null;
+        }
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(SecretKey);
         try
         {
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = false,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                // ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
+            ClaimsPrincipal principal = tokenHandler.ValidateToken(token, CreateTokenValidationParameters(useLifetime), out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            //var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-
-            // return user id from JWT token if validation successful
-            return jwtToken.Claims;
+            //bool expired = jwtToken.ValidTo < DateTime.UtcNow;
+            return principal;
         }
         catch
         {
             // return null if validation fails
-            return null!;
+            return null;
         }
+    }
+
+    public static TokenValidationParameters CreateTokenValidationParameters(bool useLifetime)
+    {
+        var key = Encoding.ASCII.GetBytes(SecretKey);
+        var result = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = false,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero,
+            ValidateLifetime = useLifetime
+        };
+
+        return result;
     }
 
     public static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
@@ -131,5 +124,5 @@ public static class CredentialsHelper
         }
     }
 
-    public static string SecretKey = "0123456789ABCDEF0123456789ABCDEF";
+    private static string SecretKey = "0123456789ABCDEF0123456789ABCDEF";
 }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20221226135700_initial")]
+    [Migration("20221226224212_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -40,22 +40,22 @@ namespace DataManagerAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 0,
+                            Id = 1,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = 1,
-                            Name = "User"
-                        },
-                        new
-                        {
                             Id = 2,
-                            Name = "AdvancedUser"
+                            Name = "PowerUser"
                         },
                         new
                         {
                             Id = 3,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 4,
                             Name = "ReadOnlyUser"
                         });
                 });

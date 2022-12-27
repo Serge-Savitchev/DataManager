@@ -1,11 +1,12 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataManagerAPI.Controllers;
 
-[Route("api/users/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -16,71 +17,44 @@ public class UserController : ControllerBase
         _service = service;
     }
 
-    [HttpPost]
-    [Route("register")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> RegisterUser([FromBody] RegisterUserDto user)
-    {
-        var result = await _service.RegisterUser(user);
-        return StatusCode(result.StatusCode, result);
-    }
-
-    [HttpPost]
-    [Route("login")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> Login([FromBody] LoginUserDto user)
-    {
-        var result = await _service.Login(user);
-        return StatusCode(result.StatusCode, result);
-    }
-
     [HttpDelete]
     [Route("{userId}")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> DeleteUser(int userId)
+    [Authorize(Policy = "Admin")]
+    public async Task<ActionResult<UserDto>> DeleteUser(int userId)
     {
         var result = await _service.DeleteUser(userId);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("{userId}")]
-    public async Task<ActionResult<ResultWrapper<UserDto>>> GetUser(int userId)
+    [Authorize]
+    public async Task<ActionResult<UserDto>> GetUser(int userId)
     {
         var result = await _service.GetUser(userId);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("all")]
-    public async Task<ActionResult<ResultWrapper<List<UserDto>>>> GetAllUsers()
+    [Authorize(Policy = "Admin")]
+    public async Task<ActionResult<List<UserDto>>> GetAllUsers()
     {
-        UserDto user = HttpContext.Items["User"] as UserDto;
-        string login = HttpContext.Items["Login"] as string;
-
         var result = await _service.GetAllUsers();
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("role/{roleName}")]
-    public async Task<ActionResult<ResultWrapper<List<UserDto>>>> GetUsersByRole([RoleValidation] string roleName)
+    [Authorize(Policy = "Admin")]
+    public async Task<ActionResult<List<UserDto>>> GetUsersByRole([RoleValidation] string roleName)
     {
         var result = await _service.GetUsersByRole(roleName);
-        return StatusCode(result.StatusCode, result);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
-    [HttpPut]
-    [Route("credentials/{userId}")]
-    public async Task<ActionResult<ResultWrapper<string>>> UpdateUserPassword(int userId, [FromBody] string newPassword)
-    {
-        var result = await _service.UpdateUserPassword(userId, newPassword);
-        return StatusCode(result.StatusCode, result);
-    }
-
-    [HttpGet]
-    [Route("credentials/{userId}")]
-    public async Task<ActionResult<ResultWrapper<string>>> GetUserCredentials(int userId)
-    {
-        var result = await _service.GetUserCredentials(userId);
-        return StatusCode(result.StatusCode, result);
-    }
-
+    //private CurrentUserDataDto? GetCurrentUser()
+    //{
+    //    return HttpContext.Items["User"] as CurrentUserDataDto;
+    //}
 }

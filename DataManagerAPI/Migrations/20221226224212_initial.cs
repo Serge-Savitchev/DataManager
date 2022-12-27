@@ -93,10 +93,10 @@ namespace DataManagerAPI.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 0, "Admin" },
-                    { 1, "User" },
-                    { 2, "AdvancedUser" },
-                    { 3, "ReadOnlyUser" }
+                    { 1, "Admin" },
+                    { 2, "PowerUser" },
+                    { 3, "User" },
+                    { 4, "ReadOnlyUser" }
                 });
 
             migrationBuilder.CreateIndex(
