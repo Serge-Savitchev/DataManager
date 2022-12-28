@@ -1,8 +1,7 @@
-﻿namespace DataManagerAPI.Dto
+﻿namespace DataManagerAPI.Dto;
+
+public class CurrentUserDto
 {
-    public class CurrentUserDto
-    {
-        public UserDto? User { get; set; } = null;
-        public string? Login { get; set; } = null;
-    }
+    public UserDto? User { get; set; } = null;
+    public string? Login { get; set; } = null;
 }

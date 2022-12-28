@@ -5,13 +5,12 @@ using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,24 +19,23 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "JWTToken_Auth_API",
-        Version = "v1"
+        Title = "DataManagerAPI"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter token in the text input below.\r\n\r\nExample: \"1safsfsdfdfd\"",
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
             new OpenApiSecurityScheme {
                 Reference = new OpenApiReference {
                     Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
+                    Id = "Bearer"
                 }
             },
             new string[] {}
@@ -45,10 +43,13 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<UsersDBContext>();
+builder.Services.AddDbContext<UsersDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 // Auto Mapper Configurations
-var mapperConfig = new MapperConfiguration(mc =>
+MapperConfiguration mapperConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new MappingProfile());
 });
@@ -65,6 +66,9 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserDataService, UserDataService>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IUserPasswordService, UserPasswordService>();
+
 builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Admin", policy =>
@@ -74,10 +78,10 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = CredentialsHelper.CreateTokenValidationParameters(useLifetime: true);
+        options.TokenValidationParameters = ValidationTokenHelper.CreateTokenValidationParameters(useLifetime: true);
     });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

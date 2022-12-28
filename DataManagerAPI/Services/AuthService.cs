@@ -12,21 +12,32 @@ public class AuthService : IAuthService
 {
     private readonly IAuthRepository _repository;
     private readonly IMapper _mapper;
+    private readonly ITokenService _tokenService;
+    private readonly IUserPasswordService _userPasswordService;
 
-    public AuthService(IAuthRepository repository, IMapper mapper)
+    public AuthService(IAuthRepository repository, IMapper mapper,
+        ITokenService tokenService, IUserPasswordService userPasswordService)
     {
         _repository = repository;
         _mapper = mapper;
+        _tokenService = tokenService;
+        _userPasswordService = userPasswordService;
     }
 
     public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd)
     {
-        UserCredentials userCredentials = CredentialsHelper.CreatePasswordHash(userToAdd.Password);
+        UserCredentials userCredentials = _userPasswordService.CreatePasswordHash(userToAdd.Password);
         userCredentials.Login = userToAdd.Login;
 
         var result = await _repository.RegisterUser(_mapper.Map<User>(userToAdd), userCredentials);
 
-        var ret = ConvertWrapper(result);
+        var ret = new ResultWrapper<UserDto>
+        {
+            Success = result.Success,
+            Data = result.Success ? _mapper.Map<UserDto>(result.Data) : null,
+            Message = result.Message,
+            StatusCode = result.StatusCode
+        };
 
         return ret;
     }
@@ -47,7 +58,7 @@ public class AuthService : IAuthService
             return result;
         }
 
-        if (!CredentialsHelper.VerifyPasswordHash(loginData.Password, user.Data!.Credentials!.PasswordHash, user.Data!.Credentials!.PasswordSalt))
+        if (!_userPasswordService.VerifyPasswordHash(loginData.Password, user.Data!.Credentials!.PasswordHash, user.Data!.Credentials!.PasswordSalt))
         {
             result.Message = "Invalide login or password";
             result.StatusCode = StatusCodes.Status401Unauthorized;
@@ -64,7 +75,7 @@ public class AuthService : IAuthService
         new Claim(ClaimNames.Email, user.Data!.User!.Email ?? string.Empty)
     };
 
-        TokenApiModelDto tokens = GeneratePairOfTokens(claims);
+        TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(claims);
 
         var credentials = new UserCredentials
         {
@@ -88,17 +99,6 @@ public class AuthService : IAuthService
         return result;
     }
 
-    private TokenApiModelDto GeneratePairOfTokens(IEnumerable<Claim> claims)
-    {
-        var result = new TokenApiModelDto
-        {
-            AccessToken = CredentialsHelper.GenerateAccessToken(claims),
-            RefreshToken = CredentialsHelper.GenerateRefreshToken()
-        };
-
-        return result;
-    }
-
     public async Task<ResultWrapper<int>> Revoke(int userId)
     {
         var result = await _repository.RefreshToken(userId, null);
@@ -112,14 +112,14 @@ public class AuthService : IAuthService
             Success = false
         };
 
-        ClaimsPrincipal? principal = CredentialsHelper.ValidateToken(tokenData.AccessToken, useLifetime: false);
+        ClaimsPrincipal? principal = _tokenService.ValidateToken(tokenData.AccessToken, useLifetime: false);
         if (principal is null)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
             return result;
         }
 
-        CurrentUserDto? user = CredentialsHelper.CreateCurrentUser(principal.Claims);
+        CurrentUserDto? user = _tokenService.CreateCurrentUser(principal.Claims);
         if (user is null)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
@@ -140,7 +140,7 @@ public class AuthService : IAuthService
             return result;
         }
 
-        TokenApiModelDto tokens = GeneratePairOfTokens(principal.Claims);
+        TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(principal.Claims);
 
         ResultWrapper<int> refreshResult = await _repository.RefreshToken(user.User!.Id, tokens.RefreshToken);
 
@@ -154,22 +154,10 @@ public class AuthService : IAuthService
 
     public async Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword)
     {
-        var credentials = CredentialsHelper.CreatePasswordHash(newPassword);
+        var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
         var result = await _repository.UpdateUserPassword(userId, credentials);
 
         return result;
-    }
-
-    private ResultWrapper<UserDto> ConvertWrapper<T>(ResultWrapper<T> source)
-    {
-        var ret = new ResultWrapper<UserDto>
-        {
-            Success = source.Success,
-            Data = source.Success ? _mapper.Map<UserDto>(source.Data) : null,
-            Message = source.Message,
-            StatusCode = source.StatusCode
-        };
-        return ret;
     }
 }

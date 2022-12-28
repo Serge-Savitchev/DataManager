@@ -6,21 +6,14 @@ namespace DataManagerAPI.Repository;
 
 public class UsersDBContext : DbContext
 {
-    private readonly IConfiguration _configuration;
-    public UsersDBContext(IConfiguration configuration, DbContextOptions<UsersDBContext> options) : base(options)
+    public UsersDBContext(DbContextOptions<UsersDBContext> options) : base(options)
     {
-        _configuration = configuration;
     }
 
     public DbSet<User> Users { get; set; }
     public DbSet<UserData> UserData { get; set; }
     public DbSet<UserCredentials> UserCredentials { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseSqlServer(_configuration["ConnectionStrings:DBConnection"]);
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //modelBuilder.Entity<User>().OwnsOne(user => user.UserCredentials, builder =>
