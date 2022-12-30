@@ -83,7 +83,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//app.UseHttpLogging();   // enable HTTP request/response logging
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -100,3 +101,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
