@@ -26,7 +26,7 @@ namespace DataManagerAPI.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<UserDto>> Login([FromBody] LoginUserDto user)
+        public async Task<ActionResult<LoginUserResponseDto>> Login([FromBody] LoginUserDto user)
         {
             var result = await _service.Login(user);
             return StatusCode(result.StatusCode, result.Data);

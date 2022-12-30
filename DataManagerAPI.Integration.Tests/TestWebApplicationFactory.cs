@@ -28,23 +28,9 @@ public class TestWebApplicationFactory
 
                 services.Remove(dbConnectionDescriptor!);
 
-                // Create open SqliteConnection so EF won't automatically close it.
-                //services.AddSingleton<DbConnection>(container =>
-                //{
-                //    var connection = new SqliteConnection("DataSource=:memory:");
-                //    connection.Open();
-
-                //    return connection;
-                //});
-
                 services.AddDbContext<UsersDBContext>((container, options) =>
                 {
-                    //var connection = container.GetRequiredService<DbConnection>();
-                    //options.UseSqlite(connection.ConnectionString);
-
-                    //var configuration = container.GetRequiredService<IConfiguration>();
-                    //var connectionString = configuration.GetConnectionString("DefaultConnection");
-                    options.UseSqlite("Data Source=TestDatabase.db");
+                    options.UseSqlServer(DatabaseFixture.ConnectionString);
                 });
             });
 
