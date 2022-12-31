@@ -66,14 +66,14 @@ public class AuthService : IAuthService
         }
 
         var claims = new List<Claim>
-    {
-        new Claim(ClaimNames.UserId, user.Data!.User!.Id.ToString()),
-        new Claim(ClaimNames.Login, loginData.Login),
-        new Claim(ClaimNames.Role, Enum.GetName(typeof(RoleIds), user.Data!.User!.Role)!),
-        new Claim(ClaimNames.FirstName, user.Data!.User!.FirstName),
-        new Claim(ClaimNames.LastName, user.Data!.User!.LastName),
-        new Claim(ClaimNames.Email, user.Data!.User!.Email ?? string.Empty)
-    };
+        {
+            new Claim(ClaimNames.UserId, user.Data!.User!.Id.ToString()),
+            new Claim(ClaimNames.Login, loginData.Login),
+            new Claim(ClaimNames.Role, Enum.GetName(typeof(RoleIds), user.Data!.User!.Role)!),
+            new Claim(ClaimNames.FirstName, user.Data!.User!.FirstName),
+            new Claim(ClaimNames.LastName, user.Data!.User!.LastName),
+            new Claim(ClaimNames.Email, user.Data!.User!.Email ?? string.Empty)
+        };
 
         TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(claims);
 
@@ -92,7 +92,7 @@ public class AuthService : IAuthService
         }
 
         result.Data = _mapper.Map<LoginUserResponseDto>(user.Data.User);
-        result.Data.Token = tokens.AccessToken!;
+        result.Data.AccessToken = tokens.AccessToken!;
         result.Data.RefreshToken = tokens.RefreshToken!;
         result.Success = true;
 

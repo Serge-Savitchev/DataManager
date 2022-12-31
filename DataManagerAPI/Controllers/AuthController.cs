@@ -2,6 +2,7 @@
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataManagerAPI.Controllers
 {
@@ -62,7 +63,7 @@ namespace DataManagerAPI.Controllers
         [HttpPut]
         [Route("credentials/{userId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateUserPassword(int userId, [FromBody] string newPassword)
+        public async Task<IActionResult> UpdateUserPassword(int userId, [FromBody][Required] string newPassword)
         {
             var result = await _service.UpdateUserPassword(userId, newPassword);
             return StatusCode(result.StatusCode);

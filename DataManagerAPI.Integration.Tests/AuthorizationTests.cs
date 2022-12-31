@@ -1,7 +1,10 @@
 ﻿using DataManagerAPI.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using Xunit;
 using static DataManagerAPI.Integration.Tests.TestWebApplicationFactory;
 
@@ -28,97 +31,69 @@ public class AuthorizationTests : IClassFixture<CustomWebApplicationFactory<Prog
     [Fact]
     public async Task Post_RedisterUser_Returns_NewUser()
     {
-        // Arrange
-        RegisterUserTestData requestData = DatabaseFixture.GenerateUniqueUserData("Admin");
+        RegisterUserTestData? requestData = null;
 
-        //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", requestData.UserData);
+        try
+        {
+            // Arrange
+            requestData = UsersForTestsHelper.GenerateUniqueUserData("Admin");
 
-        // Assert
-        Assert.NotNull(responseMessage);
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", requestData.UserData);
 
-        responseMessage.EnsureSuccessStatusCode();
+            // Assert
+            responseMessage.EnsureSuccessStatusCode();
 
-        UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
-        Assert.NotNull(response);
-        Assert.Equal(requestData.UserData!.FirstName, response.FirstName);
+            UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
+            Assert.NotNull(response);
+            Assert.Equal(requestData.UserData!.FirstName, response.FirstName);
 
-        requestData.Id = response.Id;
-        requestData.Locked = false;
+            requestData.Id = response.Id;
+        }
+        finally
+        {
+            if (requestData != null)
+            {
+                requestData.Locked = false;
+            }
+        }
     }
 
     [Fact]
-    public async Task Post_RedisterUser_Returns_ConflictCode()
+    public async Task Post_RedisterUser_UserExists_Returns_Conflict()
     {
-        // Arrange
-        var registredUser = await FindOrCreateRegistredUser("admin");
+        RegisterUserTestData? registredUser = null;
 
-        //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, "admin");
 
-        // Assert
-        Assert.NotNull(responseMessage);
-        Assert.Equal(StatusCodes.Status409Conflict, (int)responseMessage.StatusCode);
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
 
-        registredUser.Locked = false;
+            // Assert
+
+            Assert.Equal(StatusCodes.Status409Conflict, (int)responseMessage.StatusCode);
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
     }
 
     [Fact]
     public async Task Post_LoginUser_ReturnsPairOfTokens()
     {
-        // Arrange
-        var registredUser = await FindOrCreateRegistredUser("user");
+        RegisterUserTestData? registredUser = null;
 
-        LoginUserDto requestData = new LoginUserDto
+        try
         {
-            Login = registredUser.UserData.Login,
-            Password = registredUser.UserData.Password
-        };
-
-        //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
-
-        // Assert
-        Assert.NotNull(responseMessage);
-
-        responseMessage.EnsureSuccessStatusCode();
-
-        LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
-        Assert.NotNull(response);
-        Assert.NotEmpty(response.Token);
-        Assert.NotEmpty(response.RefreshToken);
-
-        registredUser.LoginData = response;
-        registredUser.Locked = false;
-    }
-
-    private async Task<RegisterUserTestData> FindOrCreateRegistredUser(string role)
-    {
-        var registredUser = DatabaseFixture
-            .FindRegisterUser(x => x.LoginData == null && !x.Locked && role.Equals(x.UserData.Role, StringComparison.InvariantCultureIgnoreCase));
-
-        if (registredUser == null)
-        {
-            registredUser = DatabaseFixture.GenerateUniqueUserData(role);
-            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
-            UserDto user = await responseMessage.Content.ReadAsAsync<UserDto>();
-            registredUser.Id = user.Id;
-        }
-
-        return registredUser;
-    }
-
-    private async Task<RegisterUserTestData> FindOrCreateLoggedUser(string role)
-    {
-        var registredUser = DatabaseFixture
-            .FindRegisterUser(x => x.LoginData != null && !x.Locked && role.Equals(x.UserData.Role, StringComparison.InvariantCultureIgnoreCase));
-
-        if (registredUser == null)
-        {
-            registredUser = DatabaseFixture.GenerateUniqueUserData(role);
-            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
-            UserDto user = await responseMessage.Content.ReadAsAsync<UserDto>();
-            registredUser.Id = user.Id;
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, "user");
 
             LoginUserDto requestData = new LoginUserDto
             {
@@ -126,12 +101,308 @@ public class AuthorizationTests : IClassFixture<CustomWebApplicationFactory<Prog
                 Password = registredUser.UserData.Password
             };
 
-            responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+
+            // Assert
+            responseMessage.EnsureSuccessStatusCode();
+
             LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
+            Assert.NotNull(response);
+            Assert.NotEmpty(response.AccessToken);
+            Assert.NotEmpty(response.RefreshToken);
+
             registredUser.LoginData = response;
         }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
+    }
 
-        return registredUser;
+    [Fact]
+    public async Task Post_LoginUser_IncorrectLogin_ReturnsNotFound()
+    {
+        // Arrange
+        LoginUserDto requestData = new LoginUserDto
+        {
+            Login = "Incorrect",
+            Password = "fake"
+        };
+
+        //Act
+        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+
+        // Assert
+
+        Assert.Equal(StatusCodes.Status404NotFound, (int)responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_LoginUser_IncorrectPassword_ReturnsUnauthorized()
+    {
+        RegisterUserTestData? registredUser = null;
+
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, "user");
+
+            LoginUserDto requestData = new LoginUserDto
+            {
+                Login = registredUser.UserData.Login,
+                Password = $"{registredUser.UserData.Password}Incorrect"
+            };
+
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+
+            // Assert
+
+            Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, "fake")]
+    [InlineData("fake", null)]
+    [InlineData("", "fake")]
+    [InlineData("fake", "")]
+    [InlineData("", "")]
+    public async Task Post_LoginUser_IncorrectRequest_ReturnsBadRequest(string login, string password)
+    {
+        // Arrange
+        LoginUserDto? request = null;
+
+        if (login != null || password != null)
+        {
+            request = new LoginUserDto { Login = login!, Password = password };
+        }
+
+        //Act
+        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", request);
+
+        // Assert
+
+        Assert.Equal(StatusCodes.Status400BadRequest, (int)responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_RefreshToken_ReturnsNewPairOfTokens()
+    {
+        RegisterUserTestData? registredUser = null;
+
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, "user");
+
+            // Expiration time in JWT token is stored in seconds.
+            // If time passed between Login and Refresh is < 1 second,
+            // old and new tokens will be equal. Have a break 2 seconds to avoid such case.
+            Thread.Sleep(2000); // 2 seconds
+
+            TokenApiModelDto requestData = new TokenApiModelDto
+            {
+                AccessToken = registredUser.LoginData!.AccessToken,
+                RefreshToken = registredUser.LoginData.RefreshToken
+            };
+
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+
+            // Assert
+            responseMessage.EnsureSuccessStatusCode();
+
+            TokenApiModelDto response = await responseMessage.Content.ReadAsAsync<TokenApiModelDto>();
+            Assert.NotNull(response);
+            Assert.NotEmpty(response.AccessToken);
+            Assert.NotEmpty(response.RefreshToken);
+            Assert.NotEqual(requestData.AccessToken, response.AccessToken);
+            Assert.NotEqual(requestData.RefreshToken, response.RefreshToken);
+
+            registredUser.LoginData = new LoginUserResponseDto
+            {
+                AccessToken = response.AccessToken,
+                RefreshToken = response.RefreshToken
+            };
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Post_RefreshToken_IncorrectAccessToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        TokenApiModelDto requestData = new TokenApiModelDto
+        {
+            AccessToken = "Incorrect",
+            RefreshToken = "fake"
+        };
+
+        //Act
+        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+
+        // Assert
+
+        Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_RefreshToken_IncorrectRefreshToken_ReturnsUnauthorized()
+    {
+        RegisterUserTestData? registredUser = null;
+
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, "user");
+
+            TokenApiModelDto requestData = new TokenApiModelDto
+            {
+                AccessToken = registredUser.LoginData!.AccessToken,
+                RefreshToken = "fake"
+            };
+
+            //Act
+            HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+
+            // Assert
+
+            Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, "fake")]
+    [InlineData("fake", null)]
+    [InlineData("", "fake")]
+    [InlineData("fake", "")]
+    [InlineData("", "")]
+    public async Task Post_RefreshToken_IncorrectRequest_ReturnsBadRequest(string accessToken, string refreshToken)
+    {
+        // Arrange
+        TokenApiModelDto? request = null;
+        if (accessToken != null || refreshToken != null)
+        {
+            request = new TokenApiModelDto { AccessToken = accessToken!, RefreshToken = refreshToken };
+        }
+
+        //Act
+        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", request);
+
+        // Assert
+
+        Assert.Equal(StatusCodes.Status400BadRequest, (int)responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_Revoke_ReturnsOk()
+    {
+        RegisterUserTestData? registredUser = null;
+
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, "user");
+
+            //Act
+            HttpResponseMessage responseMessage;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/revoke"))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+                responseMessage = await _client.SendAsync(request);
+            }
+
+            // Assert
+            responseMessage.EnsureSuccessStatusCode();
+            registredUser.LoginData = null;
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Post_ChangePassword_ReturnsOk()
+    {
+        RegisterUserTestData? registredUser = null;
+
+        try
+        {
+            // Arrange
+            registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, "user");
+            string oldPassword = registredUser.UserData.Password;
+            string newPassword = "newPassword";
+
+            //Act
+            HttpResponseMessage responseMessage;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/credentials/{registredUser.Id}"))
+            {
+                request.Content = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+                responseMessage = await _client.SendAsync(request);
+            }
+
+            // Assert
+            responseMessage.EnsureSuccessStatusCode();
+            registredUser.UserData.Password = newPassword;
+
+            // check login with new password
+            LoginUserDto requestData = new LoginUserDto
+            {
+                Login = registredUser.UserData.Login,
+                Password = newPassword
+            };
+
+            responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+            responseMessage.EnsureSuccessStatusCode();
+
+            LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
+            Assert.NotNull(response);
+            Assert.NotEmpty(response.AccessToken);
+            Assert.NotEmpty(response.RefreshToken);
+
+            registredUser.LoginData = response;
+        }
+        finally
+        {
+            if (registredUser != null)
+            {
+                registredUser.Locked = false;
+            }
+        }
     }
 
 }
