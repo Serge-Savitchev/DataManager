@@ -21,6 +21,9 @@ public class MappingProfile : Profile
         .ReverseMap()
             .ForMember(user => user.Role, c => c.MapFrom(t => t.Role.ToString()));
 
+        CreateMap<User, UserDetailsDto>()
+            .ForMember(user => user.Role, c => c.MapFrom(t => t.Role.ToString()));
+
         CreateMap<AddUserDataDto, UserData>();
 
         CreateMap<UserDataDto, UserData>()

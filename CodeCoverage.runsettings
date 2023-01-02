@@ -32,7 +32,7 @@ Included items must then not match any entries in the exclude list to remain inc
                 <ModulePath>DataManagerAPI.dll</ModulePath>
               </Include>
               <Exclude>
-                <ModulePath>DataManagerAPI.Integration.Tests.dll</ModulePath>
+                <ModulePath>DataManagerAPI.Tests.dll</ModulePath>
               </Exclude>
             </ModulePaths>
           </CodeCoverage>

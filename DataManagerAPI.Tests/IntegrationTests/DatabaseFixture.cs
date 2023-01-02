@@ -3,10 +3,10 @@ using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using static DataManagerAPI.Integration.Tests.TestWebApplicationFactory;
+using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace DataManagerAPI.Integration.Tests;
+namespace DataManagerAPI.Tests.IntegrationTests;
 
 public class DatabaseFixture
 {

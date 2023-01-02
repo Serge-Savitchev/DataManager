@@ -9,17 +9,23 @@ using System.Text;
 
 namespace DataManagerAPI.Services
 {
+
     public class TokenService : ITokenService
     {
+        private readonly IConfiguration _configuration;
+
+        public TokenService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public string GenerateAccessToken(IEnumerable<Claim> claims)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ValidationTokenHelper.SecretKey));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var tokeOptions = new JwtSecurityToken(
-                //issuer: "https://localhost:5001",
-                //audience: "https://localhost:5001",
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(5),
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Tokens:AccessTokenLifetime"]!)),
                 signingCredentials: signinCredentials
             );
 

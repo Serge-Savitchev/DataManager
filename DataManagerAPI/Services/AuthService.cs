@@ -29,7 +29,7 @@ public class AuthService : IAuthService
         UserCredentials userCredentials = _userPasswordService.CreatePasswordHash(userToAdd.Password);
         userCredentials.Login = userToAdd.Login;
 
-        var result = await _repository.RegisterUser(_mapper.Map<User>(userToAdd), userCredentials);
+        var result = await _repository.RegisterUserAsync(_mapper.Map<User>(userToAdd), userCredentials);
 
         var ret = new ResultWrapper<UserDto>
         {
@@ -49,7 +49,7 @@ public class AuthService : IAuthService
             Success = false
         };
 
-        var user = await _repository.GetUserByLogin(loginData.Login);
+        var user = await _repository.GetUserByLoginAsync(loginData.Login);
         if (!user.Success)
         {
             result.Message = user.Message;
@@ -82,7 +82,7 @@ public class AuthService : IAuthService
             RefreshToken = tokens.RefreshToken
         };
 
-        var loginResult = await _repository.Login(loginData.Login, credentials);
+        var loginResult = await _repository.LoginAsync(loginData.Login, credentials);
         if (!loginResult.Success)
         {
             result.Message = user.Message;
@@ -101,7 +101,7 @@ public class AuthService : IAuthService
 
     public async Task<ResultWrapper<int>> Revoke(int userId)
     {
-        var result = await _repository.RefreshToken(userId, null);
+        var result = await _repository.RefreshTokenAsync(userId, null);
         return result;
     }
 
@@ -126,7 +126,7 @@ public class AuthService : IAuthService
             return result;
         }
 
-        ResultWrapper<UserCredentials> credentials = await _repository.GetUserCredentials(user.User!.Id);
+        ResultWrapper<UserCredentials> credentials = await _repository.GetUserCredentialsAsync(user.User!.Id);
         if (!credentials.Success || credentials.Data == null)
         {
             result.StatusCode = credentials.StatusCode;
@@ -142,7 +142,7 @@ public class AuthService : IAuthService
 
         TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(principal.Claims);
 
-        ResultWrapper<int> refreshResult = await _repository.RefreshToken(user.User!.Id, tokens.RefreshToken);
+        ResultWrapper<int> refreshResult = await _repository.RefreshTokenAsync(user.User!.Id, tokens.RefreshToken);
 
         result.Success = refreshResult.Success;
         result.Message = refreshResult.Message;
@@ -156,7 +156,54 @@ public class AuthService : IAuthService
     {
         var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
-        var result = await _repository.UpdateUserPassword(userId, credentials);
+        var result = await _repository.UpdateUserPasswordAsync(userId, credentials);
+
+        return result;
+    }
+
+    public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole)
+    {
+        var result = new ResultWrapper<string>();
+
+        try
+        {
+            var res = await _repository.UpdateUserRoleAsync(userId, Enum.Parse<RoleIds>(newRole, true));
+            if (!res.Success)
+            {
+                result.Success = false;
+                result.StatusCode = res.StatusCode;
+                result.Message = res.Message;
+
+                return result;
+            }
+            result.Data = res.Data.ToString();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        return result;
+    }
+
+    public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId)
+    {
+        var repositoryResult = await _repository.GetUserDetailsAsync(userId);
+
+        var result = new ResultWrapper<UserDetailsDto>
+        {
+            Success = repositoryResult.Success,
+            Message = repositoryResult.Message,
+            StatusCode = repositoryResult.StatusCode
+        };
+
+        if (repositoryResult.Success)
+        {
+            result.Data = _mapper.Map<UserDetailsDto>(repositoryResult.Data.User);
+            result.Data.Login = repositoryResult.Data.Login;
+        }
 
         return result;
     }

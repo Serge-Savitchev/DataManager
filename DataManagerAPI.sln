@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI", "DataManagerAPI\DataManagerAPI.csproj", "{A540BD0F-A4A4-4148-9399-69167D6FE893}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.Integration.Tests", "DataManagerAPI.Integration.Tests\DataManagerAPI.Integration.Tests.csproj", "{24864967-ED6A-45C6-8065-EA657F2F7BD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.Tests", "DataManagerAPI.Tests\DataManagerAPI.Tests.csproj", "{24864967-ED6A-45C6-8065-EA657F2F7BD7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A7C27D5-BD7B-4D2E-96E5-A08B343CD773}"
 	ProjectSection(SolutionItems) = preProject

@@ -73,6 +73,8 @@ builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Admin", policy =>
                           policy.RequireClaim("Role", RoleIds.Admin.ToString()));
+        options.AddPolicy("PowerUser", policy =>
+                          policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString()));
     });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

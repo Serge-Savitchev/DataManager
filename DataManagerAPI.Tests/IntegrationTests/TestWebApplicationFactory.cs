@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data.Common;
 
-namespace DataManagerAPI.Integration.Tests;
+namespace DataManagerAPI.Tests.IntegrationTests;
 
 public class TestWebApplicationFactory
 {

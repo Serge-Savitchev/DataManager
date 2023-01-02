@@ -1,6 +1,6 @@
 ﻿using DataManagerAPI.Dto;
 
-namespace DataManagerAPI.Integration.Tests;
+namespace DataManagerAPI.Tests.IntegrationTests;
 
 internal static class UsersForTestsHelper
 {
@@ -85,7 +85,7 @@ internal static class UsersForTestsHelper
 
             if (registredUser == null)
             {
-                registredUser = UsersForTestsHelper.GenerateUniqueUserData(role);
+                registredUser = GenerateUniqueUserData(role);
                 HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
                 UserDto user = await responseMessage.Content.ReadAsAsync<UserDto>();
                 registredUser.Id = user.Id;
