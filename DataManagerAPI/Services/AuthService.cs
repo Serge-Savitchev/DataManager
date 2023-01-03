@@ -14,14 +14,16 @@ public class AuthService : IAuthService
     private readonly IMapper _mapper;
     private readonly ITokenService _tokenService;
     private readonly IUserPasswordService _userPasswordService;
+    private readonly ILoggedOutUsersCollectionService _loggedOutUsersCollectionService;
 
     public AuthService(IAuthRepository repository, IMapper mapper,
-        ITokenService tokenService, IUserPasswordService userPasswordService)
+        ITokenService tokenService, IUserPasswordService userPasswordService, ILoggedOutUsersCollectionService loggedOutUsersCollectionService)
     {
         _repository = repository;
         _mapper = mapper;
         _tokenService = tokenService;
         _userPasswordService = userPasswordService;
+        _loggedOutUsersCollectionService = loggedOutUsersCollectionService;
     }
 
     public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd)
@@ -94,12 +96,23 @@ public class AuthService : IAuthService
         result.Data.RefreshToken = tokens.RefreshToken!;
         result.Success = true;
 
+        _loggedOutUsersCollectionService.Remove(result.Data.Id);
+
         return result;
+    }
+
+    public void LogOut(int userId)
+    {
+        _loggedOutUsersCollectionService.Add(userId);
     }
 
     public async Task<ResultWrapper<int>> Revoke(int userId)
     {
         var result = await _repository.RefreshTokenAsync(userId, null);
+        if (result.Success)
+        {
+            _loggedOutUsersCollectionService.Add(userId);
+        }
         return result;
     }
 
@@ -147,6 +160,11 @@ public class AuthService : IAuthService
         result.StatusCode = refreshResult.StatusCode;
         result.Data = new TokenApiModelDto { AccessToken = tokens.AccessToken, RefreshToken = tokens.RefreshToken };
 
+        if (result.Success)
+        {
+            _loggedOutUsersCollectionService.Add(user.User!.Id);
+        }
+
         return result;
     }
 
@@ -155,6 +173,11 @@ public class AuthService : IAuthService
         var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
         var result = await _repository.UpdateUserPasswordAsync(userId, credentials);
+
+        if (result.Success)
+        {
+            _loggedOutUsersCollectionService.Add(userId);
+        }
 
         return result;
     }
@@ -181,6 +204,11 @@ public class AuthService : IAuthService
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        if (result.Success)
+        {
+            _loggedOutUsersCollectionService.Add(userId);
         }
 
         return result;

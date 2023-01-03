@@ -245,8 +245,17 @@ namespace DataManagerAPI.Repository
                     return result;
                 }
 
-                user.Role = newRole;
-                _context.SaveChanges();
+                if (user.Role != newRole)
+                {
+                    user.Role = newRole;
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    result.Success = false;
+                    result.StatusCode = StatusCodes.Status409Conflict;
+                    result.Message = "The user role has not been chanhed.";
+                }
 
                 result.Data = user.Role;
             }

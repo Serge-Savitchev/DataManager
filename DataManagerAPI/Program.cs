@@ -4,6 +4,7 @@ using DataManagerAPI.Middleware;
 using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -68,20 +69,22 @@ builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IUserPasswordService, UserPasswordService>();
+builder.Services.AddSingleton<ILoggedOutUsersCollectionService, LoggedOutUsersCollectionservice>();
 
 builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Admin", policy =>
                           policy.RequireClaim("Role", RoleIds.Admin.ToString()));
         options.AddPolicy("PowerUser", policy =>
-                          policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString()));
+                          policy.RequireClaim("Role", RoleIds.PowerUser.ToString()));
+        options.AddPolicy("User", policy =>
+                          policy.RequireClaim("Role", RoleIds.User.ToString()));
+        options.AddPolicy("ReadOnlyUser", policy =>
+                          policy.RequireClaim("Role", RoleIds.ReadOnlyUser.ToString()));
     });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = ValidationTokenHelper.CreateTokenValidationParameters(useLifetime: true);
-    });
+builder.Services.AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
+    .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, options => { });
 
 WebApplication app = builder.Build();
 
@@ -94,9 +97,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseMiddleware<JwtMiddleware>();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
