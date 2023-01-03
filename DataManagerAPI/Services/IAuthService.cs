@@ -8,6 +8,7 @@ public interface IAuthService
 {
     Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd);
     Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData);
+    void LogOut(int userId);
     Task<ResultWrapper<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData);
     Task<ResultWrapper<int>> Revoke(int userId);
     Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword);

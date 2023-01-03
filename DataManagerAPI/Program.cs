@@ -4,6 +4,7 @@ using DataManagerAPI.Middleware;
 using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -77,11 +78,12 @@ builder.Services.AddAuthorization(options =>
                           policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString()));
     });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = ValidationTokenHelper.CreateTokenValidationParameters(useLifetime: true);
-    });
+builder.Services.AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
+    //.AddJwtBearer(options =>
+    //{
+    //    options.TokenValidationParameters = ValidationTokenHelper.CreateTokenValidationParameters(useLifetime: true);
+    //});
+    .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, options => { });
 
 WebApplication app = builder.Build();
 
@@ -95,7 +97,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtMiddleware>();
+//app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

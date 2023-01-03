@@ -94,12 +94,23 @@ public class AuthService : IAuthService
         result.Data.RefreshToken = tokens.RefreshToken!;
         result.Success = true;
 
+        LoggedOutUsersCollection.Remove(result.Data.Id);
+
         return result;
+    }
+
+    public void LogOut(int userId)
+    {
+        LoggedOutUsersCollection.Add(userId);
     }
 
     public async Task<ResultWrapper<int>> Revoke(int userId)
     {
         var result = await _repository.RefreshTokenAsync(userId, null);
+        if (result.Success)
+        {
+            LoggedOutUsersCollection.Add(userId);
+        }
         return result;
     }
 
@@ -147,6 +158,11 @@ public class AuthService : IAuthService
         result.StatusCode = refreshResult.StatusCode;
         result.Data = new TokenApiModelDto { AccessToken = tokens.AccessToken, RefreshToken = tokens.RefreshToken };
 
+        if (result.Success)
+        {
+            LoggedOutUsersCollection.Add(user.User!.Id);
+        }
+
         return result;
     }
 
@@ -155,6 +171,11 @@ public class AuthService : IAuthService
         var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
         var result = await _repository.UpdateUserPasswordAsync(userId, credentials);
+
+        if (result.Success)
+        {
+            LoggedOutUsersCollection.Add(userId);
+        }
 
         return result;
     }
@@ -181,6 +202,11 @@ public class AuthService : IAuthService
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        if (result.Success)
+        {
+            LoggedOutUsersCollection.Add(userId);
         }
 
         return result;

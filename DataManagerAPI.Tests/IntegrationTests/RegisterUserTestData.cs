@@ -12,6 +12,7 @@ namespace DataManagerAPI.Tests.IntegrationTests
         public void Dispose()
         {
             Locked = false;
+            LoginData = null;
         }
     }
 }

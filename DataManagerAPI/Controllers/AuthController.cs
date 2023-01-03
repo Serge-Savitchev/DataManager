@@ -35,6 +35,21 @@ namespace DataManagerAPI.Controllers
         }
 
         [HttpPost]
+        [Route("logout")]
+        [Authorize]
+        public IActionResult LogOut()
+        {
+            CurrentUserDto? currentUser = GetCurrentUser();
+            if (currentUser == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
+            _service.LogOut(currentUser.User!.Id);
+            return Ok();
+        }
+
+        [HttpPost]
         [Route("revoke")]
         [Authorize]
         public async Task<IActionResult> Revoke()
