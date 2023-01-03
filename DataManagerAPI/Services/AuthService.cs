@@ -49,16 +49,17 @@ public class AuthService : IAuthService
             Success = false
         };
 
-        var user = await _repository.GetUserByLoginAsync(loginData.Login);
-        if (!user.Success)
+        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByLoginAsync(loginData.Login);
+        if (!userDetails.Success)
         {
-            result.Message = user.Message;
-            result.StatusCode = user.StatusCode;
+            result.Message = userDetails.Message;
+            result.StatusCode = userDetails.StatusCode;
 
             return result;
         }
 
-        if (!_userPasswordService.VerifyPasswordHash(loginData.Password, user.Data!.Credentials!.PasswordHash, user.Data!.Credentials!.PasswordSalt))
+        if (!_userPasswordService
+            .VerifyPasswordHash(loginData.Password, userDetails.Data!.Credentials!.PasswordHash, userDetails.Data!.Credentials!.PasswordSalt))
         {
             result.Message = "Invalide login or password";
             result.StatusCode = StatusCodes.Status401Unauthorized;
@@ -67,31 +68,28 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimNames.UserId, user.Data!.User!.Id.ToString()),
+            new Claim(ClaimNames.UserId, userDetails.Data!.User!.Id.ToString()),
             new Claim(ClaimNames.Login, loginData.Login),
-            new Claim(ClaimNames.Role, Enum.GetName(typeof(RoleIds), user.Data!.User!.Role)!),
-            new Claim(ClaimNames.FirstName, user.Data!.User!.FirstName),
-            new Claim(ClaimNames.LastName, user.Data!.User!.LastName),
-            new Claim(ClaimNames.Email, user.Data!.User!.Email ?? string.Empty)
+            new Claim(ClaimNames.Role, Enum.GetName(typeof(RoleIds), userDetails.Data!.User!.Role)!),
+            new Claim(ClaimNames.FirstName, userDetails.Data!.User!.FirstName),
+            new Claim(ClaimNames.LastName, userDetails.Data!.User!.LastName),
+            new Claim(ClaimNames.Email, userDetails.Data!.User!.Email ?? string.Empty)
         };
 
         TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(claims);
 
-        var credentials = new UserCredentials
-        {
-            RefreshToken = tokens.RefreshToken
-        };
+        userDetails.Data.Credentials.RefreshToken = tokens.RefreshToken;
 
-        var loginResult = await _repository.LoginAsync(loginData.Login, credentials);
+        var loginResult = await _repository.LoginAsync(loginData.Login, userDetails.Data.Credentials);
         if (!loginResult.Success)
         {
-            result.Message = user.Message;
+            result.Message = userDetails.Message;
             result.StatusCode = StatusCodes.Status401Unauthorized;
 
             return result;
         }
 
-        result.Data = _mapper.Map<LoginUserResponseDto>(user.Data.User);
+        result.Data = _mapper.Map<LoginUserResponseDto>(userDetails.Data.User);
         result.Data.AccessToken = tokens.AccessToken!;
         result.Data.RefreshToken = tokens.RefreshToken!;
         result.Success = true;
@@ -126,15 +124,15 @@ public class AuthService : IAuthService
             return result;
         }
 
-        ResultWrapper<UserCredentials> credentials = await _repository.GetUserCredentialsAsync(user.User!.Id);
-        if (!credentials.Success || credentials.Data == null)
+        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByIdAsync(user.User!.Id);
+        if (!userDetails.Success || userDetails.Data == null)
         {
-            result.StatusCode = credentials.StatusCode;
-            result.Message = credentials.Message;
+            result.StatusCode = userDetails.StatusCode;
+            result.Message = userDetails.Message;
             return result;
         }
 
-        if (credentials.Data.RefreshToken != tokenData.RefreshToken)
+        if (userDetails.Data.Credentials!.RefreshToken != tokenData.RefreshToken)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
             return result;
@@ -190,19 +188,19 @@ public class AuthService : IAuthService
 
     public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId)
     {
-        var repositoryResult = await _repository.GetUserDetailsAsync(userId);
+        var userDetails = await _repository.GetUserDetailsByIdAsync(userId);
 
         var result = new ResultWrapper<UserDetailsDto>
         {
-            Success = repositoryResult.Success,
-            Message = repositoryResult.Message,
-            StatusCode = repositoryResult.StatusCode
+            Success = userDetails.Success,
+            Message = userDetails.Message,
+            StatusCode = userDetails.StatusCode
         };
 
-        if (repositoryResult.Success)
+        if (userDetails.Success)
         {
-            result.Data = _mapper.Map<UserDetailsDto>(repositoryResult.Data.User);
-            result.Data.Login = repositoryResult.Data.Login;
+            result.Data = _mapper.Map<UserDetailsDto>(userDetails.Data!.User);
+            result.Data.Login = userDetails.Data.Credentials!.Login;
         }
 
         return result;

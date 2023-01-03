@@ -36,8 +36,15 @@ public interface IAuthRepository
     /// Returns stored in database user's credentials.
     /// </summary>
     /// <param name="userId">Specifies user Id.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentials>"/> of asynchronous operation.</returns>
-    Task<ResultWrapper<UserCredentials>> GetUserCredentialsAsync(int userId);
+    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentialsData>"/> of asynchronous operation.</returns>
+    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId);
+
+    /// <summary>
+    /// Searches user in database by login.
+    /// </summary>
+    /// <param name="login">Specifies user login.</param>
+    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentialsData>"/> of asynchronous operation.</returns>
+    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login);
 
     /// <summary>
     /// Updates user password in database.
@@ -54,18 +61,4 @@ public interface IAuthRepository
     /// <param name="newRole">Specifies new role <see cref="RoleIds"/>.</param>
     /// <returns>A task that represents the result <see cref="ResultWrapper<RoleIds>"/> of asynchronous operation.</returns>
     Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole);
-
-    /// <summary>
-    /// Searches user in database by login.
-    /// </summary>
-    /// <param name="login">Specifies user login.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentialsData>"/> of asynchronous operation.</returns>
-    Task<ResultWrapper<UserCredentialsData>> GetUserByLoginAsync(string login);
-
-    /// <summary>
-    /// Returns user's detailed information.
-    /// </summary>
-    /// <param name="userId">Specifies user Id.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<T>"/> of asynchronous operation.</returns>
-    Task<ResultWrapper<(User User, string Login)>> GetUserDetailsAsync(int userId);
 }

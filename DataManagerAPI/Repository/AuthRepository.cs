@@ -5,6 +5,9 @@ using System.Data;
 
 namespace DataManagerAPI.Repository
 {
+    /// <summary>
+    /// Implementation of <see cref="IAuthRepository"/>
+    /// </summary>
     public class AuthRepository : IAuthRepository
     {
         private readonly UsersDBContext _context;
@@ -14,6 +17,7 @@ namespace DataManagerAPI.Repository
             _context = context;
         }
 
+        /// <inheritdoc />
         public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials)
         {
             var result = new ResultWrapper<User>
@@ -53,6 +57,7 @@ namespace DataManagerAPI.Repository
             return result;
         }
 
+        /// <inheritdoc />
         public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials)
         {
             var result = new ResultWrapper<int>();
@@ -86,6 +91,7 @@ namespace DataManagerAPI.Repository
             return result;
         }
 
+        /// <inheritdoc />
         public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken)
         {
             var result = new ResultWrapper<int>();
@@ -118,15 +124,22 @@ namespace DataManagerAPI.Repository
             return result;
         }
 
-
-        public async Task<ResultWrapper<UserCredentials>> GetUserCredentialsAsync(int userId)
+        /// <inheritdoc />
+        public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)
         {
-            var result = new ResultWrapper<UserCredentials>();
+            var result = new ResultWrapper<UserCredentialsData>();
+
             try
             {
-                var userCredentials = await _context.UserCredentials.FirstOrDefaultAsync(x => x.UserId == userId);
+                var res = from User in _context.Users
+                          where User.Id == userId
+                          join Credentials in _context.UserCredentials
+                          on User.Id equals Credentials.UserId
+                          select new UserCredentialsData { User = User, Credentials = Credentials };
 
-                if (userCredentials is null)
+                var data = await res.FirstOrDefaultAsync();
+
+                if (data is null)
                 {
                     result.Success = false;
                     result.StatusCode = StatusCodes.Status404NotFound;
@@ -135,7 +148,7 @@ namespace DataManagerAPI.Repository
                     return result;
                 }
 
-                result.Data = userCredentials;
+                result.Data = data;
             }
             catch (Exception ex)
             {
@@ -147,6 +160,43 @@ namespace DataManagerAPI.Repository
             return result;
         }
 
+        /// <inheritdoc />
+        public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login)
+        {
+            var result = new ResultWrapper<UserCredentialsData>();
+
+            try
+            {
+                var res = from Credentials in _context.UserCredentials
+                          where Credentials.Login == login
+                          join User in _context.Users
+                          on Credentials.UserId equals User.Id
+                          select new UserCredentialsData { User = User, Credentials = Credentials };
+
+                var data = await res.FirstOrDefaultAsync();
+
+                if (data is null)
+                {
+                    result.Success = false;
+                    result.StatusCode = StatusCodes.Status404NotFound;
+                    result.Message = $"Login {login} not found";
+
+                    return result;
+                }
+
+                result.Data = data;
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+                result.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc />
         public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials)
         {
             var result = new ResultWrapper<int>();
@@ -178,40 +228,7 @@ namespace DataManagerAPI.Repository
             return result;
         }
 
-        public async Task<ResultWrapper<UserCredentialsData>> GetUserByLoginAsync(string login)
-        {
-            var result = new ResultWrapper<UserCredentialsData>
-            {
-                Data = new UserCredentialsData()
-            };
-
-            try
-            {
-                var userCredentials = await _context.UserCredentials
-                    .FirstOrDefaultAsync(x => x.Login == login);
-
-                if (userCredentials is null)
-                {
-                    result.Success = false;
-                    result.StatusCode = StatusCodes.Status404NotFound;
-                    result.Message = $"User with login {login} not found.";
-
-                    return result;
-                }
-
-                result.Data.User = await _context.Users.FirstAsync(x => x.Id == userCredentials.UserId);
-                result.Data.Credentials = userCredentials;
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = ex.Message;
-                result.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return result;
-        }
-
+        /// <inheritdoc />
         public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole)
         {
             var result = new ResultWrapper<RoleIds>();
@@ -232,41 +249,6 @@ namespace DataManagerAPI.Repository
                 _context.SaveChanges();
 
                 result.Data = user.Role;
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = ex.Message;
-                result.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return result;
-        }
-
-        public async Task<ResultWrapper<(User User, string Login)>> GetUserDetailsAsync(int userId)
-        {
-            var result = new ResultWrapper<(User user, string login)>();
-
-            try
-            {
-                var res = from User in _context.Users
-                          where User.Id == userId
-                          join Credentials in _context.UserCredentials
-                          on User.Id equals Credentials.UserId
-                          select new { User, Credentials.Login };
-
-                var data = await res.FirstOrDefaultAsync();
-
-                if (data is null)
-                {
-                    result.Success = false;
-                    result.StatusCode = StatusCodes.Status404NotFound;
-                    result.Message = $"UserId {userId} not found";
-
-                    return result;
-                }
-
-                result.Data = new(data.User, data.Login);
             }
             catch (Exception ex)
             {
