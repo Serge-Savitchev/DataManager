@@ -72,16 +72,16 @@ builder.Services.AddSingleton<IUserPasswordService, UserPasswordService>();
 builder.Services.AddSingleton<ILoggedOutUsersCollectionService, LoggedOutUsersCollectionservice>();
 
 builder.Services.AddAuthorization(options =>
-    {
-        options.AddPolicy("Admin", policy =>
-                          policy.RequireClaim("Role", RoleIds.Admin.ToString()));
-        options.AddPolicy("PowerUser", policy =>
-                          policy.RequireClaim("Role", RoleIds.PowerUser.ToString()));
-        options.AddPolicy("User", policy =>
-                          policy.RequireClaim("Role", RoleIds.User.ToString()));
-        options.AddPolicy("ReadOnlyUser", policy =>
-                          policy.RequireClaim("Role", RoleIds.ReadOnlyUser.ToString()));
-    });
+{
+    options.AddPolicy("Admin", policy =>
+                      policy.RequireClaim("Role", RoleIds.Admin.ToString()));
+    options.AddPolicy("PowerUser", policy =>
+                      policy.RequireClaim("Role", RoleIds.PowerUser.ToString()));
+    options.AddPolicy("User", policy =>
+                      policy.RequireClaim("Role", RoleIds.User.ToString()));
+    options.AddPolicy("ReadOnlyUser", policy =>
+                      policy.RequireClaim("Role", RoleIds.ReadOnlyUser.ToString()));
+});
 
 builder.Services.AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
     .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, options => { });
