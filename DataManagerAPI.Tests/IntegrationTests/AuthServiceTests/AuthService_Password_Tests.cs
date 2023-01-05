@@ -7,9 +7,9 @@ using System.Text;
 using Xunit;
 using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
-namespace DataManagerAPI.Tests.IntegrationTests.Authorization;
+namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 
-public partial class AuthorizationTests : IClassFixture<CustomWebApplicationFactory<Program>>
+public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     #region Password
     [Fact]

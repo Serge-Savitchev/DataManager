@@ -7,14 +7,14 @@ using System.Text;
 using Xunit;
 using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
-namespace DataManagerAPI.Tests.IntegrationTests.Authorization;
+namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 
-public partial class AuthorizationTests : IClassFixture<CustomWebApplicationFactory<Program>>
+public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
     private readonly CustomWebApplicationFactory<Program> _factory;
 
-    public AuthorizationTests(CustomWebApplicationFactory<Program> factory)
+    public AuthServiceTests(CustomWebApplicationFactory<Program> factory)
     {
         _factory = factory;
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -33,11 +33,9 @@ public partial class AuthorizationTests : IClassFixture<CustomWebApplicationFact
         using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.User.ToString());
 
         //Act
-        HttpResponseMessage responseMessage;
-
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/revoke");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
-        responseMessage = await _client.SendAsync(request);
+        HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();

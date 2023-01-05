@@ -114,4 +114,9 @@ internal static class UsersForTestsHelper
         return registredUser!;
     }
 
+    public static void DeleteUser(RegisterUserTestData user)
+    {
+        _registerList.Remove(user);
+    }
+
 }
