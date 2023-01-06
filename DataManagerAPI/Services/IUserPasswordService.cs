@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Models;
+﻿using DataManagerAPI.Repository.Models;
 
 namespace DataManagerAPI.Services
 {

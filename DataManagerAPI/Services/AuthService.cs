@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Constants;
 using DataManagerAPI.Dto;
-using DataManagerAPI.Helpers;
-using DataManagerAPI.Models;
-using DataManagerAPI.Repository;
+using DataManagerAPI.Repository.Interfaces;
+using DataManagerAPI.Repository.Models;
+using DataManagerAPI.Shared.Helpers;
 using System.Security.Claims;
 
 namespace DataManagerAPI.Services;

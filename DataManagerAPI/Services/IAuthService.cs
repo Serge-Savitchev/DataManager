@@ -1,6 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Helpers;
-using DataManagerAPI.Models;
+using DataManagerAPI.Shared.Helpers;
 
 namespace DataManagerAPI.Services;
 

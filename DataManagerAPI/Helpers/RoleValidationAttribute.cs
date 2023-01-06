@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Models;
+﻿using DataManagerAPI.Repository.Helpers;
+using DataManagerAPI.Repository.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 

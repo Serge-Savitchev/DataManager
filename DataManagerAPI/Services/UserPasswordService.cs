@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Models;
+﻿using DataManagerAPI.Repository.Models;
 using System.Security.Cryptography;
 using System.Text;
 

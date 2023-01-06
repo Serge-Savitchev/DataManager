@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
-using Xunit;
-using Microsoft.AspNetCore.Mvc.Testing;
-using DataManagerAPI.Models;
-using System.Net.Http.Headers;
-using DataManagerAPI.Dto;
+﻿using DataManagerAPI.Dto;
+using DataManagerAPI.Repository.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net.Http.Headers;
+using Xunit;
+using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
 namespace DataManagerAPI.Tests.IntegrationTests.UserServiceTests;
 

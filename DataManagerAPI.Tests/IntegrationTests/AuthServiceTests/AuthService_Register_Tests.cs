@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Models;
+using DataManagerAPI.Repository.Models;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;

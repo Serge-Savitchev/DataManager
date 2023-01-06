@@ -1,8 +1,10 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
-using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
+using DataManagerAPI.Repository.Implementation;
+using DataManagerAPI.Repository.Interfaces;
+using DataManagerAPI.Repository.Models;
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
