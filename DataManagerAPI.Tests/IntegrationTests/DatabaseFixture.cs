@@ -1,10 +1,7 @@
-﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Models;
-using DataManagerAPI.Repository;
+﻿using DataManagerAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataManagerAPI.Tests.IntegrationTests;
 

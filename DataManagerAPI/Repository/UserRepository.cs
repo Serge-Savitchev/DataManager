@@ -108,4 +108,29 @@ public class UserRepository : IUserRepository
 
         return result;
     }
+
+    public async Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
+    {
+        var result = new ResultWrapper<int>();
+        try
+        {
+            IEnumerable<User> res = from u in users
+                                    join user in _context.Users
+                                    on u equals user.Id
+                                    select user;
+
+            res.AsParallel().ForAll(x => x.OwnerId = ownerId);
+
+            await _context.SaveChangesAsync();
+            result.Data = res.Count();
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+        }
+
+        return result;
+    }
 }

@@ -3,6 +3,7 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Models;
 using DataManagerAPI.Repository;
+using System.Data;
 
 namespace DataManagerAPI.Services;
 
@@ -45,6 +46,11 @@ public class UserService : IUserService
         return ret;
     }
 
+    public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequest request)
+    {
+        var result = await _repository.UpdateOwners(request.OwnerId, request.UserIds);
+        return result;
+    }
 
     private ResultWrapper<UserDto> ConvertWrapper(ResultWrapper<User> source)
     {

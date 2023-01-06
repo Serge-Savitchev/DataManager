@@ -1,6 +1,8 @@
 ﻿using DataManagerAPI.Helpers;
 using DataManagerAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DataManagerAPI.Repository;
 
@@ -41,6 +43,29 @@ public class UsersDBContext : DbContext
                     .HasOne<Role>()
                     .WithMany()
                     .HasForeignKey(p => p.Role);
+
+        User defaultAdmin = new User
+        {
+            Id = 1,
+            FirstName = "DefaultAdmin",
+            LastName = "DefaultAdmin",
+            Role = RoleIds.Admin
+        };
+
+        modelBuilder.Entity<User>().
+            HasData(defaultAdmin);
+
+        using var hmac = new HMACSHA512();
+        UserCredentials adminCredentials = new UserCredentials
+        {
+            UserId = 1,
+            Login = "Admin",
+            PasswordSalt = hmac.Key,
+            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Admin"))
+        };
+
+        modelBuilder.Entity<UserCredentials>()
+            .HasData(adminCredentials);
     }
 
 }

@@ -53,6 +53,14 @@ public class UserController : ControllerBase
         return StatusCode(result.StatusCode, result.Data);
     }
 
+    [HttpPut]
+    [Route("updateowners")]
+    public async Task<ActionResult<int>> UpdateOwners([FromBody] UpdateOwnerRequest request)
+    {
+        var result = await _service.UpdateOwners(request);
+        return StatusCode(result.StatusCode, result.Data);
+    }
+
     //private CurrentUserDataDto? GetCurrentUser()
     //{
     //    return HttpContext.Items["User"] as CurrentUserDataDto;

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20221226224212_initial")]
+    [Migration("20230106080302_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -82,6 +82,9 @@ namespace DataManagerAPI.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -90,6 +93,16 @@ namespace DataManagerAPI.Migrations
                     b.HasIndex("Role");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            FirstName = "DefaultAdmin",
+                            LastName = "DefaultAdmin",
+                            OwnerId = 0,
+                            Role = 1
+                        });
                 });
 
             modelBuilder.Entity("DataManagerAPI.Models.UserCredentials", b =>
@@ -116,6 +129,15 @@ namespace DataManagerAPI.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserCredentials");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Login = "Admin",
+                            PasswordHash = new byte[] { 49, 191, 184, 224, 241, 149, 205, 95, 146, 83, 239, 199, 84, 146, 223, 210, 40, 136, 241, 150, 196, 189, 177, 95, 85, 25, 163, 222, 158, 99, 158, 31, 202, 109, 83, 26, 123, 92, 177, 52, 1, 49, 111, 244, 79, 50, 1, 29, 112, 144, 8, 43, 112, 126, 182, 208, 185, 129, 18, 51, 163, 84, 193, 103 },
+                            PasswordSalt = new byte[] { 129, 46, 63, 179, 96, 243, 7, 41, 91, 123, 82, 2, 47, 220, 87, 9, 178, 60, 113, 46, 244, 240, 73, 181, 95, 76, 17, 228, 108, 36, 176, 195, 9, 33, 196, 120, 233, 19, 215, 61, 39, 111, 30, 147, 128, 75, 75, 79, 225, 216, 148, 232, 154, 244, 205, 81, 36, 204, 154, 115, 251, 196, 213, 223, 164, 197, 108, 177, 246, 67, 1, 228, 20, 81, 43, 159, 138, 170, 141, 125, 122, 42, 12, 47, 21, 0, 70, 172, 15, 97, 49, 57, 37, 172, 126, 1, 126, 223, 164, 11, 71, 76, 162, 82, 208, 60, 81, 231, 45, 137, 41, 131, 8, 165, 199, 252, 101, 145, 254, 100, 245, 154, 214, 225, 108, 84, 100, 55 }
+                        });
                 });
 
             modelBuilder.Entity("DataManagerAPI.Models.UserData", b =>

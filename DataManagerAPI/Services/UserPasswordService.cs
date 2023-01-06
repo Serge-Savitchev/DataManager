@@ -14,7 +14,7 @@ namespace DataManagerAPI.Services
             {
                 using var hmac = new HMACSHA512();
                 result.PasswordSalt = hmac.Key;
-                result.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                result.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
 
             return result;

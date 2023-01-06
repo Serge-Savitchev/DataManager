@@ -16,4 +16,5 @@ public class UserDto
     [Required]
     [StringLength(16)]
     public string Role { get; set; } = string.Empty;
+    public int OwnerId { get; set; }
 }
