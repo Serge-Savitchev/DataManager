@@ -1,5 +1,4 @@
-﻿using DataManagerAPI.Repository.Helpers;
-using DataManagerAPI.Repository.Models;
+﻿using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
@@ -54,8 +53,14 @@ public class UsersDBContext : DbContext
         modelBuilder.Entity<Role>()
             .ToTable("Roles");
 
+        var roles = new List<Role>();
+        foreach (RoleIds s in Enum.GetValues(typeof(RoleIds)))
+        {
+            roles.Add(new Role { Id = s, Name = s.ToString() });
+        }
+
         modelBuilder.Entity<Role>()
-            .HasData(RolesHelper.GetAllRoles());
+            .HasData(roles);
 
         modelBuilder.Entity<User>()
                     .HasOne<Role>()

@@ -1,10 +1,9 @@
-﻿using DataManagerAPI.Repository.Models;
+﻿using DataManagerAPI.Repository.Abstractions.Models;
 
-namespace DataManagerAPI.Services
+namespace DataManagerAPI.Services;
+
+public interface IUserPasswordService
 {
-    public interface IUserPasswordService
-    {
-        UserCredentials CreatePasswordHash(string password);
-        bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
-    }
+    UserCredentials CreatePasswordHash(string password);
+    bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
 }

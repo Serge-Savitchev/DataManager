@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Models;
+using DataManagerAPI.Repository.Abstractions.Models;
 
 namespace DataManagerAPI.Helpers;
 

@@ -1,5 +1,5 @@
 ﻿//namespace Microsoft.AspNetCore.Http;
-namespace DataManagerAPI.Shared.Constants;
+namespace DataManagerAPI.Repository.Abstractions.Constants;
 
 public static class StatusCodes
 {

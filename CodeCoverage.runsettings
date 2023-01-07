@@ -30,8 +30,9 @@ Included items must then not match any entries in the exclude list to remain inc
             <ModulePaths>
               <Include>
                 <ModulePath>DataManagerAPI.dll</ModulePath>
+                <ModulePath>DataManagerAPI.Dto.dll</ModulePath>
                 <ModulePath>DataManagerAPI.Repository.dll</ModulePath>
-                <ModulePath>DataManagerAPI.Shared.dll</ModulePath>
+                <ModulePath>DataManagerAPI.Repository.Abstractions.dll</ModulePath>
               </Include>
               <Exclude>
                 <ModulePath>DataManagerAPI.Tests.dll</ModulePath>

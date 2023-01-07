@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DataManagerAPI.Repository.Models;
+namespace DataManagerAPI.Repository.Abstractions.Models;
 
 public class UserCredentials
 {

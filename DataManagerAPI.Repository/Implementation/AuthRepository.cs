@@ -1,7 +1,7 @@
-﻿using DataManagerAPI.Repository.Interfaces;
-using DataManagerAPI.Repository.Models;
-using DataManagerAPI.Shared.Constants;
-using DataManagerAPI.Shared.Helpers;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using DataManagerAPI.Repository.Abstractions.Helpers;
+using DataManagerAPI.Repository.Abstractions.Interfaces;
+using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 

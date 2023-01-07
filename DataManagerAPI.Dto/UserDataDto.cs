@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DataManagerAPI.Repository.Models;
+namespace DataManagerAPI.Dto;
 
-public class UserData
+public class UserDataDto
 {
     public int Id { get; set; }
     public int UserId { get; set; }

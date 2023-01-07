@@ -1,6 +1,6 @@
-﻿using DataManagerAPI.Shared.Constants;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
 
-namespace DataManagerAPI.Shared.Helpers;
+namespace DataManagerAPI.Repository.Abstractions.Helpers;
 
 public class ResultWrapper<T>
 {

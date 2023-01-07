@@ -1,4 +1,4 @@
-﻿namespace DataManagerAPI.Repository.Models;
+﻿namespace DataManagerAPI.Repository.Abstractions.Models;
 
 public enum RoleIds : int
 {

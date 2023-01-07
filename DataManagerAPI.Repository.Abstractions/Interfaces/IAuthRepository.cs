@@ -1,7 +1,7 @@
-﻿using DataManagerAPI.Repository.Models;
-using DataManagerAPI.Shared.Helpers;
+﻿using DataManagerAPI.Repository.Abstractions.Helpers;
+using DataManagerAPI.Repository.Abstractions.Models;
 
-namespace DataManagerAPI.Repository.Interfaces;
+namespace DataManagerAPI.Repository.Abstractions.Interfaces;
 
 /// <summary>
 /// This interface provides users management in database.

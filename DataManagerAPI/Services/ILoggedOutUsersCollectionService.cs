@@ -1,9 +1,8 @@
-﻿namespace DataManagerAPI.Services
+﻿namespace DataManagerAPI.Services;
+
+public interface ILoggedOutUsersCollectionService
 {
-    public interface ILoggedOutUsersCollectionService
-    {
-        bool Add(int userId);
-        bool Remove(int userId);
-        bool Contains(int userId);
-    }
+    bool Add(int userId);
+    bool Remove(int userId);
+    bool Contains(int userId);
 }

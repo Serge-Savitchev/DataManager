@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DataManagerAPI.Repository.Models;
+namespace DataManagerAPI.Repository.Abstractions.Models;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public class Role

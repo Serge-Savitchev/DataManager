@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Repository.Models;
+﻿using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;

@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Shared.Helpers;
+using DataManagerAPI.Repository.Abstractions.Helpers;
 
 namespace DataManagerAPI.Services;
 

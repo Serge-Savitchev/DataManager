@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Models;
+using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
