@@ -7,8 +7,6 @@ namespace DataManagerAPI.Tests.IntegrationTests;
 
 public class DatabaseFixture
 {
-    public const string ConnectionString = "Server=.;Database=TestDB;Trusted_Connection=true;Trust Server Certificate=true";
-
     private static readonly object _lockDB = new();
     private static bool _databaseInitialized;
 

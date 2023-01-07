@@ -8,7 +8,6 @@ using DataManagerAPI.Repository.Models;
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -46,10 +45,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<UsersDBContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+builder.Services.AddDbContext<UsersDBContext>();
 
 // Auto Mapper Configurations
 MapperConfiguration mapperConfig = new MapperConfiguration(mc =>

@@ -14,27 +14,28 @@ public class TestWebApplicationFactory
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
-            {
-                var dbContextDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType ==
-                        typeof(DbContextOptions<UsersDBContext>));
+            //builder.ConfigureServices(services =>
+            //{
+            //    var dbContextDescriptor = services.SingleOrDefault(
+            //        d => d.ServiceType ==
+            //            typeof(DbContextOptions<UsersDBContext>));
 
-                services.Remove(dbContextDescriptor!);
+            //    services.Remove(dbContextDescriptor!);
 
-                var dbConnectionDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType ==
-                        typeof(DbConnection));
+            //    var dbConnectionDescriptor = services.SingleOrDefault(
+            //        d => d.ServiceType ==
+            //            typeof(DbConnection));
 
-                services.Remove(dbConnectionDescriptor!);
+            //    services.Remove(dbConnectionDescriptor!);
 
-                services.AddDbContext<UsersDBContext>((container, options) =>
-                {
-                    options.UseSqlServer(DatabaseFixture.ConnectionString);
-                });
-            });
+            //    services.AddDbContext<UsersDBContext>((container, options) =>
+            //    {
+            //        options.UseSqlServer(DatabaseFixture.ConnectionString);
+            //    });
+            //});
 
-            builder.UseEnvironment("Development");
+            builder.UseEnvironment("Test");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
         }
     }
 }
