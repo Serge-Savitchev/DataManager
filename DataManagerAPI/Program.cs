@@ -1,7 +1,7 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
-using DataManagerAPI.Repository;
+using DataManagerAPI.Repository.ReposiroryExtensions;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Repository.Implementation;
@@ -45,7 +45,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<UsersDBContext>();
+builder.Services.AddDatabaseContext();
 
 // Auto Mapper Configurations
 MapperConfiguration mapperConfig = new MapperConfiguration(mc =>

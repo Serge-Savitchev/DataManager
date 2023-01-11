@@ -8,19 +8,8 @@ namespace DataManagerAPI.Repository;
 
 public class UsersDBContext : DbContext
 {
-    private readonly string _connectionstring;
-
     public UsersDBContext(DbContextOptions<UsersDBContext> options) : base(options)
     {
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
-
-        // Build config
-        var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false);
-
-        IConfigurationRoot config = builder.Build();
-        _connectionstring = config.GetConnectionString("DefaultConnection")!;
     }
 
     public DbSet<User> Users { get; set; }
@@ -29,17 +18,22 @@ public class UsersDBContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseSqlServer(_connectionstring);
+        //base.OnConfiguring(optionsBuilder); // base implementation is empty
+
+        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+
+        // Build config
+        var builder = new ConfigurationBuilder();
+        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false);
+
+        IConfigurationRoot config = builder.Build();
+
+        optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.Entity<User>().OwnsOne(user => user.UserCredentials, builder =>
-        //    {
-        //        builder.ToJson();
-        //    });
-
         modelBuilder.Entity<UserCredentials>()
             .HasOne<User>()
             .WithOne()
