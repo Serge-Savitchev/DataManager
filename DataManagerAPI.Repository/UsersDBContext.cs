@@ -11,6 +11,9 @@ public class UsersDBContext : DbContext
     public UsersDBContext(DbContextOptions<UsersDBContext> options) : base(options)
     {
     }
+    public UsersDBContext(DbContextOptions options) : base(options)
+    {
+    }
 
     public DbSet<User> Users { get; set; }
     public DbSet<UserData> UserData { get; set; }

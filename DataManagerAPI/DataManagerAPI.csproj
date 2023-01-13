@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataManagerAPI.Dto\DataManagerAPI.Dto.csproj" />
-    <ProjectReference Include="..\DataManagerAPI.Repository\DataManagerAPI.Repository.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.PostgresDB\DataManagerAPI.PostgresDB.csproj" />
   </ItemGroup>
 
 </Project>

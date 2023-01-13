@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace DataManagerAPI.Repository.ReposiroryExtensions;
+namespace DataManagerAPI.PostgresDB;
 
-public static class RepositoryExtensions
+public static class PostgresExtensions
 {
     public static IServiceCollection AddDatabaseContext(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddDbContext<UsersDBContext>();
+        serviceCollection.AddDbContext<PostgresDBContext>();
         return serviceCollection;
     }
+
 }
