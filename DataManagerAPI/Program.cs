@@ -1,6 +1,8 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
+//using DataManagerAPI.PostgresDB;
+using DataManagerAPI.Repository;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Repository.Implementation;
@@ -8,7 +10,6 @@ using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using DataManagerAPI.Repository;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
