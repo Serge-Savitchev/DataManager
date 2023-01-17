@@ -5,7 +5,7 @@ using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace DataManagerAPI.Repository.Implementation;
+namespace DataManagerAPI.SQLServerDB.Implementation;
 
 /// <summary>
 /// Implementation of <see cref="IAuthRepository"/>

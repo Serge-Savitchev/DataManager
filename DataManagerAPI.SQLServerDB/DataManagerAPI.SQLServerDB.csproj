@@ -17,8 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataManagerAPI.PostgresDB\DataManagerAPI.PostgresDB.csproj" />
-    <ProjectReference Include="..\DataManagerAPI.SQLServerDB\DataManagerAPI.SQLServerDB.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.Repository.Abstractions\DataManagerAPI.Repository.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

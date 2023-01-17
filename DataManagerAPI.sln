@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.Repository.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.Dto", "DataManagerAPI.Dto\DataManagerAPI.Dto.csproj", "{DC0135D8-807F-449E-BAD0-EA5BC2A401C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagerAPI.PostgresDB", "DataManagerAPI.PostgresDB\DataManagerAPI.PostgresDB.csproj", "{75BA8EBB-9219-44FA-AAF9-F084EBC91535}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.PostgresDB", "DataManagerAPI.PostgresDB\DataManagerAPI.PostgresDB.csproj", "{75BA8EBB-9219-44FA-AAF9-F084EBC91535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagerAPI.SQLServerDB", "DataManagerAPI.SQLServerDB\DataManagerAPI.SQLServerDB.csproj", "{2AA81F2B-8A9E-473C-BB28-278F807763E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{75BA8EBB-9219-44FA-AAF9-F084EBC91535}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75BA8EBB-9219-44FA-AAF9-F084EBC91535}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75BA8EBB-9219-44FA-AAF9-F084EBC91535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AA81F2B-8A9E-473C-BB28-278F807763E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AA81F2B-8A9E-473C-BB28-278F807763E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AA81F2B-8A9E-473C-BB28-278F807763E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AA81F2B-8A9E-473C-BB28-278F807763E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataManagerAPI.Repository\DataManagerAPI.Repository.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.SQLServerDB\DataManagerAPI.SQLServerDB.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Repository;
+﻿using DataManagerAPI.SQLServerDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;

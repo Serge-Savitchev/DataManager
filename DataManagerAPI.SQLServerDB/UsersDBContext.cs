@@ -4,14 +4,14 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DataManagerAPI.Repository;
+namespace DataManagerAPI.SQLServerDB;
 
 public class UsersDBContext : DbContext
 {
     public UsersDBContext(DbContextOptions<UsersDBContext> options) : base(options)
     {
     }
-    public UsersDBContext(DbContextOptions options) : base(options)
+    protected UsersDBContext(DbContextOptions options) : base(options)
     {
     }
 

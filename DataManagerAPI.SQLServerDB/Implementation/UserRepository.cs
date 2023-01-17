@@ -4,7 +4,7 @@ using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataManagerAPI.Repository.Implementation;
+namespace DataManagerAPI.SQLServerDB.Implementation;
 
 public class UserRepository : IUserRepository
 {

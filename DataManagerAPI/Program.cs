@@ -1,12 +1,11 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
-//using DataManagerAPI.PostgresDB;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Repository.Implementation;
 using DataManagerAPI.Services;
+using DataManagerAPI.SQLServerDB.Implementation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -46,7 +45,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDatabaseContext();
+builder.Services.AddSelectedDBContext(builder.Configuration);
 
 // Auto Mapper Configurations
 MapperConfiguration mapperConfig = new MapperConfiguration(mc =>

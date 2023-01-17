@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
-namespace DataManagerAPI.Repository;
+namespace DataManagerAPI.SQLServerDB;
 
 public class UsersDBContextFactory : IDesignTimeDbContextFactory<UsersDBContext>
 {
