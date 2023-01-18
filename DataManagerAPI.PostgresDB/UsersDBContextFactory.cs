@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
@@ -20,10 +21,10 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<PostgresDBConte
 
         // Get connection string
         var optionsBuilder = new DbContextOptionsBuilder<PostgresDBContext>();
-        optionsBuilder.UseNpgsql(config.GetConnectionString("PostgresDB"));
+        optionsBuilder.UseNpgsql(config.GetConnectionString(SourceDatabases.PostgresOption));
 
         Console.WriteLine($"Environment: {environment}");
-        Console.WriteLine(config.GetConnectionString("PostgresDB"));
+        Console.WriteLine(config.GetConnectionString(SourceDatabases.PostgresOption));
 
         return new PostgresDBContext(optionsBuilder.Options);
     }

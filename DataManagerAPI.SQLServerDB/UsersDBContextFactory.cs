@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
@@ -20,10 +21,10 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<UsersDBContext>
 
         // Get connection string
         var optionsBuilder = new DbContextOptionsBuilder<UsersDBContext>();
-        optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLServerOption));
 
         Console.WriteLine($"Environment: {environment}");
-        Console.WriteLine(config.GetConnectionString("DefaultConnection"));
+        Console.WriteLine(config.GetConnectionString(SourceDatabases.SQLServerOption));
 
         return new UsersDBContext(optionsBuilder.Options);
     }

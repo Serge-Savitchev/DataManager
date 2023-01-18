@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.SQLServerDB;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using DataManagerAPI.SQLServerDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -21,7 +22,7 @@ public class PostgresDBContext : UsersDBContext
 
         IConfigurationRoot config = builder.Build();
 
-        optionsBuilder.UseNpgsql(config.GetConnectionString("PostgresDB"));
+        optionsBuilder.UseNpgsql(config.GetConnectionString(SourceDatabases.PostgresOption));
     }
 
 }

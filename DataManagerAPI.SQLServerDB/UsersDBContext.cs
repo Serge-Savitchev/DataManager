@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
@@ -32,7 +33,7 @@ public class UsersDBContext : DbContext
 
         IConfigurationRoot config = builder.Build();
 
-        optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLServerOption));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

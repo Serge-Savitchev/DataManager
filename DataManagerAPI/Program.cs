@@ -2,10 +2,8 @@ using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
 using DataManagerAPI.Repository;
-using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services;
-using DataManagerAPI.SQLServerDB.Implementation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -57,13 +55,10 @@ IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 builder.Services.AddScoped<IUserDataService, UserDataService>();
-builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IUserPasswordService, UserPasswordService>();
