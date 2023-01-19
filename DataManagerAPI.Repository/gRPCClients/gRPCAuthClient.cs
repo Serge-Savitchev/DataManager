@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Repository.Abstractions.gRPCInterfaces;
+﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -16,36 +17,36 @@ public class gRPCAuthClient : IAuthRepository
 
     public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)
     {
-        return _igRPCAuthRepository.GetUserDetailsByIdAsync(userId);
+        return _igRPCAuthRepository.GetUserDetailsByIdAsync(new UserIdRequest { UserId = userId });
     }
 
     public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login)
     {
-        return _igRPCAuthRepository.GetUserDetailsByLoginAsync(login);
+        return _igRPCAuthRepository.GetUserDetailsByLoginAsync(new LoginValueRequest { Login = login });
     }
 
     public Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials)
     {
-        return _igRPCAuthRepository.LoginAsync(login, credentials);
+        return _igRPCAuthRepository.LoginAsync(new LoginRequest { Login = login, Credentials = credentials });
     }
 
     public Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken)
     {
-        return _igRPCAuthRepository.RefreshTokenAsync(userId, refreshToken);
+        return _igRPCAuthRepository.RefreshTokenAsync(new RefreshTokenRequest { UserId = userId, RefreshToken = refreshToken });
     }
 
     public Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials)
     {
-        return _igRPCAuthRepository.RegisterUserAsync(userToAdd, userCredentials);
+        return _igRPCAuthRepository.RegisterUserAsync(new RegisterUserRequest { User = userToAdd, UserCredentials = userCredentials });
     }
 
     public Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials)
     {
-        return _igRPCAuthRepository.UpdateUserPasswordAsync(userId, credentials);
+        return _igRPCAuthRepository.UpdateUserPasswordAsync(new UpdateUserPasswordRequest { UserId = userId, UserCredentials = credentials });
     }
 
     public Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole)
     {
-        return _igRPCAuthRepository.UpdateUserRoleAsync(userId, newRole);
+        return _igRPCAuthRepository.UpdateUserRoleAsync(new UpdateUserRoleRequest { UserId = userId, Role = newRole });
     }
 }

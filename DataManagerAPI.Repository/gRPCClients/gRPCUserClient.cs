@@ -1,4 +1,6 @@
-﻿using DataManagerAPI.Repository.Abstractions.gRPCInterfaces;
+﻿using Azure.Core;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -15,26 +17,26 @@ public class gRPCUserClient : IUserRepository
     }
     public Task<ResultWrapper<User>> DeleteUser(int userId)
     {
-        return _igRPCUserRepository.DeleteUser(userId);
+        return _igRPCUserRepository.DeleteUser(new UserIdRequest { UserId = userId });
     }
 
     public Task<ResultWrapper<List<User>>> GetAllUsers()
     {
-        return _igRPCUserRepository.GetAllUsers();
+        return _igRPCUserRepository.GetAllUsers(new EmptyRequest());
     }
 
     public Task<ResultWrapper<User>> GetUser(int userId)
     {
-        return _igRPCUserRepository.GetUser(userId);
+        return _igRPCUserRepository.GetUser(new UserIdRequest { UserId = userId });
     }
 
     public Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId)
     {
-        return _igRPCUserRepository.GetUsersByRole(roleId);
+        return _igRPCUserRepository.GetUsersByRole(new RoleRequest { RoleId = roleId });
     }
 
     public Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
     {
-        return _igRPCUserRepository.UpdateOwners(ownerId, users);
+        return _igRPCUserRepository.UpdateOwners(new UpdateOwnersRequest { OwnerId = ownerId, Users = users });
     }
 }

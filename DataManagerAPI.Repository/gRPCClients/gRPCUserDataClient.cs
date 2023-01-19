@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Repository.Abstractions.gRPCInterfaces;
+﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -21,17 +22,17 @@ public class gRPCUserDataClient : IUserDataRepository
 
     public Task<ResultWrapper<UserData>> DeleteUserData(int userDataId)
     {
-        return _igRPCUserDataRepository.DeleteUserData(userDataId);
+        return _igRPCUserDataRepository.DeleteUserData(new UserIdRequest { UserId = userDataId });
     }
 
     public Task<ResultWrapper<UserData>> GetUserData(int userDataId)
     {
-        return _igRPCUserDataRepository.GetUserData(userDataId);
+        return _igRPCUserDataRepository.GetUserData(new UserIdRequest { UserId = userDataId });
     }
 
     public Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId)
     {
-        return _igRPCUserDataRepository.GetUserDataByUserId(userId);
+        return _igRPCUserDataRepository.GetUserDataByUserId(new UserIdRequest { UserId = userId });
     }
 
     public Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate)

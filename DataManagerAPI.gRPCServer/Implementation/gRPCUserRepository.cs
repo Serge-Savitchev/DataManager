@@ -1,7 +1,9 @@
-﻿using DataManagerAPI.Repository.Abstractions.gRPCInterfaces;
+﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using ProtoBuf.Grpc;
 
 namespace DataManagerAPI.gRPCServer.Implementation;
 
@@ -14,28 +16,28 @@ public class gRPCUserRepository : IgRPCUserRepository
         _repository = repository;
     }
 
-    public Task<ResultWrapper<User>> DeleteUser(int userId)
+    public Task<ResultWrapper<User>> DeleteUser(UserIdRequest userId, CallContext context = default)
     {
-        return _repository.DeleteUser(userId);
+        return _repository.DeleteUser(userId.UserId);
     }
 
-    public Task<ResultWrapper<List<User>>> GetAllUsers()
+    public Task<ResultWrapper<List<User>>> GetAllUsers(EmptyRequest empty, CallContext context = default)
     {
         return _repository.GetAllUsers();
     }
 
-    public Task<ResultWrapper<User>> GetUser(int userId)
+    public Task<ResultWrapper<User>> GetUser(UserIdRequest userId, CallContext context = default)
     {
-        return _repository.GetUser(userId);
+        return _repository.GetUser(userId.UserId);
     }
 
-    public Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId)
+    public Task<ResultWrapper<List<User>>> GetUsersByRole(RoleRequest roleId, CallContext context = default)
     {
-        return _repository.GetUsersByRole(roleId);
+        return _repository.GetUsersByRole(roleId.RoleId);
     }
 
-    public Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
+    public Task<ResultWrapper<int>> UpdateOwners(UpdateOwnersRequest request, CallContext context = default)
     {
-        return _repository.UpdateOwners(ownerId, users);
+        return _repository.UpdateOwners(request.OwnerId, request.Users);
     }
 }

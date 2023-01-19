@@ -1,52 +1,53 @@
-﻿using DataManagerAPI.Repository.Abstractions.gRPCInterfaces;
+﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using ProtoBuf.Grpc;
 
-namespace DataManagerAPI.gRPCServer.Implementation
+namespace DataManagerAPI.gRPCServer.Implementation;
+
+public class gRPCAuthRepository : IgRPCAuthRepository
 {
-    public class gRPCAuthRepository : IgRPCAuthRepository
+    private readonly IAuthRepository _repository;
+
+    public gRPCAuthRepository(IAuthRepository repository)
     {
-        private readonly IAuthRepository _repository;
+        _repository = repository;
+    }
 
-        public gRPCAuthRepository(IAuthRepository repository)
-        {
-            _repository = repository;
-        }
+    public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(UserIdRequest request, CallContext context = default)
+    {
+        return _repository.GetUserDetailsByIdAsync(request.UserId);
+    }
 
-        public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)
-        {
-            return _repository.GetUserDetailsByIdAsync(userId);
-        }
+    public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(LoginValueRequest login, CallContext context = default)
+    {
+        return _repository.GetUserDetailsByLoginAsync(login.Login);
+    }
 
-        public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login)
-        {
-            return _repository.GetUserDetailsByLoginAsync(login);
-        }
+    public Task<ResultWrapper<int>> LoginAsync(LoginRequest request, CallContext context = default)
+    {
+        return _repository.LoginAsync(request.Login, request.Credentials!);
+    }
 
-        public Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials)
-        {
-            return _repository.LoginAsync(login, credentials);
-        }
+    public Task<ResultWrapper<int>> RefreshTokenAsync(RefreshTokenRequest request, CallContext context = default)
+    {
+        return _repository.RefreshTokenAsync(request.UserId, request.RefreshToken);
+    }
 
-        public Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken)
-        {
-            return _repository.RefreshTokenAsync(userId, refreshToken);
-        }
+    public Task<ResultWrapper<User>> RegisterUserAsync(RegisterUserRequest request, CallContext context = default)
+    {
+        return _repository.RegisterUserAsync(request.User!, request.UserCredentials!);
+    }
 
-        public Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials)
-        {
-            return _repository.RegisterUserAsync(userToAdd, userCredentials);
-        }
+    public Task<ResultWrapper<int>> UpdateUserPasswordAsync(UpdateUserPasswordRequest request, CallContext context = default)
+    {
+        return _repository.UpdateUserPasswordAsync(request.UserId, request.UserCredentials!);
+    }
 
-        public Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials)
-        {
-            return _repository.UpdateUserPasswordAsync(userId, credentials);
-        }
-
-        public Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole)
-        {
-            return _repository.UpdateUserRoleAsync(userId, newRole);
-        }
+    public Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(UpdateUserRoleRequest request, CallContext context = default)
+    {
+        return _repository.UpdateUserRoleAsync(request.UserId, request.Role);
     }
 }
