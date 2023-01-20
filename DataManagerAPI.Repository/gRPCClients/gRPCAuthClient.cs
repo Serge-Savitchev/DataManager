@@ -3,6 +3,8 @@ using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
 
 namespace DataManagerAPI.Repository.gRPCClients;
 
@@ -10,9 +12,9 @@ public class gRPCAuthClient : IAuthRepository
 {
     private readonly IgRPCAuthRepository _igRPCAuthRepository;
 
-    public gRPCAuthClient(IgRPCAuthRepository igRPCAuthRepository)
+    public gRPCAuthClient(GrpcChannel channel)
     {
-        _igRPCAuthRepository = igRPCAuthRepository;
+        _igRPCAuthRepository = channel.CreateGrpcService<IgRPCAuthRepository>();
     }
 
     public Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)

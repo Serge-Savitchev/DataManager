@@ -4,6 +4,8 @@ using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
 
 namespace DataManagerAPI.Repository.gRPCClients;
 
@@ -11,9 +13,9 @@ public class gRPCUserClient : IUserRepository
 {
     private readonly IgRPCUserRepository _igRPCUserRepository;
 
-    public gRPCUserClient(IgRPCUserRepository igRPCUserRepository)
+    public gRPCUserClient(GrpcChannel channel)
     {
-        _igRPCUserRepository = igRPCUserRepository;
+        _igRPCUserRepository = channel.CreateGrpcService<IgRPCUserRepository>();
     }
     public Task<ResultWrapper<User>> DeleteUser(int userId)
     {

@@ -7,6 +7,7 @@ using DataManagerAPI.SQLServerDB;
 using DataManagerAPI.SQLServerDB.Implementation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Grpc.Net.Client;
 
 namespace DataManagerAPI.Repository;
 
@@ -43,22 +44,26 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IUserRepository, gRPCUserClient>();
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
 
-            var uri = new Uri(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
+            GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
+            serviceCollection.AddSingleton(channel);
 
-            serviceCollection.AddGrpcClient<IgRPCAuthRepository>(o =>
-            {
-                o.Address = uri;
-            });
+            //var uri = new Uri(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
 
-            serviceCollection.AddGrpcClient<IgRPCUserRepository>(o =>
-            {
-                o.Address = uri;
-            });
 
-            serviceCollection.AddGrpcClient<IgRPCUserDataRepository>(o =>
-            {
-                o.Address = uri;
-            });
+            //serviceCollection.AddGrpcClient<IgRPCAuthRepository>(o =>
+            //{
+            //    o.Address = uri;
+            //});
+
+            //serviceCollection.AddGrpcClient<IgRPCUserRepository>(o =>
+            //{
+            //    o.Address = uri;
+            //});
+
+            //serviceCollection.AddGrpcClient<IgRPCUserDataRepository>(o =>
+            //{
+            //    o.Address = uri;
+            //});
 
             serviceCollection.AddPostgresDBContext();
             return serviceCollection;

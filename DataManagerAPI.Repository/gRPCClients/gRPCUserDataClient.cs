@@ -3,6 +3,8 @@ using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
 
 namespace DataManagerAPI.Repository.gRPCClients;
 
@@ -10,9 +12,9 @@ public class gRPCUserDataClient : IUserDataRepository
 {
     private readonly IgRPCUserDataRepository _igRPCUserDataRepository;
 
-    public gRPCUserDataClient(IgRPCUserDataRepository igRPCUserDataRepository)
+    public gRPCUserDataClient(GrpcChannel channel)
     {
-        _igRPCUserDataRepository = igRPCUserDataRepository;
+        _igRPCUserDataRepository = channel.CreateGrpcService<IgRPCUserDataRepository>();
     }
 
     public Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd)
