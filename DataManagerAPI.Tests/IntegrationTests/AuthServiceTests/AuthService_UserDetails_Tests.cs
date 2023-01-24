@@ -3,7 +3,6 @@ using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
-using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
 namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 

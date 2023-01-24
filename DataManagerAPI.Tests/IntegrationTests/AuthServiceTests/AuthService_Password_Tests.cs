@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using Xunit;
-using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
 namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 

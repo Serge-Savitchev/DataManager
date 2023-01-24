@@ -15,7 +15,7 @@ builder.Services.AddPostgresDBContext();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 {
     builder.WebHost.UseUrls("http://*:5281", "https://*:7181");
 }
@@ -23,5 +23,14 @@ if (app.Environment.IsDevelopment())
 app.MapGrpcService<gRPCAuthRepository>();
 app.MapGrpcService<gRPCUserRepository>();
 app.MapGrpcService<gRPCUserDataRepository>();
+
+Console.WriteLine("Arguments:");
+
+foreach (var a in Environment.GetCommandLineArgs())
+{
+    Console.WriteLine(a);
+}
+
+Console.WriteLine($"Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
 
 app.Run();

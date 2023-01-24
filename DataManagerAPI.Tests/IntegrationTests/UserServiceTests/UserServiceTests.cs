@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Headers;
 using Xunit;
-using static DataManagerAPI.Tests.IntegrationTests.TestWebApplicationFactory;
 
 namespace DataManagerAPI.Tests.IntegrationTests.UserServiceTests;
 
