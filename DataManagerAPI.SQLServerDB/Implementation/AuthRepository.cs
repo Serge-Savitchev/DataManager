@@ -24,7 +24,8 @@ public class AuthRepository : IAuthRepository
     {
         var result = new ResultWrapper<User>
         {
-            StatusCode = StatusCodes.Status201Created
+            StatusCode = StatusCodes.Status201Created,
+            Success = true
         };
 
         try
@@ -62,7 +63,10 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials)
     {
-        var result = new ResultWrapper<int>();
+        var result = new ResultWrapper<int>
+        {
+            Success = true
+        };
 
         try
         {
@@ -96,7 +100,11 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken)
     {
-        var result = new ResultWrapper<int>();
+        var result = new ResultWrapper<int>
+        {
+            Success = true
+        };
+
         try
         {
             var userCredentials = await _context.UserCredentials
@@ -129,7 +137,10 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)
     {
-        var result = new ResultWrapper<UserCredentialsData>();
+        var result = new ResultWrapper<UserCredentialsData>
+        {
+            Success = true
+        };
 
         try
         {
@@ -165,7 +176,10 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login)
     {
-        var result = new ResultWrapper<UserCredentialsData>();
+        var result = new ResultWrapper<UserCredentialsData>
+        {
+            Success = true
+        };
 
         try
         {
@@ -201,7 +215,10 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials)
     {
-        var result = new ResultWrapper<int>();
+        var result = new ResultWrapper<int>
+        {
+            Success = true
+        };
 
         try
         {
@@ -233,7 +250,10 @@ public class AuthRepository : IAuthRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole)
     {
-        var result = new ResultWrapper<RoleIds>();
+        var result = new ResultWrapper<RoleIds>
+        {
+            Success = true
+        };
 
         try
         {

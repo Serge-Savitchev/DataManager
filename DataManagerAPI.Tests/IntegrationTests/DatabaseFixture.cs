@@ -12,6 +12,8 @@ public static class DatabaseFixture
     private static bool _databaseInitialized;
 
     public static string SourceDatabase { get; set; } = string.Empty;
+    private const string ProcessName = "DataManagerAPI.gRPCServer";
+
 
     public static void PrepareDatabase(CustomWebApplicationFactory<Program> factory)
     {
@@ -38,8 +40,6 @@ public static class DatabaseFixture
 
     private static void TryRunGRPCService()
     {
-        const string ProcessName = "DataManagerAPI.gRPCServer";
-
         Process? process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
         if (process != null && !process.HasExited)
         {
@@ -51,14 +51,12 @@ public static class DatabaseFixture
 
         ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", arguments)
         {
-            UseShellExecute = false,
+            UseShellExecute = true,
             CreateNoWindow = false,
             WindowStyle = ProcessWindowStyle.Normal
         };
 
         Process.Start(processInfo);
-
-        var prs = Process.GetProcesses();
 
         int count = 5;
         do
@@ -72,6 +70,18 @@ public static class DatabaseFixture
         if (process == null)
         {
             throw new Exception($"Can't start gRPC process {ProcessName}");
+        }
+    }
+
+    public static void ShutdownGRPCService()
+    {
+        if (string.Compare(SourceDatabase, SourceDatabases.gRPCOption, true) == 0)
+        {
+            var process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
+            if (process != null && !process.HasExited)
+            {
+                process.Kill();
+            }
         }
     }
 }

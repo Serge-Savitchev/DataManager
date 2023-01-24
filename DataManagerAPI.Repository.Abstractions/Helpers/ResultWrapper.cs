@@ -10,7 +10,7 @@ public class ResultWrapper<T>
     public T? Data { get; set; }
 
     [DataMember(Order = 2)]
-    public bool Success { get; set; } = true;
+    public bool Success { get; set; }
 
     [DataMember(Order = 3)]
     public string? Message { get; set; }

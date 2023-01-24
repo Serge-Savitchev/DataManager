@@ -47,4 +47,10 @@ public static class StatusCodes
     /// HTTP status code 500.
     /// </summary>
     public const int Status500InternalServerError = 500;
+
+    /// <summary>
+    /// HTTP status code 501.
+    /// </summary>
+    public const int Status501NotImplemented = 501;
+
 }

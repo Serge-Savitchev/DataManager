@@ -184,7 +184,10 @@ public class AuthService : IAuthService
 
     public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole)
     {
-        var result = new ResultWrapper<string>();
+        var result = new ResultWrapper<string>
+        {
+            Success = true
+        };
 
         try
         {

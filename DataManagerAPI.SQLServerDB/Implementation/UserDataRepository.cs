@@ -19,7 +19,8 @@ public class UserDataRepository : IUserDataRepository
     {
         var result = new ResultWrapper<UserData>
         {
-            StatusCode = StatusCodes.Status201Created
+            StatusCode = StatusCodes.Status201Created,
+            Success = true
         };
 
         try
@@ -46,7 +47,11 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<ResultWrapper<UserData>> DeleteUserData(int userDataId)
     {
-        var result = new ResultWrapper<UserData>();
+        var result = new ResultWrapper<UserData>
+        {
+            Success = true
+        };
+
         UserData? userDataToDelete = null;
 
         try
@@ -77,7 +82,11 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<ResultWrapper<UserData>> GetUserData(int userDataId)
     {
-        var result = new ResultWrapper<UserData>();
+        var result = new ResultWrapper<UserData>
+        {
+            Success = true
+        };
+
         UserData? userData = null;
 
         try
@@ -107,7 +116,11 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId)
     {
-        var result = new ResultWrapper<List<UserData>>();
+        var result = new ResultWrapper<List<UserData>>
+        {
+            Success = true
+        };
+
         List<UserData>? dataList = null;
 
         try
@@ -133,7 +146,11 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate)
     {
-        var result = new ResultWrapper<UserData>();
+        var result = new ResultWrapper<UserData>
+        {
+            Success = true
+        };
+
         UserData? updatedUserData = null;
 
         try
@@ -172,7 +189,11 @@ public class UserDataRepository : IUserDataRepository
 
     private async Task<ResultWrapper<T>> FindUser<T>(int userId)
     {
-        var result = new ResultWrapper<T>();
+        var result = new ResultWrapper<T>
+        {
+            Success = true
+        };
+
         try
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);

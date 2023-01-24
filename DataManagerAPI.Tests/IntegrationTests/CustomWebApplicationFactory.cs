@@ -8,20 +8,23 @@ namespace DataManagerAPI.Tests.IntegrationTests;
 public class CustomWebApplicationFactory<TProgram>
     : WebApplicationFactory<TProgram> where TProgram : class
 {
-    //public CustomWebApplicationFactory()
-    //{
-    //    // constructor
-    //}
 
-    protected override void Dispose(bool disposing)
+    private static int _objectsCount = 0;
+
+    public CustomWebApplicationFactory() : base()
     {
-        base.Dispose(disposing);
-        // my code
+        _objectsCount = Interlocked.Increment(ref _objectsCount);
     }
 
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
+
+        _objectsCount = Interlocked.Decrement(ref _objectsCount);
+        if (_objectsCount <= 0)
+        {
+            DatabaseFixture.ShutdownGRPCService();
+        }
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

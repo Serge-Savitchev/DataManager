@@ -17,7 +17,10 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<User>> DeleteUser(int userId)
     {
-        var result = new ResultWrapper<User>();
+        var result = new ResultWrapper<User>
+        {
+            Success = true
+        };
 
         try
         {
@@ -48,7 +51,10 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<User>> GetUser(int userId)
     {
-        var result = new ResultWrapper<User>();
+        var result = new ResultWrapper<User>
+        {
+            Success = true
+        };
 
         try
         {
@@ -75,7 +81,10 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId)
     {
-        var result = new ResultWrapper<List<User>>();
+        var result = new ResultWrapper<List<User>>
+        {
+            Success = true
+        };
 
         try
         {
@@ -94,7 +103,10 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<List<User>>> GetAllUsers()
     {
-        var result = new ResultWrapper<List<User>>();
+        var result = new ResultWrapper<List<User>>
+        {
+            Success = true
+        };
 
         try
         {
@@ -113,7 +125,11 @@ public class UserRepository : IUserRepository
 
     public async Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
     {
-        var result = new ResultWrapper<int>();
+        var result = new ResultWrapper<int>
+        {
+            Success = true
+        };
+
         try
         {
             IEnumerable<User> res = from u in users
