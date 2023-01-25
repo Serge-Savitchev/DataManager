@@ -3,7 +3,6 @@ using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace DataManagerAPI.SQLServerDB;
 
@@ -81,8 +80,7 @@ public class UsersDBContext : DbContext
         {
             UserId = 1,
             Login = "Admin",
-            PasswordSalt = hmac.Key,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Admin"))
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin")
         };
 
         modelBuilder.Entity<UserCredentials>()

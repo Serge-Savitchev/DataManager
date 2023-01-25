@@ -16,7 +16,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.1")
+                .HasAnnotation("ProductVersion", "7.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -112,13 +112,9 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<byte[]>("PasswordHash")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
@@ -132,8 +128,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         {
                             UserId = 1,
                             Login = "Admin",
-                            PasswordHash = new byte[] { 183, 174, 122, 150, 10, 82, 208, 212, 77, 72, 34, 28, 218, 138, 100, 107, 118, 55, 51, 51, 224, 157, 123, 125, 234, 198, 42, 155, 45, 240, 18, 166, 140, 197, 98, 174, 216, 118, 101, 29, 131, 16, 54, 173, 50, 242, 41, 71, 58, 8, 89, 124, 219, 67, 208, 158, 188, 11, 190, 69, 116, 20, 130, 110 },
-                            PasswordSalt = new byte[] { 117, 213, 235, 70, 251, 171, 14, 17, 97, 6, 13, 19, 47, 132, 7, 102, 199, 17, 99, 220, 98, 141, 197, 205, 45, 0, 5, 152, 199, 224, 173, 7, 222, 193, 33, 61, 79, 128, 72, 250, 131, 169, 35, 72, 114, 26, 79, 66, 143, 13, 133, 90, 63, 127, 0, 165, 214, 35, 83, 171, 19, 159, 194, 50, 27, 232, 127, 165, 133, 18, 34, 9, 187, 154, 228, 30, 163, 3, 84, 11, 112, 188, 229, 192, 217, 11, 17, 212, 253, 61, 140, 103, 203, 211, 182, 29, 18, 191, 32, 161, 92, 8, 70, 61, 158, 126, 204, 81, 32, 72, 143, 78, 82, 117, 56, 56, 221, 148, 182, 50, 28, 6, 198, 94, 27, 201, 192, 7 }
+                            PasswordHash = "$2a$11$Dn4bKGe4afl8PeImPW5xQugIyU.ROK7ySNFnp.yLZFH1Gsbwud4NW"
                         });
                 });
 

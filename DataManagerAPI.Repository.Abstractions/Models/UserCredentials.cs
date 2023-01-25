@@ -17,12 +17,8 @@ public class UserCredentials
 
     [DataMember(Order = 3)]
     [Required]
-    public byte[] PasswordHash { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     [DataMember(Order = 4)]
-    [Required]
-    public byte[] PasswordSalt { get; set; } = null!;
-
-    [DataMember(Order = 5)]
     public string? RefreshToken { get; set; } = null;
 }

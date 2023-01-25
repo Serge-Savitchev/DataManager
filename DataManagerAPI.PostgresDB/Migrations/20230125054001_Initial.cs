@@ -54,8 +54,7 @@ namespace DataManagerAPI.PostgresDB.Migrations
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Login = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    PasswordHash = table.Column<byte[]>(type: "bytea", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
                     RefreshToken = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -108,8 +107,8 @@ namespace DataManagerAPI.PostgresDB.Migrations
 
             migrationBuilder.InsertData(
                 table: "UserCredentials",
-                columns: new[] { "UserId", "Login", "PasswordHash", "PasswordSalt", "RefreshToken" },
-                values: new object[] { 1, "Admin", new byte[] { 113, 18, 160, 168, 156, 69, 127, 148, 232, 102, 110, 0, 145, 34, 176, 132, 254, 113, 183, 72, 226, 31, 61, 18, 134, 225, 12, 22, 132, 209, 76, 251, 173, 214, 119, 65, 149, 98, 119, 77, 196, 78, 14, 245, 148, 79, 128, 251, 204, 146, 32, 28, 39, 229, 173, 19, 108, 70, 129, 252, 35, 10, 20, 54 }, new byte[] { 228, 174, 24, 147, 218, 214, 207, 62, 33, 8, 178, 138, 138, 101, 183, 50, 254, 54, 162, 44, 242, 176, 222, 172, 152, 37, 223, 21, 236, 13, 222, 202, 89, 209, 14, 86, 167, 132, 114, 150, 8, 34, 205, 76, 179, 114, 40, 254, 241, 12, 62, 248, 67, 51, 101, 242, 157, 157, 134, 240, 101, 75, 26, 233, 105, 239, 98, 204, 88, 6, 48, 221, 182, 134, 229, 250, 240, 4, 153, 118, 75, 88, 209, 174, 5, 16, 118, 115, 27, 215, 113, 191, 186, 195, 25, 235, 166, 131, 210, 145, 110, 151, 89, 82, 98, 157, 207, 246, 95, 32, 49, 11, 162, 188, 235, 189, 154, 162, 1, 144, 82, 146, 235, 53, 81, 175, 235, 177 }, null });
+                columns: new[] { "UserId", "Login", "PasswordHash", "RefreshToken" },
+                values: new object[] { 1, "Admin", "$2a$11$SVbsduCzoUg4x4dr/Cd/zuWY9vPAMgcwhjXAh6GMgquQ0HONI9Cu.", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserData_UserId",

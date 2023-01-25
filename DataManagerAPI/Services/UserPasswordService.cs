@@ -1,6 +1,4 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Models;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DataManagerAPI.Services;
 
@@ -12,20 +10,14 @@ public class UserPasswordService : IUserPasswordService
 
         if (!string.IsNullOrWhiteSpace(password))
         {
-            using var hmac = new HMACSHA512();
-            result.PasswordSalt = hmac.Key;
-            result.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            result.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         return result;
     }
 
-    public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public bool VerifyPasswordHash(string password, string passwordHash)
     {
-        using (var hmac = new HMACSHA512(passwordSalt))
-        {
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
+        return BCrypt.Net.BCrypt.Verify(password, passwordHash);
     }
 }

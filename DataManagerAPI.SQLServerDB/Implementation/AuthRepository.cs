@@ -232,7 +232,6 @@ public class AuthRepository : IAuthRepository
                 return result;
             }
 
-            updatedCredentials.PasswordSalt = credentials.PasswordSalt;
             updatedCredentials.PasswordHash = credentials.PasswordHash;
 
             await _context.SaveChangesAsync();

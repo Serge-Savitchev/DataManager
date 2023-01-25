@@ -61,7 +61,7 @@ public class AuthService : IAuthService
         }
 
         if (!_userPasswordService
-            .VerifyPasswordHash(loginData.Password, userDetails.Data!.Credentials!.PasswordHash, userDetails.Data!.Credentials!.PasswordSalt))
+            .VerifyPasswordHash(loginData.Password, userDetails.Data!.Credentials!.PasswordHash))
         {
             result.Message = "Invalide login or password";
             result.StatusCode = StatusCodes.Status401Unauthorized;
