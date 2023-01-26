@@ -3,6 +3,8 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
 using System.Data;
 
 namespace DataManagerAPI.Services;
@@ -77,6 +79,36 @@ public class UserDataService : IUserDataService
             StatusCode = source.StatusCode
         };
         return ret;
+    }
+
+    public async Task<bool> UploadFile(MultipartReader reader, MultipartSection? section)
+    {
+        string filePath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "UploadedFiles"));
+        Directory.CreateDirectory(filePath);
+
+        int count = 0;
+        while (section != null)
+        {
+            bool hasHeader = ContentDispositionHeaderValue.TryParse(
+                section.ContentDisposition, out var contentDisposition
+            );
+
+            if (hasHeader && contentDisposition != null)
+            {
+                if (contentDisposition.DispositionType.Equals("form-data") &&
+                    (!string.IsNullOrEmpty(contentDisposition.FileName.Value) ||
+                    !string.IsNullOrEmpty(contentDisposition.FileNameStar.Value))
+                )
+                {
+                    using var fileStream = File.Create(Path.Combine(filePath, contentDisposition.FileName.Value!));
+                    await section.Body.CopyToAsync(fileStream);
+                }
+            }
+
+            Console.WriteLine($"{++count}  {section.ContentDisposition} {contentDisposition}");
+            section = await reader.ReadNextSectionAsync();
+        }
+        return true;
     }
 
 }

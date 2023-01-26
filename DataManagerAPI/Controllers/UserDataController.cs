@@ -2,6 +2,8 @@
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
 
 namespace DataManagerAPI.Controllers;
 
@@ -56,4 +58,24 @@ public class UserDataController : ControllerBase
         var result = await _service.GetUserDataByUserId(userId);
         return StatusCode(result.StatusCode, result.Data);
     }
+
+    [HttpPost]
+    [Route("Upload")]
+    [AllowAnonymous]
+    [DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadFile()
+    {
+        string? boundary = HeaderUtilities.RemoveQuotes(
+            MediaTypeHeaderValue.Parse(Request.ContentType).Boundary
+        ).Value;
+
+        var reader = new MultipartReader(boundary!, Request.Body);
+
+        var section = await reader.ReadNextSectionAsync();
+
+        await _service.UploadFile(reader, section);
+
+        return Ok();
+    }
+
 }
