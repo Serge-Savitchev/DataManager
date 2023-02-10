@@ -15,7 +15,7 @@ public class UserDataRepository : IUserDataRepository
         _context = context;
     }
 
-    public async Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd)
+    public async Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -25,10 +25,10 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var user = await FindUser<UserData>(userDataToAdd.UserId);
-            if (!user.Success)
+            var userData = await FindUserAsync<UserData>(userDataToAdd.UserId);
+            if (!userData.Success)
             {
-                return user;
+                return userData;
             }
 
             await _context.UserData.AddAsync(userDataToAdd);
@@ -45,7 +45,7 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> DeleteUserData(int userDataId)
+    public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -80,7 +80,7 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> GetUserData(int userDataId)
+    public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -91,7 +91,10 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            userData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId);
+            userData = await _context.UserData
+                .Include(data => data.UserFiles)
+                .FirstOrDefaultAsync(y => y.Id == userDataId);
+
             if (userData is null)
             {
                 result.Success = false;
@@ -114,24 +117,27 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId)
+    public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId)
     {
-        var result = new ResultWrapper<List<UserData>>
+        var result = new ResultWrapper<UserData[]>
         {
             Success = true
         };
 
-        List<UserData>? dataList = null;
+        UserData[]? dataList = null;
 
         try
         {
-            var user = await FindUser<List<UserData>>(userId);
+            var user = await FindUserAsync<UserData[]>(userId);
             if (!user.Success)
             {
                 return user;
             }
 
-            dataList = await _context.UserData.Where(x => x.UserId == userId).ToListAsync();
+            dataList = await _context.UserData
+                .Include(data => data.UserFiles)
+                .Where(y => y.UserId == userId)
+                .ToArrayAsync();
         }
         catch (Exception ex)
         {
@@ -144,7 +150,7 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate)
+    public async Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -155,7 +161,7 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var user = await FindUser<UserData>(userDataToUpdate.UserId);
+            var user = await FindUserAsync<UserData>(userDataToUpdate.UserId);
             if (!user.Success)
             {
                 return user;
@@ -187,7 +193,7 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    private async Task<ResultWrapper<T>> FindUser<T>(int userId)
+    private async Task<ResultWrapper<T>> FindUserAsync<T>(int userId)
     {
         var result = new ResultWrapper<T>
         {

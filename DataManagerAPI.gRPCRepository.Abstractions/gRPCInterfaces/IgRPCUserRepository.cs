@@ -10,18 +10,18 @@ namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
 public interface IgRPCUserRepository
 {
     [OperationContract]
-    Task<ResultWrapper<User>> DeleteUser(UserIdRequest userId, CallContext context = default);
+    Task<ResultWrapper<User>> DeleteUserAsync(UserIdRequest userId, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<User>> GetUser(UserIdRequest userId, CallContext context = default);
+    Task<ResultWrapper<User>> GetUserAsync(UserIdRequest userId, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<List<User>>> GetUsersByRole(RoleRequest roleId, CallContext context = default);
+    Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleRequest roleId, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<List<User>>> GetAllUsers(EmptyRequest empty, CallContext context = default);
+    Task<ResultWrapper<List<User>>> GetAllUsersAsync(EmptyRequest empty, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<int>> UpdateOwners(UpdateOwnersRequest request, CallContext context = default);
+    Task<ResultWrapper<int>> UpdateOwnersAsync(UpdateOwnersRequest request, CallContext context = default);
 
 }

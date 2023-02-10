@@ -17,28 +17,28 @@ public class gRPCUserClient : IUserRepository
     {
         _igRPCUserRepository = channel.CreateGrpcService<IgRPCUserRepository>();
     }
-    public Task<ResultWrapper<User>> DeleteUser(int userId)
+    public Task<ResultWrapper<User>> DeleteUserAsync(int userId)
     {
-        return _igRPCUserRepository.DeleteUser(new UserIdRequest { UserId = userId });
+        return _igRPCUserRepository.DeleteUserAsync(new UserIdRequest { UserId = userId });
     }
 
-    public Task<ResultWrapper<List<User>>> GetAllUsers()
+    public Task<ResultWrapper<List<User>>> GetAllUsersAsync()
     {
-        return _igRPCUserRepository.GetAllUsers(new EmptyRequest());
+        return _igRPCUserRepository.GetAllUsersAsync(new EmptyRequest());
     }
 
-    public Task<ResultWrapper<User>> GetUser(int userId)
+    public Task<ResultWrapper<User>> GetUserAsync(int userId)
     {
-        return _igRPCUserRepository.GetUser(new UserIdRequest { UserId = userId });
+        return _igRPCUserRepository.GetUserAsync(new UserIdRequest { UserId = userId });
     }
 
-    public Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId)
+    public Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleIds roleId)
     {
-        return _igRPCUserRepository.GetUsersByRole(new RoleRequest { RoleId = roleId });
+        return _igRPCUserRepository.GetUsersByRoleAsync(new RoleRequest { RoleId = roleId });
     }
 
-    public Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
+    public Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users)
     {
-        return _igRPCUserRepository.UpdateOwners(new UpdateOwnersRequest { OwnerId = ownerId, Users = users });
+        return _igRPCUserRepository.UpdateOwnersAsync(new UpdateOwnersRequest { OwnerId = ownerId, Users = users });
     }
 }

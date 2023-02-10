@@ -16,28 +16,28 @@ public class gRPCUserDataRepository : IgRPCUserDataRepository
         _repository = repository;
     }
 
-    public Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd, CallContext context = default)
+    public Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd, CallContext context = default)
     {
-        return _repository.AddUserData(userDataToAdd);
+        return _repository.AddUserDataAsync(userDataToAdd);
     }
 
-    public Task<ResultWrapper<UserData>> DeleteUserData(UserIdRequest userDataId, CallContext context = default)
+    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(UserIdRequest userDataId, CallContext context = default)
     {
-        return _repository.DeleteUserData(userDataId.UserId);
+        return _repository.DeleteUserDataAsync(userDataId.UserId);
     }
 
-    public Task<ResultWrapper<UserData>> GetUserData(UserIdRequest userDataId, CallContext context = default)
+    public Task<ResultWrapper<UserData>> GetUserDataAsync(UserIdRequest userDataId, CallContext context = default)
     {
-        return _repository.GetUserData(userDataId.UserId);
+        return _repository.GetUserDataAsync(userDataId.UserId);
     }
 
-    public Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(UserIdRequest userId, CallContext context = default)
+    public Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(UserIdRequest userId, CallContext context = default)
     {
-        return _repository.GetUserDataByUserId(userId.UserId);
+        return _repository.GetUserDataByUserIdAsync(userId.UserId);
     }
 
-    public Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate, CallContext context = default)
+    public Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate, CallContext context = default)
     {
-        return _repository.UpdateUserData(userDataToUpdate);
+        return _repository.UpdateUserDataAsync(userDataToUpdate);
     }
 }

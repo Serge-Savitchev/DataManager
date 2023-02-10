@@ -31,5 +31,11 @@ public class MappingProfile : Profile
 
         CreateMap<User, LoginUserResponseDto>()
             .ForMember(user => user.Role, c => c.MapFrom(t => t.Role.ToString()));
+
+        CreateMap<UserFileDto, UserFile>()
+            .ReverseMap();
+
+        CreateMap<UserFileStreamDto, UserFileStream>()
+            .ReverseMap();
     }
 }

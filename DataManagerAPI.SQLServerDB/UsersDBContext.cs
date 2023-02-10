@@ -18,6 +18,7 @@ public class UsersDBContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserData> UserData { get; set; }
     public DbSet<UserCredentials> UserCredentials { get; set; }
+    public DbSet<UserFile> UserFiles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

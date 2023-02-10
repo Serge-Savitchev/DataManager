@@ -88,6 +88,27 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserFiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserDataId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFiles_UserData_UserDataId",
+                        column: x => x.UserDataId,
+                        principalTable: "UserData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Name" },
@@ -107,7 +128,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
             migrationBuilder.InsertData(
                 table: "UserCredentials",
                 columns: new[] { "UserId", "Login", "PasswordHash", "RefreshToken" },
-                values: new object[] { 1, "Admin", "$2a$11$Dn4bKGe4afl8PeImPW5xQugIyU.ROK7ySNFnp.yLZFH1Gsbwud4NW", null });
+                values: new object[] { 1, "Admin", "$2a$11$IWH.Ufbv5ZoifjLMEOBhLeg86T.OgzYCQHLOOrKK8O0tm6SX.zhh.", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserData_UserId",
@@ -115,9 +136,16 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserFiles_UserDataId",
+                table: "UserFiles",
+                column: "UserDataId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Role",
                 table: "Users",
                 column: "Role");
+
+            MigrationExtensions.SetUpFileStreamFeature(migrationBuilder);
         }
 
         /// <inheritdoc />
@@ -125,6 +153,9 @@ namespace DataManagerAPI.SQLServerDB.Migrations
         {
             migrationBuilder.DropTable(
                 name: "UserCredentials");
+
+            migrationBuilder.DropTable(
+                name: "UserFiles");
 
             migrationBuilder.DropTable(
                 name: "UserData");

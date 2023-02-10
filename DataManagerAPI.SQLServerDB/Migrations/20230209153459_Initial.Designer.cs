@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.SQLServerDB.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20230125054320_Initial")]
+    [Migration("20230209153459_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -131,7 +131,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         {
                             UserId = 1,
                             Login = "Admin",
-                            PasswordHash = "$2a$11$Dn4bKGe4afl8PeImPW5xQugIyU.ROK7ySNFnp.yLZFH1Gsbwud4NW"
+                            PasswordHash = "$2a$11$IWH.Ufbv5ZoifjLMEOBhLeg86T.OgzYCQHLOOrKK8O0tm6SX.zhh."
                         });
                 });
 
@@ -161,6 +161,31 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                     b.ToTable("UserData");
                 });
 
+            modelBuilder.Entity("DataManagerAPI.Repository.Abstractions.Models.UserFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UserDataId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserDataId");
+
+                    b.ToTable("UserFiles");
+                });
+
             modelBuilder.Entity("DataManagerAPI.Repository.Abstractions.Models.User", b =>
                 {
                     b.HasOne("DataManagerAPI.Repository.Abstractions.Models.Role", null)
@@ -186,6 +211,20 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DataManagerAPI.Repository.Abstractions.Models.UserFile", b =>
+                {
+                    b.HasOne("DataManagerAPI.Repository.Abstractions.Models.UserData", null)
+                        .WithMany("UserFiles")
+                        .HasForeignKey("UserDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DataManagerAPI.Repository.Abstractions.Models.UserData", b =>
+                {
+                    b.Navigation("UserFiles");
                 });
 #pragma warning restore 612, 618
         }

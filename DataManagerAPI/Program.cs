@@ -21,6 +21,10 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "DataManagerAPI"
     });
+
+    var filePath = Path.Combine(AppContext.BaseDirectory, "DataManagerAPI.xml");
+    c.IncludeXmlComments(filePath);
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
@@ -38,7 +42,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -59,6 +63,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IUserDataService, UserDataService>();
+
+builder.Services.AddScoped<IUserFileService, UserFileService>();
 
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IUserPasswordService, UserPasswordService>();
@@ -97,4 +103,7 @@ app.MapControllers();
 
 app.Run();
 
+/// <summary>
+/// Used for integration tests.
+/// </summary>
 public partial class Program { }

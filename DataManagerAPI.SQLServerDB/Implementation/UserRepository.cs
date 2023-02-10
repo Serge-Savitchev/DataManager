@@ -15,7 +15,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<ResultWrapper<User>> DeleteUser(int userId)
+    public async Task<ResultWrapper<User>> DeleteUserAsync(int userId)
     {
         var result = new ResultWrapper<User>
         {
@@ -49,7 +49,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<User>> GetUser(int userId)
+    public async Task<ResultWrapper<User>> GetUserAsync(int userId)
     {
         var result = new ResultWrapper<User>
         {
@@ -79,7 +79,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId)
+    public async Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleIds roleId)
     {
         var result = new ResultWrapper<List<User>>
         {
@@ -101,7 +101,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<List<User>>> GetAllUsers()
+    public async Task<ResultWrapper<List<User>>> GetAllUsersAsync()
     {
         var result = new ResultWrapper<List<User>>
         {
@@ -123,7 +123,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users)
+    public async Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users)
     {
         var result = new ResultWrapper<int>
         {

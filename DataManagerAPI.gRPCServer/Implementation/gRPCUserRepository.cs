@@ -16,28 +16,28 @@ public class gRPCUserRepository : IgRPCUserRepository
         _repository = repository;
     }
 
-    public Task<ResultWrapper<User>> DeleteUser(UserIdRequest userId, CallContext context = default)
+    public Task<ResultWrapper<User>> DeleteUserAsync(UserIdRequest userId, CallContext context = default)
     {
-        return _repository.DeleteUser(userId.UserId);
+        return _repository.DeleteUserAsync(userId.UserId);
     }
 
-    public Task<ResultWrapper<List<User>>> GetAllUsers(EmptyRequest empty, CallContext context = default)
+    public Task<ResultWrapper<List<User>>> GetAllUsersAsync(EmptyRequest empty, CallContext context = default)
     {
-        return _repository.GetAllUsers();
+        return _repository.GetAllUsersAsync();
     }
 
-    public Task<ResultWrapper<User>> GetUser(UserIdRequest userId, CallContext context = default)
+    public Task<ResultWrapper<User>> GetUserAsync(UserIdRequest userId, CallContext context = default)
     {
-        return _repository.GetUser(userId.UserId);
+        return _repository.GetUserAsync(userId.UserId);
     }
 
-    public Task<ResultWrapper<List<User>>> GetUsersByRole(RoleRequest roleId, CallContext context = default)
+    public Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleRequest roleId, CallContext context = default)
     {
-        return _repository.GetUsersByRole(roleId.RoleId);
+        return _repository.GetUsersByRoleAsync(roleId.RoleId);
     }
 
-    public Task<ResultWrapper<int>> UpdateOwners(UpdateOwnersRequest request, CallContext context = default)
+    public Task<ResultWrapper<int>> UpdateOwnersAsync(UpdateOwnersRequest request, CallContext context = default)
     {
-        return _repository.UpdateOwners(request.OwnerId, request.Users);
+        return _repository.UpdateOwnersAsync(request.OwnerId, request.Users);
     }
 }

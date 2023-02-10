@@ -8,17 +8,17 @@ namespace DataManagerAPI.Repository.Abstractions.Interfaces;
 public interface IUserDataRepository
 {
     [OperationContract]
-    Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd);
+    Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate);
+    Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> DeleteUserData(int userDataId);
+    Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> GetUserData(int userDataId);
+    Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId);
 
     [OperationContract]
-    Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId);
+    Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId);
 }

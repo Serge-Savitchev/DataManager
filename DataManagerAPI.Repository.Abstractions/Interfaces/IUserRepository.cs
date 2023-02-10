@@ -8,18 +8,18 @@ namespace DataManagerAPI.Repository.Abstractions.Interfaces;
 public interface IUserRepository
 {
     [OperationContract]
-    Task<ResultWrapper<User>> DeleteUser(int userId);
+    Task<ResultWrapper<User>> DeleteUserAsync(int userId);
 
     [OperationContract]
-    Task<ResultWrapper<User>> GetUser(int userId);
+    Task<ResultWrapper<User>> GetUserAsync(int userId);
 
     [OperationContract]
-    Task<ResultWrapper<List<User>>> GetUsersByRole(RoleIds roleId);
+    Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleIds roleId);
 
     [OperationContract]
-    Task<ResultWrapper<List<User>>> GetAllUsers();
+    Task<ResultWrapper<List<User>>> GetAllUsersAsync();
 
     [OperationContract]
-    Task<ResultWrapper<int>> UpdateOwners(int ownerId, int[] users);
+    Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users);
 }
 

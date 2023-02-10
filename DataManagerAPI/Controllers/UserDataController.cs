@@ -1,9 +1,8 @@
 ﻿using DataManagerAPI.Dto;
+using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Net.Http.Headers;
 
 namespace DataManagerAPI.Controllers;
 
@@ -23,7 +22,7 @@ public class UserDataController : ControllerBase
     [Route("Add")]
     public async Task<ActionResult<UserDataDto>> AddUserData([FromBody] AddUserDataDto data)
     {
-        var result = await _service.AddUserData(data);
+        ResultWrapper<UserDataDto> result = await _service.AddUserData(data);
         return StatusCode(result.StatusCode, result.Data);
     }
 
@@ -31,7 +30,7 @@ public class UserDataController : ControllerBase
     [Route("Update")]
     public async Task<ActionResult<UserDataDto>> UpdateUserData([FromBody] UserDataDto data)
     {
-        var result = await _service.UpdateUserData(data);
+        ResultWrapper<UserDataDto> result = await _service.UpdateUserData(data);
         return StatusCode(result.StatusCode, result.Data);
     }
 
@@ -39,43 +38,44 @@ public class UserDataController : ControllerBase
     [Route("{UserId}")]
     public async Task<ActionResult<UserDataDto>> UpdateUserData(int UserId)
     {
-        var result = await _service.DeleteUserData(UserId);
+        ResultWrapper<UserDataDto> result = await _service.DeleteUserData(UserId);
         return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("{userDataId}")]
-    public async Task<ActionResult<UserDto>> GetUser(int userDataId)
+    public async Task<ActionResult<UserDataDto>> GetUser(int userDataId)
     {
-        var result = await _service.GetUserData(userDataId);
+        ResultWrapper<UserDataDto> result = await _service.GetUserData(userDataId);
         return StatusCode(result.StatusCode, result.Data);
     }
 
     [HttpGet]
     [Route("all/{userId}")]
-    public async Task<ActionResult<List<UserDto>>> GetUserDataByUserId(int userId)
+    public async Task<ActionResult<List<UserDataDto>>> GetUserDataByUserId(int userId)
     {
-        var result = await _service.GetUserDataByUserId(userId);
+        ResultWrapper<UserDataDto[]> result = await _service.GetUserDataByUserId(userId);
         return StatusCode(result.StatusCode, result.Data);
     }
 
-    [HttpPost]
-    [Route("Upload")]
-    [AllowAnonymous]
-    [DisableRequestSizeLimit]
-    public async Task<IActionResult> UploadFile()
-    {
-        string? boundary = HeaderUtilities.RemoveQuotes(
-            MediaTypeHeaderValue.Parse(Request.ContentType).Boundary
-        ).Value;
+    /*
+        [HttpPost]
+        [Route("Upload")]
+        [AllowAnonymous]
+        [DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadFile()
+        {
+            string? boundary = HeaderUtilities.RemoveQuotes(
+                MediaTypeHeaderValue.Parse(Request.ContentType).Boundary
+            ).Value;
 
-        var reader = new MultipartReader(boundary!, Request.Body);
+            var reader = new MultipartReader(boundary!, Request.Body);
 
-        var section = await reader.ReadNextSectionAsync();
+            var section = await reader.ReadNextSectionAsync();
 
-        await _service.UploadFile(reader, section);
+            await _service.UploadFile(reader, section);
 
-        return Ok();
-    }
-
+            return Ok();
+        }
+    */
 }

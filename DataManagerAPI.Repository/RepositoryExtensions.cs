@@ -1,13 +1,12 @@
 ﻿using DataManagerAPI.PostgresDB;
 using DataManagerAPI.Repository.Abstractions.Constants;
-using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.gRPCClients;
 using DataManagerAPI.SQLServerDB;
 using DataManagerAPI.SQLServerDB.Implementation;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Grpc.Net.Client;
 
 namespace DataManagerAPI.Repository;
 
@@ -23,6 +22,7 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
             serviceCollection.AddScoped<IUserRepository, UserRepository>();
             serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
+            serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
 
             serviceCollection.AddSQLServerDBContext();
             return serviceCollection;
@@ -33,6 +33,7 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
             serviceCollection.AddScoped<IUserRepository, UserRepository>();
             serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
+            serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
 
             serviceCollection.AddPostgresDBContext();
             return serviceCollection;
@@ -43,6 +44,7 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IAuthRepository, gRPCAuthClient>();
             serviceCollection.AddScoped<IUserRepository, gRPCUserClient>();
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
+            serviceCollection.AddScoped<IUserFileRepository, gRPCUserFileClient>();
 
             GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
             serviceCollection.AddSingleton(channel);

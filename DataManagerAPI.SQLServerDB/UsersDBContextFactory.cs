@@ -9,22 +9,11 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<UsersDBContext>
 {
     public UsersDBContext CreateDbContext(string[] args)
     {
-        // Get environment
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
-
-        // Build config
-        var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false);
-
-        IConfigurationRoot config = builder.Build();
-
         // Get connection string
-        var optionsBuilder = new DbContextOptionsBuilder<UsersDBContext>();
-        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLServerOption));
+        var connectionString = MigrationExtensions.GetConnectionString();
 
-        Console.WriteLine($"Environment: {environment}");
-        Console.WriteLine(config.GetConnectionString(SourceDatabases.SQLServerOption));
+        var optionsBuilder = new DbContextOptionsBuilder<UsersDBContext>();
+        optionsBuilder.UseSqlServer(connectionString);
 
         return new UsersDBContext(optionsBuilder.Options);
     }

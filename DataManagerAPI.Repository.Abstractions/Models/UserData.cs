@@ -19,4 +19,8 @@ public class UserData
 
     [DataMember(Order = 4)]
     public string? Data { get; set; }
+
+    [DataMember(Order = 5)]
+    public List<UserFile> UserFiles { get; set; } = new List<UserFile>();
+
 }

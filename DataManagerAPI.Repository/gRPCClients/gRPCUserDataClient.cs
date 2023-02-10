@@ -17,28 +17,28 @@ public class gRPCUserDataClient : IUserDataRepository
         _igRPCUserDataRepository = channel.CreateGrpcService<IgRPCUserDataRepository>();
     }
 
-    public Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd)
+    public Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd)
     {
-        return _igRPCUserDataRepository.AddUserData(userDataToAdd);
+        return _igRPCUserDataRepository.AddUserDataAsync(userDataToAdd);
     }
 
-    public Task<ResultWrapper<UserData>> DeleteUserData(int userDataId)
+    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId)
     {
-        return _igRPCUserDataRepository.DeleteUserData(new UserIdRequest { UserId = userDataId });
+        return _igRPCUserDataRepository.DeleteUserDataAsync(new UserIdRequest { UserId = userDataId });
     }
 
-    public Task<ResultWrapper<UserData>> GetUserData(int userDataId)
+    public Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId)
     {
-        return _igRPCUserDataRepository.GetUserData(new UserIdRequest { UserId = userDataId });
+        return _igRPCUserDataRepository.GetUserDataAsync(new UserIdRequest { UserId = userDataId });
     }
 
-    public Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(int userId)
+    public Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId)
     {
-        return _igRPCUserDataRepository.GetUserDataByUserId(new UserIdRequest { UserId = userId });
+        return _igRPCUserDataRepository.GetUserDataByUserIdAsync(new UserIdRequest { UserId = userId });
     }
 
-    public Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate)
+    public Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate)
     {
-        return _igRPCUserDataRepository.UpdateUserData(userDataToUpdate);
+        return _igRPCUserDataRepository.UpdateUserDataAsync(userDataToUpdate);
     }
 }

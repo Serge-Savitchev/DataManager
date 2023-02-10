@@ -235,6 +235,8 @@ public class AuthRepository : IAuthRepository
             updatedCredentials.PasswordHash = credentials.PasswordHash;
 
             await _context.SaveChangesAsync();
+
+            result.Data = userId;
         }
         catch (Exception ex)
         {

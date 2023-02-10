@@ -10,18 +10,18 @@ namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
 public interface IgRPCUserDataRepository
 {
     [OperationContract]
-    Task<ResultWrapper<UserData>> AddUserData(UserData userDataToAdd, CallContext context = default);
+    Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> UpdateUserData(UserData userDataToUpdate, CallContext context = default);
+    Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> DeleteUserData(UserIdRequest userDataId, CallContext context = default);
+    Task<ResultWrapper<UserData>> DeleteUserDataAsync(UserIdRequest userDataId, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<UserData>> GetUserData(UserIdRequest userDataId, CallContext context = default);
+    Task<ResultWrapper<UserData>> GetUserDataAsync(UserIdRequest userDataId, CallContext context = default);
 
     [OperationContract]
-    Task<ResultWrapper<List<UserData>>> GetUserDataByUserId(UserIdRequest userId, CallContext context = default);
+    Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(UserIdRequest userId, CallContext context = default);
 
 }

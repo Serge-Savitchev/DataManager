@@ -3,8 +3,6 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Net.Http.Headers;
 using System.Data;
 
 namespace DataManagerAPI.Services;
@@ -22,7 +20,7 @@ public class UserDataService : IUserDataService
 
     public async Task<ResultWrapper<UserDataDto>> AddUserData(AddUserDataDto userDataToAdd)
     {
-        var result = await _repository.AddUserData(_mapper.Map<UserData>(userDataToAdd));
+        var result = await _repository.AddUserDataAsync(_mapper.Map<UserData>(userDataToAdd));
 
         var ret = ConvertWrapper(result);
 
@@ -31,7 +29,7 @@ public class UserDataService : IUserDataService
 
     public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userDataId)
     {
-        var result = await _repository.DeleteUserData(userDataId);
+        var result = await _repository.DeleteUserDataAsync(userDataId);
 
         var ret = ConvertWrapper(result);
 
@@ -40,20 +38,20 @@ public class UserDataService : IUserDataService
 
     public async Task<ResultWrapper<UserDataDto>> GetUserData(int userDataId)
     {
-        var result = await _repository.GetUserData(userDataId);
+        var result = await _repository.GetUserDataAsync(userDataId);
 
         var ret = ConvertWrapper(result);
 
         return ret;
     }
 
-    public async Task<ResultWrapper<List<UserDataDto>>> GetUserDataByUserId(int userId)
+    public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId)
     {
-        var result = await _repository.GetUserDataByUserId(userId);
-        var ret = new ResultWrapper<List<UserDataDto>>()
+        var result = await _repository.GetUserDataByUserIdAsync(userId);
+        var ret = new ResultWrapper<UserDataDto[]>()
         {
             Success = result.Success,
-            Data = result.Success ? result.Data!.Select(_mapper.Map<UserDataDto>).ToList() : null,
+            Data = result.Success ? result.Data!.Select(_mapper.Map<UserDataDto>).ToArray() : null,
             Message = result.Message,
             StatusCode = result.StatusCode
         };
@@ -62,7 +60,7 @@ public class UserDataService : IUserDataService
 
     public async Task<ResultWrapper<UserDataDto>> UpdateUserData(UserDataDto userDataToUpdate)
     {
-        var result = await _repository.UpdateUserData(_mapper.Map<UserData>(userDataToUpdate));
+        var result = await _repository.UpdateUserDataAsync(_mapper.Map<UserData>(userDataToUpdate));
 
         var ret = ConvertWrapper(result);
 
@@ -80,35 +78,4 @@ public class UserDataService : IUserDataService
         };
         return ret;
     }
-
-    public async Task<bool> UploadFile(MultipartReader reader, MultipartSection? section)
-    {
-        string filePath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "UploadedFiles"));
-        Directory.CreateDirectory(filePath);
-
-        int count = 0;
-        while (section != null)
-        {
-            bool hasHeader = ContentDispositionHeaderValue.TryParse(
-                section.ContentDisposition, out var contentDisposition
-            );
-
-            if (hasHeader && contentDisposition != null)
-            {
-                if (contentDisposition.DispositionType.Equals("form-data") &&
-                    (!string.IsNullOrEmpty(contentDisposition.FileName.Value) ||
-                    !string.IsNullOrEmpty(contentDisposition.FileNameStar.Value))
-                )
-                {
-                    using var fileStream = File.Create(Path.Combine(filePath, contentDisposition.FileName.Value!));
-                    await section.Body.CopyToAsync(fileStream);
-                }
-            }
-
-            Console.WriteLine($"{++count}  {section.ContentDisposition} {contentDisposition}");
-            section = await reader.ReadNextSectionAsync();
-        }
-        return true;
-    }
-
 }

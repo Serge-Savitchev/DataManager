@@ -20,35 +20,35 @@ public class UserService : IUserService
 
     public async Task<ResultWrapper<UserDto>> DeleteUser(int userId)
     {
-        var result = await _repository.DeleteUser(userId);
+        var result = await _repository.DeleteUserAsync(userId);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     public async Task<ResultWrapper<List<UserDto>>> GetAllUsers()
     {
-        var result = await _repository.GetAllUsers();
+        var result = await _repository.GetAllUsersAsync();
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     public async Task<ResultWrapper<UserDto>> GetUser(int userId)
     {
-        var result = await _repository.GetUser(userId);
+        var result = await _repository.GetUserAsync(userId);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     public async Task<ResultWrapper<List<UserDto>>> GetUsersByRole(string role)
     {
-        var result = await _repository.GetUsersByRole(Enum.Parse<RoleIds>(role, true));
+        var result = await _repository.GetUsersByRoleAsync(Enum.Parse<RoleIds>(role, true));
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequest request)
     {
-        var result = await _repository.UpdateOwners(request.OwnerId, request.UserIds);
+        var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds);
         return result;
     }
 
