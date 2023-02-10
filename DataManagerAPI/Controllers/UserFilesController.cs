@@ -19,14 +19,21 @@ namespace DataManagerAPI.Controllers;
 public class UserFilesController : ControllerBase
 {
     private readonly IUserFileService _service;
+    private const int _defaultBufferSize = 1024 * 1024;
+    private readonly bool _useBufferingStreamCopy;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="service"></param>
-    public UserFilesController(IUserFileService service)
+    /// <param name="configuration"></param>
+    public UserFilesController(IUserFileService service, IConfiguration configuration)
     {
         _service = service;
+        if (!bool.TryParse(configuration["UseBufferingStreamCopy"], out _useBufferingStreamCopy))
+        {
+            _useBufferingStreamCopy = false;
+        }
     }
 
     /// <summary>
@@ -111,7 +118,7 @@ public class UserFilesController : ControllerBase
             MediaTypeHeaderValue.Parse(Request.ContentType).Boundary
         ).Value;
 
-        var reader = new MultipartReader(boundary!, Request.Body);
+        var reader = new MultipartReader(boundary!, Request.Body, _defaultBufferSize);
 
         var file = new UserFile { Id = fileId, UserDataId = userDataId };
         UserFileDto? result = await UploadFile(reader, file, bigFile);
@@ -147,30 +154,35 @@ public class UserFilesController : ControllerBase
                     Name = contentDisposition.FileName.Value!
                 };
 
-                //var tmpFile = await CopyStreamToFile(section.Body, uploadData.Name);
+                string? tmpFile = null;
+                Stream? tmpStream = null;
 
-                //try
-                //{
-                //    using (var outStream = new System.IO.FileStream(tmpFile, FileMode.Open, FileAccess.Read))
-                //    {
-                //        uploadData.Content = outStream;
-                //        Models.File? result = await _filesRepository.UploadFile(uploadData);
-                //        if (result != null)
-                //        {
-                //            list.Add(result);
-                //        }
-                //    }
-                //}
-                //finally
-                //{
-                //    Directory.Delete(Path.GetDirectoryName(tmpFile)!, true);
-                //}
-
-                uploadData.Content = section.Body;
-                ResultWrapper<UserFileDto> result = await _service.UploadFileAsync(uploadData);
-                if (result.Success && result?.Data != null)
+                try
                 {
-                    uploadedFile = result.Data;
+                    if (_useBufferingStreamCopy)
+                    {
+                        tmpFile = await CopyStreamToFile(section.Body, uploadData.Name);
+                        tmpStream = new System.IO.FileStream(tmpFile, FileMode.Open, FileAccess.Read);
+                        uploadData.Content = tmpStream;
+                    }
+                    else
+                    {
+                        uploadData.Content = section.Body;
+                    }
+
+                    ResultWrapper<UserFileDto> result = await _service.UploadFileAsync(uploadData);
+                    if (result.Success && result?.Data != null)
+                    {
+                        uploadedFile = result.Data;
+                    }
+                }
+                finally
+                {
+                    if (tmpFile != null)
+                    {
+                        tmpStream?.Dispose();
+                        Directory.Delete(Path.GetDirectoryName(tmpFile)!, true);
+                    }
                 }
             }
         }
@@ -180,7 +192,7 @@ public class UserFilesController : ControllerBase
 
     private static async Task<string> CopyStreamToFile(Stream inputStream, string fileName)
     {
-        DirectoryInfo tempDir = Directory.CreateTempSubdirectory("BigFiles");
+        DirectoryInfo tempDir = Directory.CreateTempSubdirectory("DataManagerAPI");
         string fullName = Path.Combine(tempDir.FullName, fileName);
 
         using var outStream = new System.IO.FileStream(fullName, FileMode.CreateNew);

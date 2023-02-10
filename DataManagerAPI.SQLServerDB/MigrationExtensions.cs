@@ -21,10 +21,24 @@ public static class MigrationExtensions
         const string tableName = "dbo.UserFiles";
 
         // create (if not exists) directorty for FILESTERAM data
-        var dataPath = $"D:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\DATA\\{dbName}\\{dbName}Stream";
+        //var dataPath = $"C:\\SQLData\\{dbName}\\{dbName}Stream";
+
+        var dataPath = $"C:\\SQLData\\{dbName}\\{dbName}Stream";
+
+        /*  To enable 'xp_cmdshell':
+            
+            EXECUTE sp_configure 'show advanced options', 1;
+            RECONFIGURE
+            EXECUTE sp_configure 'xp_cmdshell', 1;
+            RECONFIGURE
+         */
 
         // create directory for FILESTREAM files
-        Directory.CreateDirectory(dataPath);
+        migrationBuilder.Sql($"declare @cmdpath nvarchar(256); set @cmdpath = 'MD {dataPath}'; exec master.dbo.xp_cmdshell @cmdpath", true);
+
+
+        // create directory for FILESTREAM files
+        //Directory.CreateDirectory(dataPath);
 
         // setup FILESTREAM feature support
         migrationBuilder.Sql($"ALTER DATABASE {dbName} ADD FILEGROUP [{dbName}Stream] CONTAINS FILESTREAM", true);

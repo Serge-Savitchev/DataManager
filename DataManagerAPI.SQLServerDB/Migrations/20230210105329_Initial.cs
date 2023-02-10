@@ -128,7 +128,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
             migrationBuilder.InsertData(
                 table: "UserCredentials",
                 columns: new[] { "UserId", "Login", "PasswordHash", "RefreshToken" },
-                values: new object[] { 1, "Admin", "$2a$11$IWH.Ufbv5ZoifjLMEOBhLeg86T.OgzYCQHLOOrKK8O0tm6SX.zhh.", null });
+                values: new object[] { 1, "Admin", "$2a$11$3iGCITE3DQrmmaJA/s2bQ.fsiFpZFoWTTNhWZGTeKMAkUtywxWxr.", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserData_UserId",

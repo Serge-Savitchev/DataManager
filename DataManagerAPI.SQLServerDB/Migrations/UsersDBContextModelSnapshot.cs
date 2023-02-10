@@ -128,7 +128,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         {
                             UserId = 1,
                             Login = "Admin",
-                            PasswordHash = "$2a$11$IWH.Ufbv5ZoifjLMEOBhLeg86T.OgzYCQHLOOrKK8O0tm6SX.zhh."
+                            PasswordHash = "$2a$11$3iGCITE3DQrmmaJA/s2bQ.fsiFpZFoWTTNhWZGTeKMAkUtywxWxr."
                         });
                 });
 

@@ -27,6 +27,7 @@ public class UserFile
     /// File name.
     /// </summary>
     [DataMember(Order = 3)]
+    [StringLength(256)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>

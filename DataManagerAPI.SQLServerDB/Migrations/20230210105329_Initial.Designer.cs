@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataManagerAPI.SQLServerDB.Migrations
 {
     [DbContext(typeof(UsersDBContext))]
-    [Migration("20230209153459_Initial")]
+    [Migration("20230210105329_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -131,7 +131,7 @@ namespace DataManagerAPI.SQLServerDB.Migrations
                         {
                             UserId = 1,
                             Login = "Admin",
-                            PasswordHash = "$2a$11$IWH.Ufbv5ZoifjLMEOBhLeg86T.OgzYCQHLOOrKK8O0tm6SX.zhh."
+                            PasswordHash = "$2a$11$3iGCITE3DQrmmaJA/s2bQ.fsiFpZFoWTTNhWZGTeKMAkUtywxWxr."
                         });
                 });
 

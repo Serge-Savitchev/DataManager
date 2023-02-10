@@ -5,7 +5,7 @@ using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace DataManagerAPI.SQLServerDB.Implementation;
@@ -16,17 +16,22 @@ namespace DataManagerAPI.SQLServerDB.Implementation;
 public class UserFileRepository : IUserFileRepository
 {
     private readonly UsersDBContext _context;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly bool _useBufferingStreamCopy;
+
+    const int _bufferSizeForStreamCopy = 1024 * 1024 * 10;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="context">Database context. <see cref="UsersDBContext"/>.</param>
-    /// <param name="serviceScopeFactory"><see cref="IServiceScopeFactory"/></param>
-    public UserFileRepository(UsersDBContext context, IServiceScopeFactory serviceScopeFactory)
+    /// <param name="configuration"><see cref="IConfiguration"/></param>
+    public UserFileRepository(UsersDBContext context, IConfiguration configuration)
     {
-        _serviceScopeFactory = serviceScopeFactory;
         _context = context;
+        if (!bool.TryParse(configuration["UseBufferingStreamCopy"], out _useBufferingStreamCopy))
+        {
+            _useBufferingStreamCopy = false;
+        }
     }
 
     /// <inheritdoc />
@@ -223,9 +228,24 @@ public class UserFileRepository : IUserFileRepository
     {
         var sqlCommand = new SqlCommand();
         sqlCommand.Connection = sqlConnection;
+        sqlCommand.CommandTimeout = 0;
 
         MemoryStream memoryStream = new MemoryStream();
-        await fileStream.Content!.CopyToAsync(memoryStream, cancellationToken);
+
+        if (_useBufferingStreamCopy)
+        {
+            byte[] buffer = new byte[_bufferSizeForStreamCopy];
+            int read, count = 0;
+            while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
+            {
+                Console.WriteLine($"{++count}\t{read}");
+                await memoryStream.WriteAsync(buffer, cancellationToken);
+            }
+        }
+        else
+        {
+            await fileStream.Content!.CopyToAsync(memoryStream, cancellationToken);
+        }
 
         string request = string.Empty;
 
@@ -242,7 +262,7 @@ public class UserFileRepository : IUserFileRepository
         }
 
         sqlCommand.CommandText = request;
-        sqlCommand.Parameters.Add("@binaryValue", SqlDbType.VarBinary, (int)memoryStream.Length).Value = memoryStream.ToArray();
+        sqlCommand.Parameters.AddWithValue("@binaryValue", memoryStream.ToArray());
         var tmp = await sqlCommand.ExecuteScalarAsync(cancellationToken);
         if (tmp != null)
         {
@@ -255,6 +275,7 @@ public class UserFileRepository : IUserFileRepository
     {
         var sqlCommand = new SqlCommand();
         sqlCommand.Connection = sqlConnection;
+        sqlCommand.CommandTimeout = 0;
 
         sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id={fileStream.Id}";
 
@@ -289,17 +310,20 @@ public class UserFileRepository : IUserFileRepository
 
         var sqlFileStream = new SqlFileStream(filePath!, txContext, FileAccess.Write);
 
-        //const int bufSize = 1024 * 1024 * 4; // 4 MB
-
-        //byte[] buffer = new byte[bufSize];
-        //int read, count = 0;
-        //while ((read = await fileStream.Content!.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
-        //{
-        //    Console.WriteLine($"{++count}\t{read}");
-        //    await sqlFileStream.WriteAsync(buffer, 0, read, cancellationToken);
-        //}
-
-        await fileStream.Content!.CopyToAsync(sqlFileStream, cancellationToken);
+        if (_useBufferingStreamCopy)
+        {
+            byte[] buffer = new byte[_bufferSizeForStreamCopy];
+            int read, count = 0;
+            while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
+            {
+                Console.WriteLine($"{++count}\t{read}");
+                await sqlFileStream.WriteAsync(buffer, 0, read, cancellationToken);
+            }
+        }
+        else
+        {
+            await fileStream.Content!.CopyToAsync(sqlFileStream, cancellationToken);
+        }
 
         sqlFileStream.Close();
         sqlCommand.Transaction.Commit();
