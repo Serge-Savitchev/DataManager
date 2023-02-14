@@ -160,20 +160,23 @@ public class UserFilesController : ControllerBase
                 };
 
                 string? tmpFile = null;
-                Stream? tmpStream = null;
 
                 try
                 {
+                    Stream? uploadStream = null;
+
                     if (_useBufferingStreamCopy)
                     {
                         tmpFile = await CopyStreamToFile(section.Body, uploadData.Name);
-                        tmpStream = new System.IO.FileStream(tmpFile, FileMode.Open, FileAccess.Read);
-                        uploadData.Content = tmpStream;
+                        uploadStream = new System.IO.FileStream(tmpFile, FileMode.Open, FileAccess.Read);
                     }
                     else
                     {
-                        uploadData.Content = section.Body;
+                        uploadStream = section.Body;
                     }
+
+                    await using BufferedStream bufferedStream = new(uploadStream, _defaultBufferSize);
+                    uploadData.Content = bufferedStream;
 
                     ResultWrapper<UserFileDto> result = await _service.UploadFileAsync(uploadData);
                     if (result.Success && result?.Data != null)
@@ -185,7 +188,6 @@ public class UserFilesController : ControllerBase
                 {
                     if (tmpFile != null)
                     {
-                        tmpStream?.Dispose();
                         Directory.Delete(Path.GetDirectoryName(tmpFile)!, true);
                     }
                 }

@@ -16,10 +16,11 @@ namespace DataManagerAPI.SQLServerDB.Implementation;
 public class UserFileRepository : IUserFileRepository
 {
     private readonly UsersDBContext _context;
-    private readonly bool _useBufferingForBigFiles;
-    private readonly bool _useBufferingForSmallFiles;
 
-    private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;
+    private readonly bool _useBufferingForBigFiles;     // flag for using buffering for big files
+    private readonly bool _useBufferingForSmallFiles;   // flag for using buffering for "small" files
+
+    private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
     /// <summary>
     /// Constructor.
@@ -44,7 +45,6 @@ public class UserFileRepository : IUserFileRepository
         {
             _bufferSizeForStreamCopy = size * 1024;
         }
-
     }
 
     /// <inheritdoc />
@@ -57,7 +57,7 @@ public class UserFileRepository : IUserFileRepository
         };
 
         var record = await _context.UserFiles.FirstOrDefaultAsync(x => x.Id == fileId && x.UserDataId == userDataId, cancellationToken);
-        if (record != null)
+        if (record != null) // record exists
         {
             _context.UserFiles.Remove(record);
             await _context.SaveChangesAsync(cancellationToken);
@@ -74,18 +74,18 @@ public class UserFileRepository : IUserFileRepository
         var sqlConnection = (_context.Database.GetDbConnection() as SqlConnection)!;
         var dbName = MigrationExtensions.ExtructDBNameFromConnectionString(_context.Database.GetConnectionString()!);
 
-        sqlConnection.Open();
+        await sqlConnection.OpenAsync(cancellationToken);
 
-        var sqlCommand = new SqlCommand();
-        sqlCommand.Connection = sqlConnection;
 
         long? contentSize = null, dataSize = null, fileSize = null;
         string? fileName = null;
 
         var request = $"SELECT LEN(Content), LEN(Data), Size, Name FROM {dbName}.dbo.UserFiles" +
             $" WHERE Id={fileId} AND UserDataId={userDataId}";
-        sqlCommand.CommandText = request;
-        using (SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken))
+
+        var sqlCommand = new SqlCommand(request, sqlConnection);
+
+        await using (SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken))
         {
             if (await reader.ReadAsync(cancellationToken))
             {
@@ -124,12 +124,12 @@ public class UserFileRepository : IUserFileRepository
                 byte[] data = new byte[dataSize.Value];
 
                 sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
-                using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken);
-                if (await reader.ReadAsync(cancellationToken))
-                {
-                    dataSize = reader.GetBytes(0, 0, data, 0, (int)dataSize);
-                    outStream = new MemoryStream(data);
-                }
+                await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken);
+
+                await reader.ReadAsync(cancellationToken);
+
+                dataSize = reader.GetBytes(0, 0, data, 0, (int)dataSize);
+                outStream = new MemoryStream(data);
             }
             else
             {
@@ -142,7 +142,7 @@ public class UserFileRepository : IUserFileRepository
                 UserDataId = userDataId,
                 Name = fileName,
                 Size = dataSize ?? 0,
-                Content = outStream
+                Content = new BufferedStream(outStream, _bufferSizeForStreamCopy)
             };
 
             result.Success = true;
@@ -165,7 +165,7 @@ public class UserFileRepository : IUserFileRepository
         };
 
         var userData = await FindUserData<UserFile[]>(userDataId, cancellationToken);
-        if (!userData.Success)
+        if (!userData.Success)  // there is no UserData item
         {
             return userData;
         }
@@ -198,19 +198,18 @@ public class UserFileRepository : IUserFileRepository
             Success = true
         };
 
-
         try
         {
             var sqlConnection = (_context.Database.GetDbConnection() as SqlConnection)!;
             var dbName = MigrationExtensions.ExtructDBNameFromConnectionString(_context.Database.GetConnectionString()!);
 
-            sqlConnection.Open();
+            await sqlConnection.OpenAsync(cancellationToken);
 
-            var sqlCommand = new SqlCommand();
+            var sqlCommand = new SqlCommand(
+                    $"SELECT Name FROM {dbName}.dbo.UserFiles WHERE Id={fileStream.Id} AND UserDataId={fileStream.UserDataId}",
+                    sqlConnection);
 
-            sqlCommand.Connection = sqlConnection;
-            sqlCommand.CommandText = $"SELECT Name FROM {dbName}.dbo.UserFiles WHERE Id={fileStream.Id} AND UserDataId={fileStream.UserDataId}";
-
+            // take file name from DB. null value means that record doesn't exist.
             var fileName = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
 
             if (fileStream.BigFile)
@@ -237,11 +236,10 @@ public class UserFileRepository : IUserFileRepository
     private async Task ProcessFile(string? fileName, string dbName, SqlConnection sqlConnection,
         UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        var sqlCommand = new SqlCommand();
-        sqlCommand.Connection = sqlConnection;
+        var sqlCommand = new SqlCommand("", sqlConnection);
         sqlCommand.CommandTimeout = 0;
 
-        MemoryStream memoryStream = new MemoryStream();
+        await using var memoryStream = new MemoryStream();
 
         if (_useBufferingForSmallFiles)
         {
@@ -284,11 +282,11 @@ public class UserFileRepository : IUserFileRepository
     private async Task ProcessBigFile(string? fileName, string dbName, SqlConnection sqlConnection,
         UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        var sqlCommand = new SqlCommand();
-        sqlCommand.Connection = sqlConnection;
-        sqlCommand.CommandTimeout = 0;
+        var sqlCommand = new SqlCommand(
+            $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id={fileStream.Id}",
+            sqlConnection);
 
-        sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id={fileStream.Id}";
+        sqlCommand.CommandTimeout = 0;
 
         string? filePath = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
 
@@ -297,6 +295,7 @@ public class UserFileRepository : IUserFileRepository
             var request = $"INSERT INTO {dbName}.dbo.UserFiles (FileId, UserDataId, Name, Size, Content, Data)" +
             " OUTPUT INSERTED.[Id]" +
             $" VALUES(NEWID(), {fileStream.UserDataId}, '{fileStream.Name}', 0, 0, NULL)";
+
             sqlCommand.CommandText = request;
             fileStream.Id = (await sqlCommand.ExecuteScalarAsync(cancellationToken) as int?)!.Value;
         }
@@ -314,13 +313,13 @@ public class UserFileRepository : IUserFileRepository
             filePath = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
         }
 
-        SqlTransaction transaction = sqlConnection.BeginTransaction("mainTranaction");
+        await using SqlTransaction transaction = sqlConnection.BeginTransaction("mainTranaction");
         sqlCommand.Transaction = transaction;
 
         sqlCommand.CommandText = "SELECT GET_FILESTREAM_TRANSACTION_CONTEXT()";
         var txContext = (byte[])await sqlCommand.ExecuteScalarAsync(cancellationToken);
 
-        var sqlFileStream = new SqlFileStream(filePath!, txContext, FileAccess.Write);
+        await using var sqlFileStream = new SqlFileStream(filePath!, txContext, FileAccess.Write);
 
         if (_useBufferingForBigFiles)
         {

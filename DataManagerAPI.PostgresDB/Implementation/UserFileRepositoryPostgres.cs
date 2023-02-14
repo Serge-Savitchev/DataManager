@@ -15,10 +15,11 @@ namespace DataManagerAPI.PostgresDB.Implementation;
 public class UserFileRepositoryPostgres : IUserFileRepository
 {
     private readonly PostgresDBContext _context;
-    private readonly bool _useBufferingForBigFiles;
-    private readonly bool _useBufferingForSmallFiles;
 
-    private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;
+    private readonly bool _useBufferingForBigFiles;     // flag for using buffering for big files
+    private readonly bool _useBufferingForSmallFiles;   // flag for using buffering for "small" files
+
+    private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
     /// <summary>
     /// Constructor.
@@ -55,17 +56,16 @@ public class UserFileRepositoryPostgres : IUserFileRepository
             Data = fileId
         };
 
-        using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+        await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
         await connection.OpenAsync(cancellationToken);
 
-        using var command = new NpgsqlCommand(null, connection);
+        var request = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+        await using var command = new NpgsqlCommand(request, connection);
 
         uint? oid = null;
 
-        var request = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
-        command.CommandText = request;
-
-        using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
+        // try to get file record by Id and UserDataId
+        await using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
         {
             if (await reader.ReadAsync(cancellationToken))
             {
@@ -75,7 +75,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         if (oid == null)    // there is no such record
         {
-            return result;
+            return result;  // nothing to delete
         }
 
         if (oid.Value != 0) // delete BLOB
@@ -85,8 +85,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
         }
 
         // delete record
-        request = $"DELETE FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
-        command.CommandText = request;
+        command.CommandText = $"DELETE FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
         _ = await command.ExecuteScalarAsync(cancellationToken);
 
         return result;
@@ -105,20 +104,19 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         try
         {
-            using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+            await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
-            using var command = new NpgsqlCommand(null, connection);
+            var request = "SELECT \"Oid\", \"Size\", \"Name\" FROM \"UserFiles\"" +
+                        $" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+
+            await using var command = new NpgsqlCommand(request, connection);
 
             uint? oid = null;
             long? fileSize = null;
             string? fileName = null;
 
-            var request = "SELECT \"Oid\", \"Size\", \"Name\" FROM \"UserFiles\"" +
-                $" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
-            command.CommandText = request;
-
-            using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
+            await using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
             {
                 if (await reader.ReadAsync(cancellationToken))
                 {
@@ -153,23 +151,23 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         try
         {
-            Stream? outStream = null;
-
-            using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+            await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
-            using var command = new NpgsqlCommand(null, connection);
+            using var command = new NpgsqlCommand(
+                $"SELECT \"Data\" FROM \"UserFiles\" WHERE \"Id\"={fileId}",
+                connection);
+
             command.CommandTimeout = 0;
 
             byte[] data = new byte[fileInfo.FileSize];
 
-            command.CommandText = $"SELECT \"Data\" FROM \"UserFiles\" WHERE \"Id\"={fileId}";
-            using NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
-            if (await reader.ReadAsync(cancellationToken))
-            {
-                fileInfo.FileSize = reader.GetBytes(0, 0, data, 0, (int)fileInfo.FileSize);
-                outStream = new MemoryStream(data);
-            }
+            await using NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+            await reader.ReadAsync(cancellationToken);
+
+            fileInfo.FileSize = reader.GetBytes(0, 0, data, 0, (int)fileInfo.FileSize);
+
+            var outStream = new MemoryStream(data);
 
             result.Data = new UserFileStream
             {
@@ -177,7 +175,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
                 UserDataId = userDataId,
                 Name = fileInfo.FileName,
                 Size = fileInfo.FileSize,
-                Content = outStream
+                Content = new BufferedStream(outStream, _bufferSizeForStreamCopy)
             };
 
             result.Success = true;
@@ -210,7 +208,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
             UserDataId = userDataId,
             Name = fileInfo.FileName,
             Size = fileInfo.FileSize,
-            Content = stream
+            Content = new BufferedStream(stream, _bufferSizeForStreamCopy)
         };
 
         result.Success = true;
@@ -233,7 +231,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         try
         {
-            if (info.Data!.Oid != 0)
+            if (info.Data!.Oid != 0)    // big file
             {
                 return await DownloadBigFile(userDataId, fileId, info.Data, cancellationToken);
             }
@@ -260,7 +258,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
         };
 
         var userData = await FindUserData<UserFile[]>(userDataId, cancellationToken);
-        if (!userData.Success)
+        if (!userData.Success)  // there is no UserData for the file
         {
             return userData;
         }
@@ -283,7 +281,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
     public async Task<ResultWrapper<UserFile>> UploadFileAsync(UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
         ResultWrapper<UserFile> userData = await FindUserData<UserFile>(fileStream.UserDataId, cancellationToken);
-        if (!userData.Success)     // there is no UserData
+        if (!userData.Success)     // there is no UserData for the file
         {
             return userData;
         }
@@ -295,12 +293,13 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         try
         {
-            using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+            await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
             var request = $"SELECT \"Name\" FROM \"UserFiles\" WHERE \"Id\"={fileStream.Id} AND \"UserDataId\"={fileStream.UserDataId}";
-            using var command = new NpgsqlCommand(request, connection);
+            await using var command = new NpgsqlCommand(request, connection);
 
+            // take file name from DB. null value means that record doesn't exist.
             var fileName = await command.ExecuteScalarAsync(cancellationToken) as string;
 
             if (fileStream.BigFile)
@@ -328,7 +327,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
     private async Task ProcessFile(bool newFile, NpgsqlConnection connection,
         UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        MemoryStream memoryStream = new MemoryStream();
+        await using var memoryStream = new MemoryStream();
 
         if (_useBufferingForSmallFiles)
         {
@@ -359,7 +358,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
                 $" WHERE \"Id\"={fileStream.Id}";
         }
 
-        using var command = new NpgsqlCommand(request, connection);
+        await using var command = new NpgsqlCommand(request, connection);
         command.CommandTimeout = 0;
         command.Parameters.AddWithValue("@binaryValue", NpgsqlTypes.NpgsqlDbType.Bytea, memoryStream.ToArray());
 
@@ -374,12 +373,10 @@ public class UserFileRepositoryPostgres : IUserFileRepository
         CancellationToken cancellationToken = default)
     {
         uint? oid = null;
-        string request;
 
-        using (var command = new NpgsqlCommand(null, connection))
+        await using (var command = new NpgsqlCommand(null, connection))
         {
-            request = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileStream.Id} AND \"UserDataId\"={fileStream.UserDataId}";
-            command.CommandText = request;
+            command.CommandText = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileStream.Id} AND \"UserDataId\"={fileStream.UserDataId}";
 
             using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
             {
@@ -402,7 +399,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
         NpgsqlLargeObjectStream? stream = null;
 
-        using (var transaction = await connection.BeginTransactionAsync(cancellationToken))
+        await using (var transaction = await connection.BeginTransactionAsync(cancellationToken))
         {
             stream = await manager.OpenReadWriteAsync(oid.Value, cancellationToken);
 
@@ -421,6 +418,8 @@ public class UserFileRepositoryPostgres : IUserFileRepository
                 await fileStream.Content!.CopyToAsync(stream, cancellationToken);
             }
 
+            string request;
+
             if (newFile)   // new file
             {
                 request = $"INSERT INTO \"UserFiles\" (\"UserDataId\", \"Name\", \"Size\", \"Oid\", \"Data\")" +
@@ -433,7 +432,7 @@ public class UserFileRepositoryPostgres : IUserFileRepository
                     $" WHERE \"Id\"={fileStream.Id}";
             }
 
-            using var cmd = new NpgsqlCommand(request, connection);
+            await using var cmd = new NpgsqlCommand(request, connection);
             cmd.CommandTimeout = 0;
             cmd.CommandText = request;
 

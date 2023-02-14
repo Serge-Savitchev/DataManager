@@ -15,7 +15,7 @@ public interface IUserFileRepository
     /// </summary>
     /// <param name="userDataId"></param>
     /// <param name="cancellationToken"></param>
-    /// <returns>Array of files. <see cref="File"/>.</returns>
+    /// <returns>Array of files. <see cref="UserFile"/>.</returns>
     Task<ResultWrapper<UserFile[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default);
 
     /// <summary>
