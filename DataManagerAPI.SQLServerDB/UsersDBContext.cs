@@ -28,12 +28,12 @@ public class UsersDBContext : DbContext
 
         // Build config
         var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false);
+        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
         IConfigurationRoot config = builder.Build();
 
-        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLServerOption));
+        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLConnectionString));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

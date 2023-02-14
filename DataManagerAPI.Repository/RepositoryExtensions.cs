@@ -1,4 +1,5 @@
 ﻿using DataManagerAPI.PostgresDB;
+using DataManagerAPI.PostgresDB.Implementation;
 using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.gRPCClients;
@@ -10,67 +11,57 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DataManagerAPI.Repository;
 
+/// <summary>
+/// Class for setup databases in accordance with configurations.
+/// </summary>
 public static class RepositoryExtensions
 {
+    /// <summary>
+    /// Adds required services in accordance with configurations.
+    /// </summary>
+    /// <param name="serviceCollection"></param>
+    /// <param name="configuration"></param>
+    /// <returns>Service collection. <see cref="IServiceCollection">.</returns>
     public static IServiceCollection AddSelectedDBContext(this IServiceCollection serviceCollection,
             ConfigurationManager configuration)
     {
-        string sourceDatabase = configuration.GetConnectionString(SourceDatabases.OptionName) ?? SourceDatabases.SQLServerOption;
+        // take type of database: SQL or Postgres
+        string sourceDatabaseType = configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
 
-        if (string.Compare(sourceDatabase, SourceDatabases.SQLServerOption, true) == 0)
+        bool useGPRC = false;   // check if we are working via gRPC service 
+        if (!bool.TryParse(configuration.GetConnectionString(SourceDatabases.UseGPRC), out useGPRC))
         {
-            serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
-            serviceCollection.AddScoped<IUserRepository, UserRepository>();
-            serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
-            serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
-
-            serviceCollection.AddSQLServerDBContext();
-            return serviceCollection;
+            useGPRC = false;
         }
 
-        if (string.Compare(sourceDatabase, SourceDatabases.PostgresOption, true) == 0)
-        {
-            serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
-            serviceCollection.AddScoped<IUserRepository, UserRepository>();
-            serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
-            serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
-
-            serviceCollection.AddPostgresDBContext();
-            return serviceCollection;
-        }
-
-        if (string.Compare(sourceDatabase, SourceDatabases.gRPCOption, true) == 0)
+        if (useGPRC)    // add required services for gRPC
         {
             serviceCollection.AddScoped<IAuthRepository, gRPCAuthClient>();
             serviceCollection.AddScoped<IUserRepository, gRPCUserClient>();
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
             serviceCollection.AddScoped<IUserFileRepository, gRPCUserFileClient>();
 
-            GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
+            GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCConnectionString)!);
             serviceCollection.AddSingleton(channel);
+        }
+        else  // add required services for direct connection to database
+        {
+            serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
+            serviceCollection.AddScoped<IUserRepository, UserRepository>();
+            serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
 
-            //var uri = new Uri(configuration.GetConnectionString(SourceDatabases.gRPCOption)!);
-
-
-            //serviceCollection.AddGrpcClient<IgRPCAuthRepository>(o =>
-            //{
-            //    o.Address = uri;
-            //});
-
-            //serviceCollection.AddGrpcClient<IgRPCUserRepository>(o =>
-            //{
-            //    o.Address = uri;
-            //});
-
-            //serviceCollection.AddGrpcClient<IgRPCUserDataRepository>(o =>
-            //{
-            //    o.Address = uri;
-            //});
-
-            serviceCollection.AddPostgresDBContext();
-            return serviceCollection;
+            if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
+            {
+                serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
+                serviceCollection.AddSQLServerDBContext();  // context for SQL database
+            }
+            else if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValuePostgres, true) == 0)
+            {
+                serviceCollection.AddScoped<IUserFileRepository, UserFileRepositoryPostgres>();
+                serviceCollection.AddPostgresDBContext();   // context for Postgres database
+            }
         }
 
-        throw new NotImplementedException("Unknown source for database.");
+        return serviceCollection;
     }
 }

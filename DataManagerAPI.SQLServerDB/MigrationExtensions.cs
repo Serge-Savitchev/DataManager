@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 
 namespace DataManagerAPI.SQLServerDB;
@@ -15,7 +16,7 @@ public static class MigrationExtensions
     public static void SetUpFileStreamFeature(MigrationBuilder migrationBuilder)
     {
         // take database name from connection string
-        var dbName = ExtructDBNameFromConnectionString(GetConnectionString());
+        var dbName = ExtructDBNameFromConnectionString(GetConnectionString(SourceDatabases.SQLConnectionString));
 
         // default name of the table
         const string tableName = "dbo.UserFiles";
@@ -52,20 +53,20 @@ public static class MigrationExtensions
         migrationBuilder.Sql($"ALTER TABLE {tableName} ADD Data VARBINARY(MAX)", true);
     }
 
-    public static string GetConnectionString()
+    public static string GetConnectionString(string configurationKey)
     {
         // Get environment
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 
         // Build config
         var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false);
+        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
         IConfigurationRoot config = builder.Build();
 
         // Get connection string
-        var connectionString = config.GetConnectionString("SQLServerDB")!;
+        var connectionString = config.GetConnectionString(configurationKey)!;
 
         Console.WriteLine($"Environment: {environment}");
         Console.WriteLine(connectionString);

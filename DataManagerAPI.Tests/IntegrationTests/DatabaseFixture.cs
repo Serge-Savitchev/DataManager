@@ -1,6 +1,7 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.SQLServerDB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 
@@ -11,7 +12,7 @@ public static class DatabaseFixture
     private static readonly object _lockDB = new();
     private static bool _databaseInitialized;
 
-    public static string SourceDatabase { get; set; } = string.Empty;
+    public static bool UseGRPCServer { get; set; } = false;
     private const string ProcessName = "DataManagerAPI.gRPCServer";
 
 
@@ -28,7 +29,7 @@ public static class DatabaseFixture
                     db.Database.Migrate();
                 }
 
-                if (string.Compare(SourceDatabase, SourceDatabases.gRPCOption, true) == 0)
+                if (UseGRPCServer)
                 {
                     TryRunGRPCService();
                 }
@@ -75,7 +76,7 @@ public static class DatabaseFixture
 
     public static void ShutdownGRPCService()
     {
-        if (string.Compare(SourceDatabase, SourceDatabases.gRPCOption, true) == 0)
+        if (UseGRPCServer)
         {
             var process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
             if (process != null && !process.HasExited)

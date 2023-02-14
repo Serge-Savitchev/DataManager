@@ -19,7 +19,7 @@ namespace DataManagerAPI.Controllers;
 public class UserFilesController : ControllerBase
 {
     private readonly IUserFileService _service;
-    private const int _defaultBufferSize = 1024 * 1024;
+    private readonly int _defaultBufferSize = 1024 * 4;
     private readonly bool _useBufferingStreamCopy;
 
     /// <summary>
@@ -30,9 +30,14 @@ public class UserFilesController : ControllerBase
     public UserFilesController(IUserFileService service, IConfiguration configuration)
     {
         _service = service;
-        if (!bool.TryParse(configuration["UseBufferingStreamCopy"], out _useBufferingStreamCopy))
+        if (!bool.TryParse(configuration["Buffering:Client:UseTemporaryFile"], out _useBufferingStreamCopy))
         {
             _useBufferingStreamCopy = false;
+        }
+
+        if (int.TryParse(configuration["Buffering:Client:BufferSize"], out int size) && size > 0)
+        {
+            _defaultBufferSize = size * 1024;
         }
     }
 

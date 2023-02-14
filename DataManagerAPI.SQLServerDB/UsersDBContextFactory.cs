@@ -10,7 +10,7 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<UsersDBContext>
     public UsersDBContext CreateDbContext(string[] args)
     {
         // Get connection string
-        var connectionString = MigrationExtensions.GetConnectionString();
+        var connectionString = MigrationExtensions.GetConnectionString(SourceDatabases.SQLConnectionString);
 
         var optionsBuilder = new DbContextOptionsBuilder<UsersDBContext>();
         optionsBuilder.UseSqlServer(connectionString);

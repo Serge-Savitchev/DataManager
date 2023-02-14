@@ -31,7 +31,11 @@ public class CustomWebApplicationFactory<TProgram>
     {
         builder.ConfigureServices((context, conf) =>
         {
-            DatabaseFixture.SourceDatabase = context.Configuration.GetConnectionString(SourceDatabases.OptionName)!;
+            if (!bool.TryParse(context.Configuration.GetConnectionString(SourceDatabases.UseGPRC), out bool useGPRC))
+            {
+                useGPRC = false;
+            }
+            DatabaseFixture.UseGRPCServer = useGPRC;
         });
 
         //builder.ConfigureServices(services =>

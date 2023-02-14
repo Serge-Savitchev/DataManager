@@ -89,6 +89,27 @@ namespace DataManagerAPI.PostgresDB.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserFiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserDataId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFiles_UserData_UserDataId",
+                        column: x => x.UserDataId,
+                        principalTable: "UserData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Name" },
@@ -108,7 +129,7 @@ namespace DataManagerAPI.PostgresDB.Migrations
             migrationBuilder.InsertData(
                 table: "UserCredentials",
                 columns: new[] { "UserId", "Login", "PasswordHash", "RefreshToken" },
-                values: new object[] { 1, "Admin", "$2a$11$SVbsduCzoUg4x4dr/Cd/zuWY9vPAMgcwhjXAh6GMgquQ0HONI9Cu.", null });
+                values: new object[] { 1, "Admin", "$2a$11$Jtrvecdcjaa7dZ0KWuR6/.vv3rI0RvIquelLLRu2yEn0eYU2Td5pi", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserData_UserId",
@@ -116,9 +137,16 @@ namespace DataManagerAPI.PostgresDB.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserFiles_UserDataId",
+                table: "UserFiles",
+                column: "UserDataId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Role",
                 table: "Users",
                 column: "Role");
+
+            PostgresMigrationExtensions.SetUpBlobFeature(migrationBuilder);
         }
 
         /// <inheritdoc />
@@ -126,6 +154,9 @@ namespace DataManagerAPI.PostgresDB.Migrations
         {
             migrationBuilder.DropTable(
                 name: "UserCredentials");
+
+            migrationBuilder.DropTable(
+                name: "UserFiles");
 
             migrationBuilder.DropTable(
                 name: "UserData");

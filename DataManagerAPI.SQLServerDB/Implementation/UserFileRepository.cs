@@ -16,9 +16,10 @@ namespace DataManagerAPI.SQLServerDB.Implementation;
 public class UserFileRepository : IUserFileRepository
 {
     private readonly UsersDBContext _context;
-    private readonly bool _useBufferingStreamCopy;
+    private readonly bool _useBufferingForBigFiles;
+    private readonly bool _useBufferingForSmallFiles;
 
-    const int _bufferSizeForStreamCopy = 1024 * 1024 * 10;
+    private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;
 
     /// <summary>
     /// Constructor.
@@ -28,10 +29,22 @@ public class UserFileRepository : IUserFileRepository
     public UserFileRepository(UsersDBContext context, IConfiguration configuration)
     {
         _context = context;
-        if (!bool.TryParse(configuration["UseBufferingStreamCopy"], out _useBufferingStreamCopy))
+
+        if (!bool.TryParse(configuration["Buffering:Server:UseBufferingForBigFiles"], out _useBufferingForBigFiles))
         {
-            _useBufferingStreamCopy = false;
+            _useBufferingForBigFiles = false;
         }
+
+        if (!bool.TryParse(configuration["Buffering:Server:UseBufferingForSmallFiles"], out _useBufferingForSmallFiles))
+        {
+            _useBufferingForSmallFiles = false;
+        }
+
+        if (int.TryParse(configuration["Buffering:Server:BufferSize"], out int size) && size > 0)
+        {
+            _bufferSizeForStreamCopy = size * 1024;
+        }
+
     }
 
     /// <inheritdoc />
@@ -74,13 +87,12 @@ public class UserFileRepository : IUserFileRepository
         sqlCommand.CommandText = request;
         using (SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken))
         {
-            while (await reader.ReadAsync(cancellationToken))
+            if (await reader.ReadAsync(cancellationToken))
             {
                 contentSize = reader.IsDBNull(0) ? null : reader.GetInt64(0);
                 dataSize = reader.IsDBNull(1) ? null : reader.GetInt64(1);
                 fileSize = reader.IsDBNull(2) ? null : reader.GetInt64(2);
                 fileName = reader.IsDBNull(3) ? null : reader.GetString(3);
-                break;
             }
         }
 
@@ -113,12 +125,10 @@ public class UserFileRepository : IUserFileRepository
 
                 sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken);
-                while (await reader.ReadAsync(cancellationToken))
+                if (await reader.ReadAsync(cancellationToken))
                 {
                     dataSize = reader.GetBytes(0, 0, data, 0, (int)dataSize);
                     outStream = new MemoryStream(data);
-
-                    break;
                 }
             }
             else
@@ -131,6 +141,7 @@ public class UserFileRepository : IUserFileRepository
                 Id = fileId,
                 UserDataId = userDataId,
                 Name = fileName,
+                Size = dataSize ?? 0,
                 Content = outStream
             };
 
@@ -232,14 +243,14 @@ public class UserFileRepository : IUserFileRepository
 
         MemoryStream memoryStream = new MemoryStream();
 
-        if (_useBufferingStreamCopy)
+        if (_useBufferingForSmallFiles)
         {
             byte[] buffer = new byte[_bufferSizeForStreamCopy];
             int read, count = 0;
             while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
             {
                 Console.WriteLine($"{++count}\t{read}");
-                await memoryStream.WriteAsync(buffer, cancellationToken);
+                await memoryStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
             }
         }
         else
@@ -289,7 +300,8 @@ public class UserFileRepository : IUserFileRepository
             sqlCommand.CommandText = request;
             fileStream.Id = (await sqlCommand.ExecuteScalarAsync(cancellationToken) as int?)!.Value;
         }
-        else if (filePath == null)  // record exists, but FILESTREAM data is empty
+
+        if (filePath == null)  // record exists, but FILESTREAM data is empty
         {
             // create empty data
             sqlCommand.CommandText = $"UPDATE {dbName}.dbo.UserFiles SET Size=0, Content=0, Data=NULL," +
@@ -310,14 +322,14 @@ public class UserFileRepository : IUserFileRepository
 
         var sqlFileStream = new SqlFileStream(filePath!, txContext, FileAccess.Write);
 
-        if (_useBufferingStreamCopy)
+        if (_useBufferingForBigFiles)
         {
             byte[] buffer = new byte[_bufferSizeForStreamCopy];
             int read, count = 0;
             while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
             {
                 Console.WriteLine($"{++count}\t{read}");
-                await sqlFileStream.WriteAsync(buffer, 0, read, cancellationToken);
+                await sqlFileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
             }
         }
         else
