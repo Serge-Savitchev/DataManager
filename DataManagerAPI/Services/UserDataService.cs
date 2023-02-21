@@ -7,17 +7,26 @@ using System.Data;
 
 namespace DataManagerAPI.Services;
 
+/// <summary>
+/// Implementation of IUserDataService.
+/// </summary>
 public class UserDataService : IUserDataService
 {
     private readonly IUserDataRepository _repository;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="repository"><see cref="IUserDataRepository"/></param>
+    /// <param name="mapper"><see cref="IMapper"/></param>
     public UserDataService(IUserDataRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDataDto>> AddUserData(AddUserDataDto userDataToAdd)
     {
         var result = await _repository.AddUserDataAsync(_mapper.Map<UserData>(userDataToAdd));
@@ -27,6 +36,7 @@ public class UserDataService : IUserDataService
         return ret;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userDataId)
     {
         var result = await _repository.DeleteUserDataAsync(userDataId);
@@ -36,6 +46,7 @@ public class UserDataService : IUserDataService
         return ret;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDataDto>> GetUserData(int userDataId)
     {
         var result = await _repository.GetUserDataAsync(userDataId);
@@ -45,6 +56,7 @@ public class UserDataService : IUserDataService
         return ret;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId)
     {
         var result = await _repository.GetUserDataByUserIdAsync(userId);
@@ -58,6 +70,7 @@ public class UserDataService : IUserDataService
         return ret;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDataDto>> UpdateUserData(UserDataDto userDataToUpdate)
     {
         var result = await _repository.UpdateUserDataAsync(_mapper.Map<UserData>(userDataToUpdate));

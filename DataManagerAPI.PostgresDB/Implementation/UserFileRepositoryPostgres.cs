@@ -7,24 +7,25 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-/// <summary>
-/// Implementation of <see cref="IUserFileRepository"/> for Postgres database.
-/// </summary>
 namespace DataManagerAPI.PostgresDB.Implementation;
 
-public class UserFileRepositoryPostgres : IUserFileRepository
+/// <summary>
+/// Implementation of <see cref="IUserFilesRepository"/> for Postgres database.
+/// </summary>
+public class UserFileRepositoryPostgres : IUserFilesRepository
 {
     private readonly PostgresDBContext _context;
 
     private readonly bool _useBufferingForBigFiles;     // flag for using buffering for big files
     private readonly bool _useBufferingForSmallFiles;   // flag for using buffering for "small" files
 
+    // it is used if _useBufferingForBigFiles or _useBufferingForSmallFiles are "true".
     private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="context">Database context. <see cref="UsersDBContext"/>.</param>
+    /// <param name="context">Database context. <see cref="UsersDBContext"/></param>
     /// <param name="configuration"><see cref="IConfiguration"/></param>
     public UserFileRepositoryPostgres(UsersDBContext context, IConfiguration configuration)
     {
@@ -301,6 +302,12 @@ public class UserFileRepositoryPostgres : IUserFileRepository
 
             // take file name from DB. null value means that record doesn't exist.
             var fileName = await command.ExecuteScalarAsync(cancellationToken) as string;
+            if (fileName == null && fileStream.Id != 0) // file doesn't exist, but Id is not 0.
+            {
+                result.StatusCode = StatusCodes.Status404NotFound;
+                result.Success = false;
+                return result;
+            }
 
             if (fileStream.BigFile)
             {
@@ -446,7 +453,6 @@ public class UserFileRepositoryPostgres : IUserFileRepository
         }
 
     }
-
 
     private async Task<ResultWrapper<T>> FindUserData<T>(int userDataId, CancellationToken cancellationToken = default)
     {

@@ -7,35 +7,47 @@ using ProtoBuf.Grpc;
 
 namespace DataManagerAPI.gRPCServer.Implementation;
 
+/// <summary>
+/// Implementation of <see cref="IgRPCUserDataRepository"/> for gRPC server.
+/// </summary>
 public class gRPCUserDataRepository : IgRPCUserDataRepository
 {
     private readonly IUserDataRepository _repository;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="repository"><see cref="IUserDataRepository"/></param>
     public gRPCUserDataRepository(IUserDataRepository repository)
     {
         _repository = repository;
     }
 
+    /// <inheritdoc />
     public Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd, CallContext context = default)
     {
         return _repository.AddUserDataAsync(userDataToAdd);
     }
 
-    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(UserIdRequest userDataId, CallContext context = default)
+    /// <inheritdoc />
+    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Request userDataId, CallContext context = default)
     {
-        return _repository.DeleteUserDataAsync(userDataId.UserId);
+        return _repository.DeleteUserDataAsync(userDataId.Value);
     }
 
-    public Task<ResultWrapper<UserData>> GetUserDataAsync(UserIdRequest userDataId, CallContext context = default)
+    /// <inheritdoc />
+    public Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Request userDataId, CallContext context = default)
     {
-        return _repository.GetUserDataAsync(userDataId.UserId);
+        return _repository.GetUserDataAsync(userDataId.Value);
     }
 
-    public Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(UserIdRequest userId, CallContext context = default)
+    /// <inheritdoc />
+    public Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(Int32Request userId, CallContext context = default)
     {
-        return _repository.GetUserDataByUserIdAsync(userId.UserId);
+        return _repository.GetUserDataByUserIdAsync(userId.Value);
     }
 
+    /// <inheritdoc />
     public Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate, CallContext context = default)
     {
         return _repository.UpdateUserDataAsync(userDataToUpdate);

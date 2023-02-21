@@ -4,8 +4,14 @@ using DataManagerAPI.Repository.Abstractions.Models;
 
 namespace DataManagerAPI.Helpers;
 
+/// <summary>
+/// Mapping data.
+/// </summary>
 public class MappingProfile : Profile
 {
+    /// <summary>
+    /// Mapping profile.
+    /// </summary>
     public MappingProfile()
     {
         //CreateMap<UserDto?, User>()

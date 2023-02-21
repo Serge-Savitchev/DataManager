@@ -1,12 +1,19 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace DataManagerAPI.SQLServerDB;
 
+/// <summary>
+/// Provider of migration of SQL database.
+/// </summary>
 public class UsersDBContextFactory : IDesignTimeDbContextFactory<UsersDBContext>
 {
+    /// <summary>
+    /// Creates database context.
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns>Database context. <see cref="UsersDBContext"/></returns>
     public UsersDBContext CreateDbContext(string[] args)
     {
         // Get connection string

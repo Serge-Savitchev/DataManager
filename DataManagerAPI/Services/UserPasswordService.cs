@@ -2,8 +2,12 @@
 
 namespace DataManagerAPI.Services;
 
+/// <summary>
+/// Implementation of <see cref="IUserPasswordService"/>.
+/// </summary>
 public class UserPasswordService : IUserPasswordService
 {
+    /// <inheritdoc />
     public UserCredentials CreatePasswordHash(string password)
     {
         var result = new UserCredentials();
@@ -16,6 +20,7 @@ public class UserPasswordService : IUserPasswordService
         return result;
     }
 
+    /// <inheritdoc />
     public bool VerifyPasswordHash(string password, string passwordHash)
     {
         return BCrypt.Net.BCrypt.Verify(password, passwordHash);

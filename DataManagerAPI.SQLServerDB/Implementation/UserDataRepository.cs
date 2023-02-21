@@ -6,16 +6,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataManagerAPI.SQLServerDB.Implementation;
 
+/// <summary>
+/// Implementation of <see cref="IUserDataRepository"/>.
+/// </summary>
 public class UserDataRepository : IUserDataRepository
 {
     private readonly UsersDBContext _context;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="context"><see cref="UsersDBContext"/></param>
     public UserDataRepository(UsersDBContext context)
     {
         _context = context;
     }
 
-    public async Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd,
+        CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -25,13 +34,13 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var userData = await FindUserAsync<UserData>(userDataToAdd.UserId);
+            var userData = await FindUserAsync<UserData>(userDataToAdd.UserId, cancellationToken);
             if (!userData.Success)
             {
                 return userData;
             }
 
-            await _context.UserData.AddAsync(userDataToAdd);
+            await _context.UserData.AddAsync(userDataToAdd, cancellationToken);
             _context.SaveChanges();
         }
         catch (Exception ex)
@@ -45,7 +54,9 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId,
+        CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -56,7 +67,7 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId);
+            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId, cancellationToken);
             if (userDataToDelete is null)
             {
                 result.Success = false;
@@ -67,7 +78,7 @@ public class UserDataRepository : IUserDataRepository
             }
 
             _context.UserData.Remove(userDataToDelete);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -80,7 +91,9 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId,
+        CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -93,7 +106,7 @@ public class UserDataRepository : IUserDataRepository
         {
             userData = await _context.UserData
                 .Include(data => data.UserFiles)
-                .FirstOrDefaultAsync(y => y.Id == userDataId);
+                .FirstOrDefaultAsync(y => y.Id == userDataId, cancellationToken);
 
             if (userData is null)
             {
@@ -104,7 +117,7 @@ public class UserDataRepository : IUserDataRepository
                 return result;
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -117,7 +130,9 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId,
+            CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData[]>
         {
@@ -128,7 +143,7 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var user = await FindUserAsync<UserData[]>(userId);
+            var user = await FindUserAsync<UserData[]>(userId, cancellationToken);
             if (!user.Success)
             {
                 return user;
@@ -137,7 +152,7 @@ public class UserDataRepository : IUserDataRepository
             dataList = await _context.UserData
                 .Include(data => data.UserFiles)
                 .Where(y => y.UserId == userId)
-                .ToArrayAsync();
+                .ToArrayAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -150,7 +165,9 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    public async Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate,
+            CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
         {
@@ -161,13 +178,13 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var user = await FindUserAsync<UserData>(userDataToUpdate.UserId);
+            var user = await FindUserAsync<UserData>(userDataToUpdate.UserId, cancellationToken);
             if (!user.Success)
             {
                 return user;
             }
 
-            updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataToUpdate.Id);
+            updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataToUpdate.Id, cancellationToken);
             if (updatedUserData is null)
             {
                 result.Success = false;
@@ -180,7 +197,7 @@ public class UserDataRepository : IUserDataRepository
             updatedUserData.Title = userDataToUpdate.Title;
             updatedUserData.Data = userDataToUpdate.Data;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -193,7 +210,14 @@ public class UserDataRepository : IUserDataRepository
         return result;
     }
 
-    private async Task<ResultWrapper<T>> FindUserAsync<T>(int userId)
+    /// <summary>
+    /// Searches for usser by Id.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>ResultWrapper.Success = true if user exists</returns>
+    private async Task<ResultWrapper<T>> FindUserAsync<T>(int userId, CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<T>
         {
@@ -202,7 +226,7 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
                 throw new Exception();

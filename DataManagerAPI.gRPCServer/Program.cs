@@ -5,9 +5,6 @@ using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.SQLServerDB;
 using DataManagerAPI.SQLServerDB.Implementation;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using ProtoBuf.Grpc.Configuration;
 using ProtoBuf.Grpc.Server;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,12 +16,12 @@ builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 string sourceDatabaseType = builder.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
 if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
 {
-    builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+    builder.Services.AddScoped<IUserFilesRepository, UserFilesRepository>();
     builder.Services.AddSQLServerDBContext();   // context for SQL database
 }
 else if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValuePostgres, true) == 0)
 {
-    builder.Services.AddScoped<IUserFileRepository, UserFileRepositoryPostgres>();
+    builder.Services.AddScoped<IUserFilesRepository, UserFileRepositoryPostgres>();
     builder.Services.AddPostgresDBContext();    // context for Postgres database
 }
 else
@@ -43,8 +40,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
 }
 
 app.MapGrpcService<gRPCAuthRepository>();
-app.MapGrpcService<gRPCUserRepository>();
+app.MapGrpcService<gRPCUsersRepository>();
 app.MapGrpcService<gRPCUserDataRepository>();
+app.MapGrpcService<gRPCUserFilesRepository>();
 
 Console.WriteLine("Arguments:");
 

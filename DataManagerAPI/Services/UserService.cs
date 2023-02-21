@@ -7,17 +7,26 @@ using System.Data;
 
 namespace DataManagerAPI.Services;
 
+/// <summary>
+/// Implementation of <see cref="IUserService"/>
+/// </summary>
 public class UserService : IUserService
 {
     private readonly IUserRepository _repository;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="repository"><see cref="IUserRepository"/></param>
+    /// <param name="mapper"><see cref="IMapper"/></param>
     public UserService(IUserRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDto>> DeleteUser(int userId)
     {
         var result = await _repository.DeleteUserAsync(userId);
@@ -25,13 +34,15 @@ public class UserService : IUserService
         return ret;
     }
 
-    public async Task<ResultWrapper<List<UserDto>>> GetAllUsers()
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserDto[]>> GetAllUsers()
     {
         var result = await _repository.GetAllUsersAsync();
         var ret = ConvertWrapper(result);
         return ret;
     }
 
+    /// <inheritdoc />
     public async Task<ResultWrapper<UserDto>> GetUser(int userId)
     {
         var result = await _repository.GetUserAsync(userId);
@@ -39,14 +50,16 @@ public class UserService : IUserService
         return ret;
     }
 
-    public async Task<ResultWrapper<List<UserDto>>> GetUsersByRole(string role)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserDto[]>> GetUsersByRole(string role)
     {
         var result = await _repository.GetUsersByRoleAsync(Enum.Parse<RoleIds>(role, true));
         var ret = ConvertWrapper(result);
         return ret;
     }
 
-    public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequest request)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequestDto request)
     {
         var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds);
         return result;
@@ -64,12 +77,12 @@ public class UserService : IUserService
         return ret;
     }
 
-    private ResultWrapper<List<UserDto>> ConvertWrapper(ResultWrapper<List<User>> source)
+    private ResultWrapper<UserDto[]> ConvertWrapper(ResultWrapper<User[]> source)
     {
-        var ret = new ResultWrapper<List<UserDto>>()
+        var ret = new ResultWrapper<UserDto[]>()
         {
             Success = source.Success,
-            Data = source.Success && source.Data != null ? source.Data.Select(_mapper.Map<UserDto>).ToList() : null,
+            Data = source.Success && source.Data != null ? source.Data.Select(_mapper.Map<UserDto>).ToArray() : null,
             Message = source.Message,
             StatusCode = source.StatusCode
         };

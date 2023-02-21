@@ -53,8 +53,21 @@ public static class MigrationExtensions
         migrationBuilder.Sql($"ALTER TABLE {tableName} ADD Data VARBINARY(MAX)", true);
     }
 
+    private static Dictionary<string, string> ConnectionStrings = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Gets connection string to database from configuration.
+    /// </summary>
+    /// <param name="configurationKey">Name of key in "ConnectionStrings" section</param>
+    /// <returns></returns>
     public static string GetConnectionString(string configurationKey)
     {
+        if (ConnectionStrings.TryGetValue(configurationKey, out string? connectionString)
+            && !string.IsNullOrEmpty(connectionString))
+        {
+            return connectionString;
+        }
+
         // Get environment
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 
@@ -66,10 +79,12 @@ public static class MigrationExtensions
         IConfigurationRoot config = builder.Build();
 
         // Get connection string
-        var connectionString = config.GetConnectionString(configurationKey)!;
+        connectionString = config.GetConnectionString(configurationKey)!;
 
         Console.WriteLine($"Environment: {environment}");
         Console.WriteLine(connectionString);
+
+        ConnectionStrings[configurationKey] = connectionString;
 
         return connectionString;
     }
@@ -78,7 +93,7 @@ public static class MigrationExtensions
     /// Extructs database name from connection string.
     /// </summary>
     /// <param name="connectionString"></param>
-    /// <returns>Database name.</returns>
+    /// <returns>Database name</returns>
     public static string ExtructDBNameFromConnectionString(string connectionString)
     {
         var tmp = connectionString.Replace(" ", "");

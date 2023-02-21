@@ -13,7 +13,7 @@ public interface IUserFileService
     /// </summary>
     /// <param name="userDataId"></param>
     /// <param name="cancellationToken"></param>
-    /// <returns>Array of files. <see cref="UserFileDto"/>.</returns>
+    /// <returns>Array of files. <see cref="UserFileDto"/></returns>
     Task<ResultWrapper<UserFileDto[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -31,13 +31,13 @@ public interface IUserFileService
     /// <param name="userDataId"></param>
     /// <param name="fileId"></param>
     /// <param name="cancellationToken"></param>
-    /// <returns>Stream for file downloading. <see cref="UserFileStream"/>.</returns>
+    /// <returns>Stream for file downloading. <see cref="UserFileStreamDto"/></returns>
     Task<ResultWrapper<UserFileStreamDto>> DownloadFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Uploads file to database.
     /// </summary>
-    /// <param name="fileStream"><see cref="UserFileStreamDto"/>.</param>
+    /// <param name="fileStream"><see cref="UserFileStreamDto"/></param>
     /// <param name="cancellationToken"></param>
     /// <returns><see cref="UserFileDto"/></returns>
     Task<ResultWrapper<UserFileDto>> UploadFileAsync(UserFileStreamDto fileStream, CancellationToken cancellationToken = default);

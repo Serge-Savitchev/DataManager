@@ -11,23 +11,24 @@ using System.Data;
 namespace DataManagerAPI.SQLServerDB.Implementation;
 
 /// <summary>
-/// Implementation of <see cref="IUserFileRepository"/>.
+/// Implementation of <see cref="IUserFilesRepository"/>.
 /// </summary>
-public class UserFileRepository : IUserFileRepository
+public class UserFilesRepository : IUserFilesRepository
 {
     private readonly UsersDBContext _context;
 
     private readonly bool _useBufferingForBigFiles;     // flag for using buffering for big files
     private readonly bool _useBufferingForSmallFiles;   // flag for using buffering for "small" files
 
+    // it is used if _useBufferingForBigFiles or _useBufferingForSmallFiles are "true".
     private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="context">Database context. <see cref="UsersDBContext"/>.</param>
+    /// <param name="context">Database context. <see cref="UsersDBContext"/></param>
     /// <param name="configuration"><see cref="IConfiguration"/></param>
-    public UserFileRepository(UsersDBContext context, IConfiguration configuration)
+    public UserFilesRepository(UsersDBContext context, IConfiguration configuration)
     {
         _context = context;
 
@@ -211,6 +212,13 @@ public class UserFileRepository : IUserFileRepository
 
             // take file name from DB. null value means that record doesn't exist.
             var fileName = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
+
+            if (fileName == null && fileStream.Id != 0) // file doesn't exist, but Id is not 0.
+            {
+                result.StatusCode = StatusCodes.Status404NotFound;
+                result.Success = false;
+                return result;
+            }
 
             if (fileStream.BigFile)
             {

@@ -21,7 +21,7 @@ public static class RepositoryExtensions
     /// </summary>
     /// <param name="serviceCollection"></param>
     /// <param name="configuration"></param>
-    /// <returns>Service collection. <see cref="IServiceCollection">.</returns>
+    /// <returns>Service collection. <see cref="IServiceCollection"/></returns>
     public static IServiceCollection AddSelectedDBContext(this IServiceCollection serviceCollection,
             ConfigurationManager configuration)
     {
@@ -39,7 +39,7 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IAuthRepository, gRPCAuthClient>();
             serviceCollection.AddScoped<IUserRepository, gRPCUserClient>();
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
-            serviceCollection.AddScoped<IUserFileRepository, gRPCUserFileClient>();
+            serviceCollection.AddScoped<IUserFilesRepository, gRPCUserFilesClient>();
 
             GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCConnectionString)!);
             serviceCollection.AddSingleton(channel);
@@ -52,12 +52,12 @@ public static class RepositoryExtensions
 
             if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
             {
-                serviceCollection.AddScoped<IUserFileRepository, UserFileRepository>();
+                serviceCollection.AddScoped<IUserFilesRepository, UserFilesRepository>();
                 serviceCollection.AddSQLServerDBContext();  // context for SQL database
             }
             else if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValuePostgres, true) == 0)
             {
-                serviceCollection.AddScoped<IUserFileRepository, UserFileRepositoryPostgres>();
+                serviceCollection.AddScoped<IUserFilesRepository, UserFileRepositoryPostgres>();
                 serviceCollection.AddPostgresDBContext();   // context for Postgres database
             }
         }

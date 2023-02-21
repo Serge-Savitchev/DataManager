@@ -1,6 +1,9 @@
-﻿//namespace Microsoft.AspNetCore.Http;
-namespace DataManagerAPI.Repository.Abstractions.Constants;
+﻿namespace DataManagerAPI.Repository.Abstractions.Constants;
 
+/// <summary>
+/// Tis is subset of Microsoft.AspNetCore.Http.StatusCodes.
+/// We don't use original class to avoid dependence on Microsoft.AspNetCore.Http.
+/// </summary>
 public static class StatusCodes
 {
     /// <summary>
@@ -52,5 +55,4 @@ public static class StatusCodes
     /// HTTP status code 501.
     /// </summary>
     public const int Status501NotImplemented = 501;
-
 }

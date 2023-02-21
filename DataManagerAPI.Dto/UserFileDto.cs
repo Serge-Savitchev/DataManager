@@ -1,5 +1,8 @@
 ﻿namespace DataManagerAPI.Dto;
 
+/// <summary>
+/// User file for frontend
+/// </summary>
 public class UserFileDto
 {
     /// <summary>

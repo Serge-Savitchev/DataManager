@@ -6,16 +6,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataManagerAPI.SQLServerDB.Implementation;
 
+/// <summary>
+/// Implementation of <see cref="IUserRepository"/>.
+/// </summary>
 public class UserRepository : IUserRepository
 {
     private readonly UsersDBContext _context;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="context"><see cref="UsersDBContext"/></param>
     public UserRepository(UsersDBContext context)
     {
         _context = context;
     }
 
-    public async Task<ResultWrapper<User>> DeleteUserAsync(int userId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<User>> DeleteUserAsync(int userId,
+            CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<User>
         {
@@ -24,7 +33,7 @@ public class UserRepository : IUserRepository
 
         try
         {
-            var userToDelete = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var userToDelete = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (userToDelete is null)
             {
                 result.Success = false;
@@ -35,7 +44,7 @@ public class UserRepository : IUserRepository
             }
 
             _context.Users.Remove(userToDelete);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             result.Data = userToDelete;
         }
@@ -49,7 +58,8 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<User>> GetUserAsync(int userId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<User>> GetUserAsync(int userId, CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<User>
         {
@@ -58,7 +68,7 @@ public class UserRepository : IUserRepository
 
         try
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
                 result.Success = false;
@@ -79,16 +89,18 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<List<User>>> GetUsersByRoleAsync(RoleIds roleId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<User[]>> GetUsersByRoleAsync(RoleIds roleId,
+            CancellationToken cancellationToken = default)
     {
-        var result = new ResultWrapper<List<User>>
+        var result = new ResultWrapper<User[]>
         {
             Success = true
         };
 
         try
         {
-            var users = await _context.Users.Where(x => x.Role == roleId).ToListAsync();
+            var users = await _context.Users.Where(x => x.Role == roleId).ToArrayAsync(cancellationToken);
             result.Data = users;
         }
         catch (Exception ex)
@@ -101,16 +113,17 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<List<User>>> GetAllUsersAsync()
+    /// <inheritdoc />
+    public async Task<ResultWrapper<User[]>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
-        var result = new ResultWrapper<List<User>>
+        var result = new ResultWrapper<User[]>
         {
             Success = true
         };
 
         try
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToArrayAsync(cancellationToken);
             result.Data = users;
         }
         catch (Exception ex)
@@ -123,7 +136,9 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users,
+                CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<int>
         {
@@ -139,7 +154,7 @@ public class UserRepository : IUserRepository
 
             res.AsParallel().ForAll(x => x.OwnerId = ownerId);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             result.Data = res.Count();
         }
         catch (Exception ex)

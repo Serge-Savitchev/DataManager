@@ -13,61 +13,68 @@ public interface IAuthRepository
     /// <summary>
     /// Register new user in database.
     /// </summary>
-    /// <param name="userToAdd">The <see cref="User"/> defines user's data.</param>
-    /// <param name="userCredentials">The <see cref="UserCredentials"/> defines user's credentials.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<User>"/> of asynchronous operation.</returns>
+    /// <param name="userToAdd">The <see cref="User"/> defines user's data</param>
+    /// <param name="userCredentials">The <see cref="UserCredentials"/> defines user's credentials</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>A task that represents the result <see cref="User"/> of asynchronous operation</returns>
     [OperationContract]
-    Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials);
+    Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Authenticates and authorizes user.
     /// </summary>
-    /// <param name="login">Specifies user login.</param>
-    /// <param name="credentials">The <see cref="UserCredentials"/> defines user's credentials.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<int>"/> of asynchronous operation.</returns>
+    /// <param name="login">Specifies user login</param>
+    /// <param name="credentials">The <see cref="UserCredentials"/> defines user's credentials</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>User Id</returns>
     [OperationContract]
-    Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials);
+    Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stores new Refresh token to database.
     /// </summary>
-    /// <param name="userId">Specifies user Id.</param>
-    /// <param name="refreshToken">Specifies new Refresh token. It can be null.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<int>"/> of asynchronous operation.</returns>
+    /// <param name="userId">Specifies user Id</param>
+    /// <param name="refreshToken">Specifies new Refresh token. It can be null</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>User Id</returns>
     [OperationContract]
-    Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken);
+    Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns stored in database user's credentials.
+    /// Get stored in database user's credentials.
     /// </summary>
-    /// <param name="userId">Specifies user Id.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentialsData>"/> of asynchronous operation.</returns>
+    /// <param name="userId">Specifies user Id</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>A task that represents the result <see cref="UserCredentialsData"/> of asynchronous operation</returns>
     [OperationContract]
-    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId);
+    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Searches user in database by login.
     /// </summary>
-    /// <param name="login">Specifies user login.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<UserCredentialsData>"/> of asynchronous operation.</returns>
+    /// <param name="login">Specifies user login</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>A task that represents the result <see cref="UserCredentialsData"/> of asynchronous operation</returns>
     [OperationContract]
-    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login);
+    Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates user password in database.
     /// </summary>
-    /// <param name="userId">Specifies user Id.</param>
-    /// <param name="credentials">The <see cref="UserCredentials"/> defines user's credentials.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<int>"/> of asynchronous operation.</returns>
+    /// <param name="userId">Specifies user Id</param>
+    /// <param name="credentials">The <see cref="UserCredentials"/> defines user's credentials</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>User Id</returns>
     [OperationContract]
-    Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials);
+    Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Update user role in database.
+    /// Updates user role in database.
     /// </summary>
-    /// <param name="userId">Specifies user Id.</param>
-    /// <param name="newRole">Specifies new role <see cref="RoleIds"/>.</param>
-    /// <returns>A task that represents the result <see cref="ResultWrapper<RoleIds>"/> of asynchronous operation.</returns>
+    /// <param name="userId">Specifies user Id</param>
+    /// <param name="newRole">Specifies new role <see cref="RoleIds"/></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>A task that represents the result <see cref="RoleIds"/> of asynchronous operation</returns>
     [OperationContract]
-    Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole);
+    Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole, CancellationToken cancellationToken = default);
 }

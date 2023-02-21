@@ -6,36 +6,61 @@ using System.Security.Cryptography;
 
 namespace DataManagerAPI.SQLServerDB;
 
+/// <summary>
+/// Database context.
+/// </summary>
 public class UsersDBContext : DbContext
 {
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="options"><see cref="DbContextOptions"/></param>
     public UsersDBContext(DbContextOptions<UsersDBContext> options) : base(options)
     {
     }
+
+    /// <summary>
+    /// Constructor for inherited class.
+    /// </summary>
+    /// <param name="options"><see cref="DbContextOptions"/></param>
     protected UsersDBContext(DbContextOptions options) : base(options)
     {
     }
 
+    /// <summary>
+    /// Users table
+    /// </summary>
     public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// UserData table
+    /// </summary>
     public DbSet<UserData> UserData { get; set; }
+
+    /// <summary>
+    /// UserCredentials table
+    /// </summary>
     public DbSet<UserCredentials> UserCredentials { get; set; }
+
+    /// <summary>
+    /// UserFiles table
+    /// </summary>
     public DbSet<UserFile> UserFiles { get; set; }
 
+    /// <summary>
+    /// Configuring database.
+    /// </summary>
+    /// <param name="optionsBuilder"><see cref="DbContextOptionsBuilder"/></param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //base.OnConfiguring(optionsBuilder); // base implementation is empty
-
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
-
-        // Build config
-        var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-
-        IConfigurationRoot config = builder.Build();
-
-        optionsBuilder.UseSqlServer(config.GetConnectionString(SourceDatabases.SQLConnectionString));
+        optionsBuilder.UseSqlServer(MigrationExtensions.GetConnectionString(SourceDatabases.SQLConnectionString));
     }
 
+    /// <summary>
+    /// Creation of models in database.
+    /// </summary>
+    /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserCredentials>()
@@ -65,7 +90,9 @@ public class UsersDBContext : DbContext
                     .WithMany()
                     .HasForeignKey(p => p.Role);
 
-        User defaultAdmin = new User
+        // Create default user with "Admin" role.
+
+        var defaultAdmin = new User
         {
             Id = 1,
             FirstName = "DefaultAdmin",
@@ -76,8 +103,11 @@ public class UsersDBContext : DbContext
         modelBuilder.Entity<User>().
             HasData(defaultAdmin);
 
+
+        // Create credentials for default user.
+
         using var hmac = new HMACSHA512();
-        UserCredentials adminCredentials = new UserCredentials
+        var adminCredentials = new UserCredentials
         {
             UserId = 1,
             Login = "Admin",
@@ -87,5 +117,4 @@ public class UsersDBContext : DbContext
         modelBuilder.Entity<UserCredentials>()
             .HasData(adminCredentials);
     }
-
 }

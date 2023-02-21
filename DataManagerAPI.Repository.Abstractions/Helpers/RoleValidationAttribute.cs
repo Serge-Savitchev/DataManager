@@ -4,9 +4,17 @@ using System.Text;
 
 namespace DataManagerAPI.Repository.Abstractions.Helpers;
 
+/// <summary>
+/// Role name validator.
+/// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 public sealed class RoleValidationAttribute : ValidationAttribute
 {
+    /// <summary>
+    /// Validates role name.
+    /// </summary>
+    /// <param name="value">Role name</param>
+    /// <returns>True if validation passed</returns>
     public override bool IsValid(object? value)
     {
         if (value == null)
@@ -34,6 +42,11 @@ public sealed class RoleValidationAttribute : ValidationAttribute
         return result;
     }
 
+    /// <summary>
+    /// Creates error message if validation failed.
+    /// </summary>
+    /// <param name="name">Role name</param>
+    /// <returns>Formatted error message</returns>
     public override string FormatErrorMessage(string name)
     {
         return $"Invalid value of {name} field. Possible values are: {_availableNames}";

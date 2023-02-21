@@ -1,5 +1,4 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 
@@ -7,11 +6,11 @@ namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
 /// gRPC request.
 /// </summary>
 [DataContract]
-public class RoleRequest
+public class Int32Request
 {
     /// <summary>
-    /// RoleId
+    /// Value
     /// </summary>
     [DataMember(Order = 1)]
-    public RoleIds RoleId { get; set; }
+    public int Value { get; set; }
 }

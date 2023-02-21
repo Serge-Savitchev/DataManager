@@ -9,16 +9,23 @@ using System.Text;
 
 namespace DataManagerAPI.Services;
 
-
+/// <summary>
+/// Implementation of <see cref="ITokenService"/>.
+/// </summary>
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="configuration"><see cref="IConfiguration"/></param>
     public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
     }
 
+    /// <inheritdoc />
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ValidationTokenHelper.SecretKey));
@@ -33,6 +40,7 @@ public class TokenService : ITokenService
         return tokenString;
     }
 
+    /// <inheritdoc />
     public string GenerateRefreshToken()
     {
         var randomNumber = new byte[32];
@@ -43,6 +51,7 @@ public class TokenService : ITokenService
         }
     }
 
+    /// <inheritdoc />
     public ClaimsPrincipal? ValidateToken(string token, bool useLifetime)
     {
         if (token == null)
@@ -56,7 +65,6 @@ public class TokenService : ITokenService
             ClaimsPrincipal principal = tokenHandler.ValidateToken(token, ValidationTokenHelper.CreateTokenValidationParameters(useLifetime), out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            //bool expired = jwtToken.ValidTo < DateTime.UtcNow;
             return principal;
         }
         catch
@@ -66,6 +74,7 @@ public class TokenService : ITokenService
         }
     }
 
+    /// <inheritdoc />
     public CurrentUserDto CreateCurrentUser(IEnumerable<Claim> claims)
     {
         if (claims is null)
@@ -91,6 +100,7 @@ public class TokenService : ITokenService
         return currentUser;
     }
 
+    /// <inheritdoc />
     public TokenApiModelDto GeneratePairOfTokens(IEnumerable<Claim> claims)
     {
         var result = new TokenApiModelDto

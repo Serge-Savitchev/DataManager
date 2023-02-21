@@ -1,4 +1,5 @@
 ﻿using DataManagerAPI.Dto;
+using DataManagerAPI.Helpers;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services;
@@ -20,7 +21,11 @@ public class UserFilesController : ControllerBase
 {
     private readonly IUserFileService _service;
     private readonly int _defaultBufferSize = 1024 * 4;
-    private readonly bool _useBufferingStreamCopy;
+    private readonly bool _useTemporaryFile;
+
+    // used for auto detection of "big file" mode.
+    // if content length exceed this value the file is considered as "big" one.
+    private readonly int _defaultBigFileSize = 50; // MB 
 
     /// <summary>
     /// Constructor.
@@ -30,14 +35,20 @@ public class UserFilesController : ControllerBase
     public UserFilesController(IUserFileService service, IConfiguration configuration)
     {
         _service = service;
-        if (!bool.TryParse(configuration["Buffering:Client:UseTemporaryFile"], out _useBufferingStreamCopy))
+
+        if (!bool.TryParse(configuration["Buffering:Client:UseTemporaryFile"], out _useTemporaryFile))
         {
-            _useBufferingStreamCopy = false;
+            _useTemporaryFile = false;
         }
 
         if (int.TryParse(configuration["Buffering:Client:BufferSize"], out int size) && size > 0)
         {
             _defaultBufferSize = size * 1024;
+        }
+
+        if (int.TryParse(configuration["Buffering:Client:BigFileSize"], out int bigFileSize) && bigFileSize > 0)
+        {
+            _defaultBigFileSize = bigFileSize;
         }
     }
 
@@ -46,14 +57,16 @@ public class UserFilesController : ControllerBase
     /// </summary>
     /// <param name="userDataId"></param>
     /// <param name="fileId"></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns></returns>
     [ProducesResponseType(typeof(UserFileStreamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet]
     [Route("Download")]
-    public async Task<IActionResult> DownloadFile([FromQuery] int userDataId, [FromQuery] int fileId)
+    public async Task<IActionResult> DownloadFile([FromQuery] int userDataId, [FromQuery] int fileId,
+                CancellationToken cancellationToken = default)
     {
-        ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFileAsync(userDataId, fileId);
+        ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFileAsync(userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
             return NotFound();
@@ -68,13 +81,14 @@ public class UserFilesController : ControllerBase
     /// Returns list of all files in database for UserDataDto"/>.
     /// </summary>
     /// <param name="userDataId"></param>
-    /// <returns>Array of files <see cref="UserFileDto"/>.</returns>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>Array of files <see cref="UserFileDto"/></returns>
     [HttpGet]
     [ProducesResponseType(typeof(UserFileDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetList([FromQuery] int userDataId)
+    public async Task<IActionResult> GetList([FromQuery] int userDataId, CancellationToken cancellationToken = default)
     {
-        ResultWrapper<UserFileDto[]> ret = await _service.GetListAsync(userDataId);
+        ResultWrapper<UserFileDto[]> ret = await _service.GetListAsync(userDataId, cancellationToken);
 
         if (!ret.Success || ret.Data == null)
         {
@@ -89,11 +103,13 @@ public class UserFilesController : ControllerBase
     /// </summary>
     /// <param name="userDataId"></param>
     /// <param name="fileId"></param>
-    /// <returns>Id of deleted file.</returns>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>Id of deleted file</returns>
     [HttpDelete]
-    public async Task<IActionResult> DeleteFile([FromQuery] int userDataId, [FromQuery] int fileId)
+    public async Task<IActionResult> DeleteFile([FromQuery] int userDataId, [FromQuery] int fileId,
+                CancellationToken cancellationToken = default)
     {
-        ResultWrapper<int> ret = await _service.DeleteFileAsync(userDataId, fileId);
+        ResultWrapper<int> ret = await _service.DeleteFileAsync(userDataId, fileId, cancellationToken);
 
         return Ok(ret.Data);
     }
@@ -103,21 +119,28 @@ public class UserFilesController : ControllerBase
     /// <summary>
     /// Uploads file to database. Multipart/form-data is used. If there are several form-data only the first one will be processed.
     /// </summary>
-    /// <param name="userDataId"></param>
-    /// <param name="fileId"></param>
-    /// <param name="BigFile">Boolean flag ("true"/"false"). It "true" special feature of storing of big files in database is used.</param>
+    /// <param name="userDataId">Id of User Data</param>
+    /// <param name="fileId">Id of file</param>
+    /// <param name="bigFile">Boolean flag ("true"/"false"). If "true", special feature of storing of big files to database is used.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns><see cref="UserFile"/></returns>
     [HttpPost]
 #pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
     [Route("Upload")]
     [DisableRequestSizeLimit]
+    [DisableFormValueModelBinding]
     [ProducesResponseType(typeof(UserFileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadFile()
+    public async Task<IActionResult> UploadFile(
+        [FromQuery] int userDataId, [FromQuery] int fileId, [FromQuery] string? bigFile,
+        CancellationToken cancellationToken = default)
     {
-        int.TryParse(Request.Query["UserDataId"], out int userDataId);
-        int.TryParse(Request.Query["FileId"], out int fileId);
-        bool.TryParse(Request.Query["BigFile"], out bool bigFile);
+        Console.WriteLine($"Request length: {Request.ContentLength}");
+
+        if (!bool.TryParse(Request.Query["BigFile"], out bool flagBigFile))
+        {
+            flagBigFile = AutoDetectBigFile();
+        }
 
         string? boundary = HeaderUtilities.RemoveQuotes(
             MediaTypeHeaderValue.Parse(Request.ContentType).Boundary
@@ -126,7 +149,7 @@ public class UserFilesController : ControllerBase
         var reader = new MultipartReader(boundary!, Request.Body, _defaultBufferSize);
 
         var file = new UserFile { Id = fileId, UserDataId = userDataId };
-        UserFileDto? result = await UploadFile(reader, file, bigFile);
+        UserFileDto? result = await UploadFile(reader, file, flagBigFile, cancellationToken);
 
         if (result == null)
         {
@@ -136,7 +159,8 @@ public class UserFilesController : ControllerBase
         return Ok(result);
     }
 
-    private async Task<UserFileDto?> UploadFile(MultipartReader reader, UserFile file, bool bigFile)
+    private async Task<UserFileDto?> UploadFile(MultipartReader reader, UserFile file, bool flagBigFile,
+        CancellationToken cancellationToken)
     {
         UserFileDto? uploadedFile = null;  // result
 
@@ -155,7 +179,7 @@ public class UserFilesController : ControllerBase
                 {
                     Id = file!.Id,
                     UserDataId = file.UserDataId,
-                    BigFile = bigFile,
+                    BigFile = flagBigFile,
                     Name = contentDisposition.FileName.Value!
                 };
 
@@ -165,7 +189,7 @@ public class UserFilesController : ControllerBase
                 {
                     Stream? uploadStream = null;
 
-                    if (_useBufferingStreamCopy)
+                    if (_useTemporaryFile)
                     {
                         tmpFile = await CopyStreamToFile(section.Body, uploadData.Name);
                         uploadStream = new System.IO.FileStream(tmpFile, FileMode.Open, FileAccess.Read);
@@ -178,7 +202,7 @@ public class UserFilesController : ControllerBase
                     await using BufferedStream bufferedStream = new(uploadStream, _defaultBufferSize);
                     uploadData.Content = bufferedStream;
 
-                    ResultWrapper<UserFileDto> result = await _service.UploadFileAsync(uploadData);
+                    ResultWrapper<UserFileDto> result = await _service.UploadFileAsync(uploadData, cancellationToken);
                     if (result.Success && result?.Data != null)
                     {
                         uploadedFile = result.Data;
@@ -206,6 +230,12 @@ public class UserFilesController : ControllerBase
         await inputStream.CopyToAsync(outStream);
 
         return fullName;
+    }
+
+    private bool AutoDetectBigFile()
+    {
+        int lengthMB = Convert.ToInt32((Request.ContentLength! / 1024f / 1024f));
+        return lengthMB >= _defaultBigFileSize;
     }
 
 }

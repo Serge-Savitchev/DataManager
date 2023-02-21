@@ -8,6 +8,9 @@ using System.Security.Claims;
 
 namespace DataManagerAPI.Services;
 
+/// <summary>
+/// Implementation of <see cref="IAuthService"/>.
+/// </summary>
 public class AuthService : IAuthService
 {
     private readonly IAuthRepository _repository;
@@ -16,8 +19,19 @@ public class AuthService : IAuthService
     private readonly IUserPasswordService _userPasswordService;
     private readonly ILoggedOutUsersCollectionService _loggedOutUsersCollectionService;
 
-    public AuthService(IAuthRepository repository, IMapper mapper,
-        ITokenService tokenService, IUserPasswordService userPasswordService, ILoggedOutUsersCollectionService loggedOutUsersCollectionService)
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="repository"><see cref="IAuthRepository"/></param>
+    /// <param name="mapper"><see cref="IMapper"/></param>
+    /// <param name="tokenService"><see cref="ITokenService"/></param>
+    /// <param name="userPasswordService"><see cref="IUserPasswordService"/></param>
+    /// <param name="loggedOutUsersCollectionService"><see cref="ILoggedOutUsersCollectionService"/></param>
+    public AuthService(IAuthRepository repository,
+        IMapper mapper,
+        ITokenService tokenService,
+        IUserPasswordService userPasswordService,
+        ILoggedOutUsersCollectionService loggedOutUsersCollectionService)
     {
         _repository = repository;
         _mapper = mapper;
@@ -26,12 +40,14 @@ public class AuthService : IAuthService
         _loggedOutUsersCollectionService = loggedOutUsersCollectionService;
     }
 
-    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd
+        , CancellationToken cancellationToken = default)
     {
         UserCredentials userCredentials = _userPasswordService.CreatePasswordHash(userToAdd.Password);
         userCredentials.Login = userToAdd.Login;
 
-        var result = await _repository.RegisterUserAsync(_mapper.Map<User>(userToAdd), userCredentials);
+        var result = await _repository.RegisterUserAsync(_mapper.Map<User>(userToAdd), userCredentials, cancellationToken);
 
         var ret = new ResultWrapper<UserDto>
         {
@@ -44,14 +60,17 @@ public class AuthService : IAuthService
         return ret;
     }
 
-    public async Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData
+        , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<LoginUserResponseDto>
         {
             Success = false
         };
 
-        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByLoginAsync(loginData.Login);
+        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByLoginAsync(loginData.Login
+            , cancellationToken);
         if (!userDetails.Success)
         {
             result.Message = userDetails.Message;
@@ -82,7 +101,7 @@ public class AuthService : IAuthService
 
         userDetails.Data.Credentials.RefreshToken = tokens.RefreshToken;
 
-        var loginResult = await _repository.LoginAsync(loginData.Login, userDetails.Data.Credentials);
+        var loginResult = await _repository.LoginAsync(loginData.Login, userDetails.Data.Credentials, cancellationToken);
         if (!loginResult.Success)
         {
             result.Message = userDetails.Message;
@@ -101,14 +120,16 @@ public class AuthService : IAuthService
         return result;
     }
 
+    /// <inheritdoc />
     public void LogOut(int userId)
     {
         _loggedOutUsersCollectionService.Add(userId);
     }
 
-    public async Task<ResultWrapper<int>> Revoke(int userId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<int>> Revoke(int userId, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.RefreshTokenAsync(userId, null);
+        var result = await _repository.RefreshTokenAsync(userId, null, cancellationToken);
         if (result.Success)
         {
             _loggedOutUsersCollectionService.Add(userId);
@@ -116,7 +137,9 @@ public class AuthService : IAuthService
         return result;
     }
 
-    public async Task<ResultWrapper<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData,
+        CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<TokenApiModelDto>
         {
@@ -137,7 +160,7 @@ public class AuthService : IAuthService
             return result;
         }
 
-        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByIdAsync(user.User!.Id);
+        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByIdAsync(user.User!.Id, cancellationToken);
         if (!userDetails.Success || userDetails.Data == null)
         {
             result.StatusCode = userDetails.StatusCode;
@@ -153,7 +176,7 @@ public class AuthService : IAuthService
 
         TokenApiModelDto tokens = _tokenService.GeneratePairOfTokens(principal.Claims);
 
-        ResultWrapper<int> refreshResult = await _repository.RefreshTokenAsync(user.User!.Id, tokens.RefreshToken);
+        ResultWrapper<int> refreshResult = await _repository.RefreshTokenAsync(user.User!.Id, tokens.RefreshToken, cancellationToken);
 
         result.Success = refreshResult.Success;
         result.Message = refreshResult.Message;
@@ -168,11 +191,12 @@ public class AuthService : IAuthService
         return result;
     }
 
-    public async Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default)
     {
         var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
-        var result = await _repository.UpdateUserPasswordAsync(userId, credentials);
+        var result = await _repository.UpdateUserPasswordAsync(userId, credentials, cancellationToken);
 
         if (result.Success)
         {
@@ -182,7 +206,8 @@ public class AuthService : IAuthService
         return result;
     }
 
-    public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<string>
         {
@@ -191,7 +216,7 @@ public class AuthService : IAuthService
 
         try
         {
-            var res = await _repository.UpdateUserRoleAsync(userId, Enum.Parse<RoleIds>(newRole, true));
+            var res = await _repository.UpdateUserRoleAsync(userId, Enum.Parse<RoleIds>(newRole, true), cancellationToken);
             if (!res.Success)
             {
                 result.Success = false;
@@ -217,9 +242,10 @@ public class AuthService : IAuthService
         return result;
     }
 
-    public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId)
+    /// <inheritdoc />
+    public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default)
     {
-        var userDetails = await _repository.GetUserDetailsByIdAsync(userId);
+        var userDetails = await _repository.GetUserDetailsByIdAsync(userId, cancellationToken);
 
         var result = new ResultWrapper<UserDetailsDto>
         {

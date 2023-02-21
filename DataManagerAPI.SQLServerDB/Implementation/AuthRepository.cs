@@ -14,13 +14,18 @@ public class AuthRepository : IAuthRepository
 {
     private readonly UsersDBContext _context;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="context"><see cref="UsersDBContext"/></param>
     public AuthRepository(UsersDBContext context)
     {
         _context = context;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials)
+    public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials
+        , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<User>
         {
@@ -31,7 +36,7 @@ public class AuthRepository : IAuthRepository
         try
         {
             var existingCredentials = await _context.UserCredentials
-                .FirstOrDefaultAsync(x => x.Login == userCredentials.Login);
+                .FirstOrDefaultAsync(x => x.Login == userCredentials.Login, cancellationToken);
 
             if (existingCredentials != null)
             {
@@ -41,12 +46,12 @@ public class AuthRepository : IAuthRepository
                 return result;
             }
 
-            await _context.Users.AddAsync(userToAdd);
-            await _context.SaveChangesAsync();
+            await _context.Users.AddAsync(userToAdd, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
             userCredentials.UserId = userToAdd.Id;
-            await _context.UserCredentials.AddAsync(userCredentials);
-            await _context.SaveChangesAsync();
+            await _context.UserCredentials.AddAsync(userCredentials, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
             result.Data = userToAdd;
         }
@@ -61,7 +66,8 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials)
+    public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials
+                , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<int>
         {
@@ -71,7 +77,7 @@ public class AuthRepository : IAuthRepository
         try
         {
             var userCredentials = await _context.UserCredentials
-                .FirstOrDefaultAsync(x => x.Login == login);
+                .FirstOrDefaultAsync(x => x.Login == login, cancellationToken);
 
             if (userCredentials is null)
             {
@@ -84,7 +90,7 @@ public class AuthRepository : IAuthRepository
 
             userCredentials.RefreshToken = credentials.RefreshToken;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             result.Data = userCredentials.UserId;
         }
         catch (Exception ex)
@@ -98,7 +104,8 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken)
+    public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken
+        , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<int>
         {
@@ -108,7 +115,7 @@ public class AuthRepository : IAuthRepository
         try
         {
             var userCredentials = await _context.UserCredentials
-                .FirstOrDefaultAsync(x => x.UserId == userId);
+                .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
 
             if (userCredentials is null)
             {
@@ -121,7 +128,7 @@ public class AuthRepository : IAuthRepository
 
             userCredentials.RefreshToken = refreshToken;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             result.Data = userCredentials.UserId;
         }
         catch (Exception ex)
@@ -135,7 +142,8 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId)
+    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId
+            , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserCredentialsData>
         {
@@ -150,7 +158,7 @@ public class AuthRepository : IAuthRepository
                       on User.Id equals Credentials.UserId
                       select new UserCredentialsData { User = User, Credentials = Credentials };
 
-            var data = await res.FirstOrDefaultAsync();
+            var data = await res.FirstOrDefaultAsync(cancellationToken);
 
             if (data is null)
             {
@@ -174,7 +182,9 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login)
+    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login
+        , CancellationToken cancellationToken = default)
+
     {
         var result = new ResultWrapper<UserCredentialsData>
         {
@@ -189,7 +199,7 @@ public class AuthRepository : IAuthRepository
                       on Credentials.UserId equals User.Id
                       select new UserCredentialsData { User = User, Credentials = Credentials };
 
-            var data = await res.FirstOrDefaultAsync();
+            var data = await res.FirstOrDefaultAsync(cancellationToken);
 
             if (data is null)
             {
@@ -213,7 +223,8 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials)
+    public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials
+                , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<int>
         {
@@ -222,7 +233,7 @@ public class AuthRepository : IAuthRepository
 
         try
         {
-            var updatedCredentials = await _context.UserCredentials.FirstOrDefaultAsync(x => x.UserId == userId);
+            var updatedCredentials = await _context.UserCredentials.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
             if (updatedCredentials is null)
             {
                 result.Success = false;
@@ -234,7 +245,7 @@ public class AuthRepository : IAuthRepository
 
             updatedCredentials.PasswordHash = credentials.PasswordHash;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             result.Data = userId;
         }
@@ -249,7 +260,8 @@ public class AuthRepository : IAuthRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole)
+    public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole
+        , CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<RoleIds>
         {
@@ -258,7 +270,7 @@ public class AuthRepository : IAuthRepository
 
         try
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
                 result.Success = false;
@@ -271,7 +283,7 @@ public class AuthRepository : IAuthRepository
             if (user.Role != newRole)
             {
                 user.Role = newRole;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             else
             {

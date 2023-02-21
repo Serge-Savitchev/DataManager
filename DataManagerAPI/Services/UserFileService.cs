@@ -11,15 +11,15 @@ namespace DataManagerAPI.Services;
 /// </summary>
 public class UserFileService : IUserFileService
 {
-    private readonly IUserFileRepository _repository;
+    private readonly IUserFilesRepository _repository;
     private readonly IMapper _mapper;
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="repository"><see cref="IUserFileRepository"/>.</param>
+    /// <param name="repository"><see cref="IUserFilesRepository"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    public UserFileService(IUserFileRepository repository, IMapper mapper)
+    public UserFileService(IUserFilesRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;

@@ -14,7 +14,7 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<PostgresDBConte
     /// Creates database context.
     /// </summary>
     /// <param name="args"></param>
-    /// <returns>Database context. <see cref="PostgresDBContext">.</returns>
+    /// <returns>Database context. <see cref="PostgresDBContext"/></returns>
     public PostgresDBContext CreateDbContext(string[] args)
     {
         // Get environment
