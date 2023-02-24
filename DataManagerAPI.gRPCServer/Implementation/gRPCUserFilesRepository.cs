@@ -9,7 +9,8 @@ using ProtoBuf.Grpc;
 namespace DataManagerAPI.gRPCServer.Implementation;
 
 /// <summary>
-/// Implementation of <see cref="IgRPCUserFilesRepository"/> for gRPC server.
+/// Implementation of <see cref="IgRPCUserFilesRepository"/> for gRPC server,
+/// excepting DownloadFileAsync and UploadFileAsync methods.
 /// </summary>
 public class gRPCUserFilesRepository : IgRPCUserFilesRepository
 {
@@ -31,11 +32,16 @@ public class gRPCUserFilesRepository : IgRPCUserFilesRepository
              context.CancellationToken);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// This method is implemented in <see cref="grpcProtoService"/>
+    /// </summary>
+    /// <param name="request">Not used</param>
+    /// <param name="context">Not used</param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
     public Task<ResultWrapper<UserFileStream>> DownloadFileAsync(Int32Int32Request request, CallContext context = default)
     {
-        return _repository.DownloadFileAsync(request.Value1, request.Value2,
-             context.CancellationToken);
+        throw new NotImplementedException();
     }
 
     /// <inheritdoc />
@@ -44,9 +50,15 @@ public class gRPCUserFilesRepository : IgRPCUserFilesRepository
         return _repository.GetListAsync(request.Value, context.CancellationToken);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// This method is implemented in <see cref="grpcProtoService"/>
+    /// </summary>
+    /// <param name="fileStream">Not used</param>
+    /// <param name="context">Not used</param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
     public Task<ResultWrapper<UserFile>> UploadFileAsync(UserFileStream fileStream, CallContext context = default)
     {
-        return _repository.UploadFileAsync(fileStream, context.CancellationToken);
+        throw new NotImplementedException();
     }
 }

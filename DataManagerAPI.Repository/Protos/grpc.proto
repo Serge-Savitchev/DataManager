@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcClient";
+
+// The greeting service definition.
+service ProtoService {
+  // Server streaming
+  rpc UploadFile (stream UserFileStream) returns (ResultWrapper);
+  rpc DownloadFile (DownloadFileRequest) returns (stream ResultWrapper);
+}
+
+message UserFile {
+	int32 Id = 1;
+	int32 UserDataId = 2;
+	string Name = 3;
+	uint64 Size = 4;
+}
+
+message UserFileStream {
+	UserFile UserFile = 1;
+	bytes Content = 2;
+	bool BigFile = 3;
+}
+
+message ResultWrapper {
+	UserFileStream Data = 1;
+	bool Success = 2;
+	string Message = 3;
+	int32 StatusCode = 4;
+}
+
+message DownloadFileRequest {
+  int32 UserDataId = 1;
+  int32 FileId = 2;
+}
+
+

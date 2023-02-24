@@ -29,20 +29,22 @@ else
     throw new Exception("Unknown configuration");
 }
 
+// take port for listening from "gRPCConnectionString" value. https//domen.com:443 -> https://*:443
+string gRPCserverConnectionString = builder.Configuration.GetConnectionString(SourceDatabases.gRPCConnectionString) ?? "https://localhost:7181";
+int index0 = gRPCserverConnectionString.IndexOf("://") + 3;
+int index1 = gRPCserverConnectionString.LastIndexOf(":");
+string useUrls = string.Concat(gRPCserverConnectionString.AsSpan(0, index0), "*", gRPCserverConnectionString.AsSpan(index1));
+builder.WebHost.UseUrls(useUrls);
 
-builder.Services.AddCodeFirstGrpc();
+builder.Services.AddCodeFirstGrpc(options => { options.MaxReceiveMessageSize = null; });
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Test"))
-{
-    builder.WebHost.UseUrls("http://*:5281", "https://*:7181");
-}
 
 app.MapGrpcService<gRPCAuthRepository>();
 app.MapGrpcService<gRPCUsersRepository>();
 app.MapGrpcService<gRPCUserDataRepository>();
 app.MapGrpcService<gRPCUserFilesRepository>();
+app.MapGrpcService<grpcProtoService>();
 
 Console.WriteLine("Arguments:");
 

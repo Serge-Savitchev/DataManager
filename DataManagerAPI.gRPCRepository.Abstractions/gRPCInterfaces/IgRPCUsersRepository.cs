@@ -8,6 +8,7 @@ namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
 
 /// <summary>
 /// Interface for UserRepository in gRPC server.
+/// It provides access to database via gRPC service.
 /// </summary>
 [ServiceContract]
 public interface IgRPCUsersRepository

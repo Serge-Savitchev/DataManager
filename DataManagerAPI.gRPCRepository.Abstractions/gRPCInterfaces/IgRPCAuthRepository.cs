@@ -8,6 +8,7 @@ namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
 
 /// <summary>
 /// Interface for AuthRepository in gRPC server.
+/// It provides access to database via gRPC service. It has the same set of methods as IAuthRepository interface has.
 /// </summary>
 [ServiceContract]
 public interface IgRPCAuthRepository

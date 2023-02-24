@@ -41,7 +41,10 @@ public static class RepositoryExtensions
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
             serviceCollection.AddScoped<IUserFilesRepository, gRPCUserFilesClient>();
 
-            GrpcChannel channel = GrpcChannel.ForAddress(configuration.GetConnectionString(SourceDatabases.gRPCConnectionString)!);
+            GrpcChannel channel = GrpcChannel.ForAddress(
+                configuration.GetConnectionString(SourceDatabases.gRPCConnectionString)!,
+                    new GrpcChannelOptions { MaxReceiveMessageSize = null });
+
             serviceCollection.AddSingleton(channel);
         }
         else  // add required services for direct connection to database

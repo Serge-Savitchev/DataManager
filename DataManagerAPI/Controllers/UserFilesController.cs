@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
 
 namespace DataManagerAPI.Controllers;
 
@@ -66,6 +67,9 @@ public class UserFilesController : ControllerBase
     public async Task<IActionResult> DownloadFile([FromQuery] int userDataId, [FromQuery] int fileId,
                 CancellationToken cancellationToken = default)
     {
+        Stopwatch timer = new Stopwatch();
+        timer.Start();
+
         ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFileAsync(userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
@@ -74,6 +78,10 @@ public class UserFilesController : ControllerBase
 
         new FileExtensionContentTypeProvider()
                         .TryGetContentType(ret.Data!.Name, out string? contentType);
+
+        timer.Stop();
+        Console.WriteLine($"DownloadFile {ret.Data.Name}: {timer.Elapsed.Minutes}:{timer.Elapsed.Seconds}, Length:{ret.Data.Size}");
+
         return File(ret.Data.Content!, contentType ?? "application/octet-stream", ret.Data.Name);
     }
 
@@ -135,6 +143,9 @@ public class UserFilesController : ControllerBase
         [FromQuery] int userDataId, [FromQuery] int fileId, [FromQuery] string? bigFile,
         CancellationToken cancellationToken = default)
     {
+        Stopwatch timer = new Stopwatch();
+        timer.Start();
+
         Console.WriteLine($"Request length: {Request.ContentLength}");
 
         if (!bool.TryParse(Request.Query["BigFile"], out bool flagBigFile))
@@ -155,6 +166,9 @@ public class UserFilesController : ControllerBase
         {
             return BadRequest();
         }
+
+        timer.Stop();
+        Console.WriteLine($"DownloadFile {result.Name}: {timer.Elapsed.Minutes}:{timer.Elapsed.Seconds}, Length:{result.Size}");
 
         return Ok(result);
     }
@@ -226,7 +240,7 @@ public class UserFilesController : ControllerBase
         DirectoryInfo tempDir = Directory.CreateTempSubdirectory("DataManagerAPI");
         string fullName = Path.Combine(tempDir.FullName, fileName);
 
-        using var outStream = new System.IO.FileStream(fullName, FileMode.CreateNew);
+        await using var outStream = new System.IO.FileStream(fullName, FileMode.CreateNew);
         await inputStream.CopyToAsync(outStream);
 
         return fullName;
