@@ -21,7 +21,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -45,7 +45,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
         Assert.Equal(StatusCodes.Status404NotFound, (int)responseMessage.StatusCode);
@@ -55,7 +55,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task Post_LoginUser_IncorrectPassword_ReturnsUnauthorized()
     {
         // Arrange
-        RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
 
         LoginUserDto requestData = new LoginUserDto
         {
@@ -64,7 +64,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -88,7 +88,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         }
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", request);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", request);
 
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, (int)responseMessage.StatusCode);

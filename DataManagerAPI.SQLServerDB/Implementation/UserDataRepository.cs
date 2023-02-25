@@ -40,6 +40,7 @@ public class UserDataRepository : IUserDataRepository
                 return userData;
             }
 
+            userDataToAdd.UserFiles = new List<UserFile>();
             await _context.UserData.AddAsync(userDataToAdd, cancellationToken);
             _context.SaveChanges();
         }
@@ -55,7 +56,7 @@ public class UserDataRepository : IUserDataRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId,
+    public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
@@ -67,7 +68,9 @@ public class UserDataRepository : IUserDataRepository
 
         try
         {
-            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId, cancellationToken);
+            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == userDataId,
+                cancellationToken);
+
             if (userDataToDelete is null)
             {
                 result.Success = false;
@@ -92,7 +95,7 @@ public class UserDataRepository : IUserDataRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId,
+    public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
         var result = new ResultWrapper<UserData>
@@ -106,7 +109,7 @@ public class UserDataRepository : IUserDataRepository
         {
             userData = await _context.UserData
                 .Include(data => data.UserFiles)
-                .FirstOrDefaultAsync(y => y.Id == userDataId, cancellationToken);
+                .FirstOrDefaultAsync(y => y.UserId == userId && y.Id == userDataId, cancellationToken);
 
             if (userData is null)
             {
@@ -184,7 +187,9 @@ public class UserDataRepository : IUserDataRepository
                 return user;
             }
 
-            updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataToUpdate.Id, cancellationToken);
+            updatedUserData = await _context.UserData.FirstOrDefaultAsync(x => x.UserId == userDataToUpdate.UserId && x.Id == userDataToUpdate.Id,
+                cancellationToken);
+
             if (updatedUserData is null)
             {
                 result.Success = false;

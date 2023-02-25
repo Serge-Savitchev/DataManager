@@ -10,7 +10,7 @@ using ProtoBuf.Grpc.Server;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
 string sourceDatabaseType = builder.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
@@ -29,12 +29,20 @@ else
     throw new Exception("Unknown configuration");
 }
 
-// take port for listening from "gRPCConnectionString" value. https//domen.com:443 -> https://*:443
+// take port for listening from "gRPCConnectionString" value.
 string gRPCserverConnectionString = builder.Configuration.GetConnectionString(SourceDatabases.gRPCConnectionString) ?? "https://localhost:7181";
 int index0 = gRPCserverConnectionString.IndexOf("://") + 3;
 int index1 = gRPCserverConnectionString.LastIndexOf(":");
-string useUrls = string.Concat(gRPCserverConnectionString.AsSpan(0, index0), "*", gRPCserverConnectionString.AsSpan(index1));
-builder.WebHost.UseUrls(useUrls);
+if (index1 > index0 + 3)
+{
+    //  https://domen.com:443 -> https://*:443
+    string useUrls = string.Concat(gRPCserverConnectionString.AsSpan(0, index0), "*", gRPCserverConnectionString.AsSpan(index1));
+    builder.WebHost.UseUrls(useUrls);
+}
+else
+{
+    builder.WebHost.UseUrls("http://*:80");
+}
 
 builder.Services.AddCodeFirstGrpc(options => { options.MaxReceiveMessageSize = null; });
 

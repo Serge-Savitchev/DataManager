@@ -15,7 +15,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisterUserTestData requestData = UsersForTestsHelper.GenerateUniqueUserData(RoleIds.Admin.ToString());
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", requestData.UserData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", requestData.UserData);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -34,7 +34,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.Admin.ToString());
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
 
         // Assert
         Assert.Equal(StatusCodes.Status409Conflict, (int)responseMessage.StatusCode);

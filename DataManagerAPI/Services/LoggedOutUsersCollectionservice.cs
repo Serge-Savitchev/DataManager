@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using DataManagerAPI.Services.Interfaces;
+using StackExchange.Redis;
 using System.Collections.Concurrent;
 
 namespace DataManagerAPI.Services;

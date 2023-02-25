@@ -16,10 +16,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.Admin.ToString());
 
         //Act
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -38,10 +38,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.PowerUser.ToString());
 
         //Act
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         Assert.Equal(StatusCodes.Status403Forbidden, (int)responseMessage.StatusCode);

@@ -31,13 +31,18 @@ Included items must then not match any entries in the exclude list to remain inc
               <Include>
                 <ModulePath>DataManagerAPI.dll</ModulePath>
                 <ModulePath>DataManagerAPI.Dto.dll</ModulePath>
-                <ModulePath>DataManagerAPI.Postgres.dll</ModulePath>
+                <ModulePath>DataManagerAPI.gRPCRepository.Abstractions.dll</ModulePath>
+                <ModulePath>DataManagerAPI.gRPCServer.exe</ModulePath>
+                <ModulePath>DataManagerAPI.gRPCServer.dll</ModulePath>
+                <ModulePath>DataManagerAPI.PostgresDB.dll</ModulePath>
                 <ModulePath>DataManagerAPI.Repository.dll</ModulePath>
                 <ModulePath>DataManagerAPI.Repository.Abstractions.dll</ModulePath>
                 <ModulePath>DataManagerAPI.SQLServerDB.dll</ModulePath>
               </Include>
               <Exclude>
                 <ModulePath>DataManagerAPI.Tests.dll</ModulePath>
+                <ModulePath>DownloadBigFiles.exe</ModulePath>
+                <ModulePath>DownloadBigFiles.dll</ModulePath>
               </Exclude>
             </ModulePaths>
           </CodeCoverage>

@@ -1,6 +1,6 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
-using DataManagerAPI.Services;
+using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -169,14 +169,14 @@ public class AuthController : ControllerBase
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>New role</returns>
     [HttpPut]
-    [Route("changerole/{userId}")]
+    [Route("changerole")]
     [Authorize(Policy = "PowerUser")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
-    public async Task<ActionResult<string>> UpdateUserRole(int userId, [FromBody][RoleValidation] string newRole
-        , CancellationToken cancellationToken = default)
+    public async Task<ActionResult<string>> UpdateUserRole([FromQuery][Required] int userId,
+        [FromBody][RoleValidation] string newRole, CancellationToken cancellationToken = default)
     {
         var result = await _service.UpdateUserRole(userId, newRole, cancellationToken);
         return StatusCode(result.StatusCode, result.Data);
@@ -189,13 +189,12 @@ public class AuthController : ControllerBase
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns><see cref="UserDetailsDto"/></returns>
     [HttpGet]
-    [Route("{userId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
-    public async Task<ActionResult<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserDetailsDto>> GetUserDetails([FromQuery][Required] int userId, CancellationToken cancellationToken = default)
     {
         var result = await _service.GetUserDetails(userId, cancellationToken);
         return StatusCode(result.StatusCode, result.Data);

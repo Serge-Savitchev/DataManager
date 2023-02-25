@@ -1,4 +1,5 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Services.Interfaces;
 
 namespace DataManagerAPI.Services;
 

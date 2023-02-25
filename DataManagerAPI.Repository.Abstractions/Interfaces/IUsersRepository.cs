@@ -8,7 +8,7 @@ namespace DataManagerAPI.Repository.Abstractions.Interfaces;
 /// Interface for managing users in database.
 /// </summary>
 [ServiceContract]
-public interface IUserRepository
+public interface IUsersRepository
 {
     /// <summary>
     /// Deletes user by Id.
@@ -51,7 +51,7 @@ public interface IUserRepository
     /// <param name="ownerId">Owner Id</param>
     /// <param name="users">Array of user Ids to be updated</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    /// <returns>Array of Ids of users with changed owner</returns>
+    /// <returns>Count of users with changed owner</returns>
     [OperationContract]
     Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users, CancellationToken cancellationToken = default);
 }

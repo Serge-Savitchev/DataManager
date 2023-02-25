@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Services;
+using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;

@@ -58,7 +58,7 @@ internal static class UsersForTestsHelper
             if (registredUser == null)
             {
                 registredUser = GenerateUniqueUserData(role);
-                HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
+                using HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
                 UserDto user = await responseMessage.Content.ReadAsAsync<UserDto>();
                 registredUser.Id = user.Id;
             }
@@ -86,7 +86,7 @@ internal static class UsersForTestsHelper
             if (registredUser == null)
             {
                 registredUser = GenerateUniqueUserData(role);
-                HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
+                using HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
                 UserDto user = await responseMessage.Content.ReadAsAsync<UserDto>();
                 registredUser.Id = user.Id;
 
@@ -96,8 +96,8 @@ internal static class UsersForTestsHelper
                     Password = registredUser.UserData.Password
                 };
 
-                responseMessage = await client.PostAsJsonAsync("api/auth/login", requestData);
-                LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
+                using var responseMessage1 = await client.PostAsJsonAsync("api/auth/login", requestData);
+                LoginUserResponseDto response = await responseMessage1.Content.ReadAsAsync<LoginUserResponseDto>();
                 registredUser.LoginData = response;
             }
         }

@@ -12,13 +12,13 @@ namespace DataManagerAPI.gRPCServer.Implementation;
 /// </summary>
 public class gRPCUsersRepository : IgRPCUsersRepository
 {
-    private readonly IUserRepository _repository;
+    private readonly IUsersRepository _repository;
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="repository"><see cref="IUserRepository"/></param>
-    public gRPCUsersRepository(IUserRepository repository)
+    /// <param name="repository"><see cref="IUsersRepository"/></param>
+    public gRPCUsersRepository(IUsersRepository repository)
     {
         _repository = repository;
     }

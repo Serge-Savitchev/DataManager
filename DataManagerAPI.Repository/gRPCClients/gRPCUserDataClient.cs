@@ -31,22 +31,21 @@ public class gRPCUserDataClient : IUserDataRepository
     {
         return _igRPCUserDataRepository.AddUserDataAsync(userDataToAdd,
             new CallOptions(cancellationToken: cancellationToken));
-
     }
 
     /// <inheritdoc />
-    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId,
+    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        return _igRPCUserDataRepository.DeleteUserDataAsync(new Int32Request { Value = userDataId },
+        return _igRPCUserDataRepository.DeleteUserDataAsync(new Int32Int32Request { Value1 = userId, Value2 = userDataId },
             new CallOptions(cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
-    public Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId,
+    public Task<ResultWrapper<UserData>> GetUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        return _igRPCUserDataRepository.GetUserDataAsync(new Int32Request { Value = userDataId },
+        return _igRPCUserDataRepository.GetUserDataAsync(new Int32Int32Request { Value1 = userId, Value2 = userDataId },
             new CallOptions(cancellationToken: cancellationToken));
     }
 

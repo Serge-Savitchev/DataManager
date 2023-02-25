@@ -3,6 +3,7 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Services.Interfaces;
 using System.Data;
 
 namespace DataManagerAPI.Services;
@@ -27,9 +28,13 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> AddUserData(AddUserDataDto userDataToAdd)
+    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, int userDataId, AddUserDataDto userDataToAdd)
     {
-        var result = await _repository.AddUserDataAsync(_mapper.Map<UserData>(userDataToAdd));
+        var userData = _mapper.Map<UserData>(userDataToAdd);
+        userData.UserId = userId;
+        userData.Id = 0;
+
+        var result = await _repository.AddUserDataAsync(userData);
 
         var ret = ConvertWrapper(result);
 
@@ -37,9 +42,9 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userDataId)
+    public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userId, int userDataId)
     {
-        var result = await _repository.DeleteUserDataAsync(userDataId);
+        var result = await _repository.DeleteUserDataAsync(userId, userDataId);
 
         var ret = ConvertWrapper(result);
 
@@ -47,9 +52,9 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> GetUserData(int userDataId)
+    public async Task<ResultWrapper<UserDataDto>> GetUserData(int userId, int userDataId)
     {
-        var result = await _repository.GetUserDataAsync(userDataId);
+        var result = await _repository.GetUserDataAsync(userId, userDataId);
 
         var ret = ConvertWrapper(result);
 
@@ -71,9 +76,13 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> UpdateUserData(UserDataDto userDataToUpdate)
+    public async Task<ResultWrapper<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate)
     {
-        var result = await _repository.UpdateUserDataAsync(_mapper.Map<UserData>(userDataToUpdate));
+        var userData = _mapper.Map<UserData>(userDataToUpdate);
+        userData.UserId = userId;
+        userData.Id = userDataId;
+
+        var result = await _repository.UpdateUserDataAsync(userData);
 
         var ret = ConvertWrapper(result);
 

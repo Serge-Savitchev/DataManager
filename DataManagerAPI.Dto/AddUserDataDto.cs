@@ -8,11 +8,6 @@ namespace DataManagerAPI.Dto;
 public class AddUserDataDto
 {
     /// <summary>
-    /// User Id
-    /// </summary>
-    public int UserId { get; set; }
-
-    /// <summary>
     /// Data title
     /// </summary>
     [Required]

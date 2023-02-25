@@ -1,12 +1,12 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 
-namespace DataManagerAPI.Services;
+namespace DataManagerAPI.Services.Interfaces;
 
 /// <summary>
 /// Interface for accessing files in database.
 /// </summary>
-public interface IUserFileService
+public interface IUserFilesService
 {
     /// <summary>
     /// Returns list of all files in database for userdata.<see cref="UserDataDto"/>

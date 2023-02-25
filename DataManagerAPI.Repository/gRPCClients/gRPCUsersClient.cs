@@ -10,9 +10,9 @@ using ProtoBuf.Grpc.Client;
 namespace DataManagerAPI.Repository.gRPCClients;
 
 /// <summary>
-/// Implementation of <see cref="IUserRepository"/> for gRPC client.
+/// Implementation of <see cref="IUsersRepository"/> for gRPC client.
 /// </summary>
-public class gRPCUserClient : IUserRepository
+public class gRPCUsersClient : IUsersRepository
 {
     private readonly IgRPCUsersRepository _igRPCUserRepository;
 
@@ -20,7 +20,7 @@ public class gRPCUserClient : IUserRepository
     /// Constructor.
     /// </summary>
     /// <param name="channel"><see cref="GrpcChannel"/></param>
-    public gRPCUserClient(GrpcChannel channel)
+    public gRPCUsersClient(GrpcChannel channel)
     {
         _igRPCUserRepository = channel.CreateGrpcService<IgRPCUsersRepository>();
     }

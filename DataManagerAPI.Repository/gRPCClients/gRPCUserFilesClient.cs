@@ -168,6 +168,8 @@ public class gRPCUserFilesClient : IUserFilesRepository
             var outputStream = new FileStream(newFileName, FileMode.Open, FileAccess.Read,
                 FileShare.None, _bufferSizeForStreamCopy, FileOptions.SequentialScan | FileOptions.DeleteOnClose);
 
+            var bufferedStream = new BufferedStream(outputStream, _bufferSizeForStreamCopy);
+
             // convert response from gRPC service to ResultWrapper<Abstractions.Models.UserFileStream>
             result = new ResultWrapper<Abstractions.Models.UserFileStream>
             {
@@ -178,7 +180,7 @@ public class gRPCUserFilesClient : IUserFilesRepository
                         Id = gRPCresponse.Data.UserFile.Id,
                         Name = gRPCresponse.Data.UserFile.Name,
                         Size = (long)gRPCresponse.Data.UserFile.Size,
-                        Content = outputStream  // content of file to be downloaded
+                        Content = bufferedStream  // content of file to be downloaded
                     } : null,
                 Success = gRPCresponse.Success && gRPCresponse.Data != null,
                 Message = string.IsNullOrWhiteSpace(gRPCresponse.Message) ? null : gRPCresponse.Message,

@@ -1,7 +1,7 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 
-namespace DataManagerAPI.Services;
+namespace DataManagerAPI.Services.Interfaces;
 
 /// <summary>
 /// This interface provides users management.

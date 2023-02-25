@@ -2,7 +2,7 @@
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services;
+using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -20,7 +20,7 @@ namespace DataManagerAPI.Controllers;
 [AllowAnonymous]
 public class UserFilesController : ControllerBase
 {
-    private readonly IUserFileService _service;
+    private readonly IUserFilesService _service;
     private readonly int _defaultBufferSize = 1024 * 4;
     private readonly bool _useTemporaryFile;
 
@@ -33,7 +33,7 @@ public class UserFilesController : ControllerBase
     /// </summary>
     /// <param name="service"></param>
     /// <param name="configuration"></param>
-    public UserFilesController(IUserFileService service, IConfiguration configuration)
+    public UserFilesController(IUserFilesService service, IConfiguration configuration)
     {
         _service = service;
 
@@ -67,7 +67,7 @@ public class UserFilesController : ControllerBase
     public async Task<IActionResult> DownloadFile([FromQuery] int userDataId, [FromQuery] int fileId,
                 CancellationToken cancellationToken = default)
     {
-        Stopwatch timer = new Stopwatch();
+        var timer = new Stopwatch();
         timer.Start();
 
         ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFileAsync(userDataId, fileId, cancellationToken);
@@ -143,7 +143,7 @@ public class UserFilesController : ControllerBase
         [FromQuery] int userDataId, [FromQuery] int fileId, [FromQuery] string? bigFile,
         CancellationToken cancellationToken = default)
     {
-        Stopwatch timer = new Stopwatch();
+        var timer = new Stopwatch();
         timer.Start();
 
         Console.WriteLine($"Request length: {Request.ContentLength}");

@@ -37,7 +37,7 @@ public static class RepositoryExtensions
         if (useGPRC)    // add required services for gRPC
         {
             serviceCollection.AddScoped<IAuthRepository, gRPCAuthClient>();
-            serviceCollection.AddScoped<IUserRepository, gRPCUserClient>();
+            serviceCollection.AddScoped<IUsersRepository, gRPCUsersClient>();
             serviceCollection.AddScoped<IUserDataRepository, gRPCUserDataClient>();
             serviceCollection.AddScoped<IUserFilesRepository, gRPCUserFilesClient>();
 
@@ -50,7 +50,7 @@ public static class RepositoryExtensions
         else  // add required services for direct connection to database
         {
             serviceCollection.AddScoped<IAuthRepository, AuthRepository>();
-            serviceCollection.AddScoped<IUserRepository, UserRepository>();
+            serviceCollection.AddScoped<IUsersRepository, UsersRepository>();
             serviceCollection.AddScoped<IUserDataRepository, UserDataRepository>();
 
             if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)

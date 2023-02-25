@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace DataManagerAPI.SQLServerDB.Implementation;
 
 /// <summary>
-/// Implementation of <see cref="IUserRepository"/>.
+/// Implementation of <see cref="IUsersRepository"/>.
 /// </summary>
-public class UserRepository : IUserRepository
+public class UsersRepository : IUsersRepository
 {
     private readonly UsersDBContext _context;
 
@@ -17,7 +17,7 @@ public class UserRepository : IUserRepository
     /// Constructor.
     /// </summary>
     /// <param name="context"><see cref="UsersDBContext"/></param>
-    public UserRepository(UsersDBContext context)
+    public UsersRepository(UsersDBContext context)
     {
         _context = context;
     }

@@ -4,6 +4,7 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Services.Interfaces;
 using System.Security.Claims;
 
 namespace DataManagerAPI.Services;

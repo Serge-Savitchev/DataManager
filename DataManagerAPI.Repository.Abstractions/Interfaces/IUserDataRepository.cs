@@ -31,26 +31,28 @@ public interface IUserDataRepository
     /// <summary>
     /// Deletes User Data by Id.
     /// </summary>
+    /// <param name="userId">Id of User</param>
     /// <param name="userDataId">Id of User Data</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Deleted User Data. <see cref="UserData"/></returns>
     [OperationContract]
-    Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userDataId, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userId, int userDataId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets User Data by Id.
     /// </summary>
+    /// <param name="userId">Id of User</param>
     /// <param name="userDataId">Id of User Data</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>User Data. <see cref="UserData"/></returns>
     [OperationContract]
-    Task<ResultWrapper<UserData>> GetUserDataAsync(int userDataId, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserData>> GetUserDataAsync(int userId, int userDataId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all User Data by user Id.
     /// </summary>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <param name="userId">User Id</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Array of User Data. <see cref="UserData"/></returns>
     [OperationContract]
     Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId, CancellationToken cancellationToken = default);

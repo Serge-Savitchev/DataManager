@@ -30,15 +30,15 @@ public class gRPCUserDataRepository : IgRPCUserDataRepository
     }
 
     /// <inheritdoc />
-    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Request userDataId, CallContext context = default)
+    public Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Int32Request userDataId, CallContext context = default)
     {
-        return _repository.DeleteUserDataAsync(userDataId.Value);
+        return _repository.DeleteUserDataAsync(userDataId.Value1, userDataId.Value2);
     }
 
     /// <inheritdoc />
-    public Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Request userDataId, CallContext context = default)
+    public Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Int32Request userDataId, CallContext context = default)
     {
-        return _repository.GetUserDataAsync(userDataId.Value);
+        return _repository.GetUserDataAsync(userDataId.Value1, userDataId.Value2);
     }
 
     /// <inheritdoc />

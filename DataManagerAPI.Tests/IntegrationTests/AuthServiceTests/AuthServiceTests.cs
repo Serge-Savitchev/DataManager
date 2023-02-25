@@ -34,7 +34,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         //Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/revoke");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -53,10 +53,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         string newRole = "ReadOnlyUser";
 
         //Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole/{userToChange.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole?userId={userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject(newRole), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -85,15 +85,17 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
+        responseMessage.Dispose();
 
         // check that user is unauthorized now
-        using (var request = new HttpRequestMessage(HttpMethod.Get, "api/user/all"))
+        using (var request = new HttpRequestMessage(HttpMethod.Get, "api/users/all"))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
             responseMessage = await _client.SendAsync(request);
         }
 
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
+        responseMessage.Dispose();
     }
     #endregion
 }

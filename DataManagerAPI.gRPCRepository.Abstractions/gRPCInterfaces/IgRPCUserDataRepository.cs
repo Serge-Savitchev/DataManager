@@ -34,20 +34,20 @@ public interface IgRPCUserDataRepository
     /// <summary>
     /// Deletes User Data by Id.
     /// </summary>
-    /// <param name="userDataId"><see cref="Int32Request"/></param>
+    /// <param name="userDataId"><see cref="Int32Int32Request"/></param>
     /// <param name="context"><see cref="CallContext"/></param>
     /// <returns></returns>
     [OperationContract]
-    Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Request userDataId, CallContext context = default);
+    Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Int32Request userDataId, CallContext context = default);
 
     /// <summary>
     /// Gets User Data by Id.
     /// </summary>
-    /// <param name="userDataId"><see cref="Int32Request"/></param>
+    /// <param name="userDataId"><see cref="Int32Int32Request"/></param>
     /// <param name="context"><see cref="CallContext"/></param>
     /// <returns></returns>
     [OperationContract]
-    Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Request userDataId, CallContext context = default);
+    Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Int32Request userDataId, CallContext context = default);
 
     /// <summary>
     /// Gets all User Data by user Id.

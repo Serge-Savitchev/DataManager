@@ -26,7 +26,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -56,7 +56,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -75,7 +75,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         };
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -98,7 +98,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         }
 
         //Act
-        HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", request);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", request);
 
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, (int)responseMessage.StatusCode);

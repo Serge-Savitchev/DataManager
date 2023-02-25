@@ -24,7 +24,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         request.Content = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -37,10 +37,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             Password = newPassword
         };
 
-        responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
-        responseMessage.EnsureSuccessStatusCode();
+        using var responseMessage0 = await _client.PostAsJsonAsync("api/auth/login", requestData);
+        responseMessage0.EnsureSuccessStatusCode();
 
-        LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
+        LoginUserResponseDto response = await responseMessage0.Content.ReadAsAsync<LoginUserResponseDto>();
         Assert.NotNull(response);
         Assert.NotEmpty(response.AccessToken);
         Assert.NotEmpty(response.RefreshToken);
@@ -61,7 +61,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         request.Content = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
@@ -74,10 +74,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             Password = newPassword
         };
 
-        responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
-        responseMessage.EnsureSuccessStatusCode();
+        using var responseMessage0 = await _client.PostAsJsonAsync("api/auth/login", requestData);
+        responseMessage0.EnsureSuccessStatusCode();
 
-        LoginUserResponseDto response = await responseMessage.Content.ReadAsAsync<LoginUserResponseDto>();
+        LoginUserResponseDto response = await responseMessage0.Content.ReadAsAsync<LoginUserResponseDto>();
         Assert.NotNull(response);
         Assert.NotEmpty(response.AccessToken);
         Assert.NotEmpty(response.RefreshToken);
@@ -97,7 +97,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         request.Content = new StringContent(JsonConvert.SerializeObject("newPassword"), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
-        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         Assert.Equal(StatusCodes.Status403Forbidden, (int)responseMessage.StatusCode);

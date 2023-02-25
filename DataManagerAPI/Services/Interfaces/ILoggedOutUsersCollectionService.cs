@@ -1,4 +1,4 @@
-﻿namespace DataManagerAPI.Services;
+﻿namespace DataManagerAPI.Services.Interfaces;
 
 /// <summary>
 /// Interface for support of logged out users.

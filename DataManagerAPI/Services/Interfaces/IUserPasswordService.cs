@@ -1,6 +1,6 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Models;
 
-namespace DataManagerAPI.Services;
+namespace DataManagerAPI.Services.Interfaces;
 
 /// <summary>
 /// Interface for user credentials mnagement.

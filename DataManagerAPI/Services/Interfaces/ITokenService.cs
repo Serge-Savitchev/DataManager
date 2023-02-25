@@ -1,7 +1,7 @@
 ﻿using DataManagerAPI.Dto;
 using System.Security.Claims;
 
-namespace DataManagerAPI.Services;
+namespace DataManagerAPI.Services.Interfaces;
 
 /// <summary>
 /// Interface for tokens processing.

@@ -34,8 +34,7 @@ public class grpcProtoService : ProtoServiceBase
     /// <param name="requestStream"><see cref="Grpc.ResultWrapper"/></param>
     /// <param name="context"><see cref="ServerCallContext"/></param>
     /// <returns><see cref="Grpc.ResultWrapper"/></returns>
-    public override async Task<Grpc.ResultWrapper> UploadFile(
-        IAsyncStreamReader<Grpc.UserFileStream> requestStream,
+    public override async Task<Grpc.ResultWrapper> UploadFile(IAsyncStreamReader<Grpc.UserFileStream> requestStream,
         ServerCallContext context)
     {
         var result = new Grpc.ResultWrapper();
@@ -79,7 +78,8 @@ public class grpcProtoService : ProtoServiceBase
 
             // open stream from temporary file
             await using var inputStream = new System.IO.FileStream(newFileName, FileMode.Open, FileAccess.Read);
-            repositoryRequest.Content = inputStream;
+            await using var bufferedStream = new BufferedStream(inputStream, _bufferSizeForStreamCopy);
+            repositoryRequest.Content = bufferedStream;
 
             // call repository
             ResultWrapper<Repository.Abstractions.Models.UserFile> repositoryResult =
@@ -126,10 +126,8 @@ public class grpcProtoService : ProtoServiceBase
     /// <param name="responseStream"><see cref="Grpc.ResultWrapper"/></param>
     /// <param name="context"><see cref="ServerCallContext"/></param>
     /// <returns></returns>
-    public override async Task DownloadFile(
-        Grpc.DownloadFileRequest request,
-        IServerStreamWriter<Grpc.ResultWrapper> responseStream,
-        ServerCallContext context)
+    public override async Task DownloadFile(Grpc.DownloadFileRequest request,
+        IServerStreamWriter<Grpc.ResultWrapper> responseStream, ServerCallContext context)
     {
         // responseStream contains stream for writing content of file to be downloded
 

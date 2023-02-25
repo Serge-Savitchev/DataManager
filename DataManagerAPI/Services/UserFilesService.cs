@@ -3,13 +3,14 @@ using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Services.Interfaces;
 
 namespace DataManagerAPI.Services;
 
 /// <summary>
-/// Implementation of <see cref="IUserFileService"/>.
+/// Implementation of <see cref="IUserFilesService"/>.
 /// </summary>
-public class UserFileService : IUserFileService
+public class UserFilesService : IUserFilesService
 {
     private readonly IUserFilesRepository _repository;
     private readonly IMapper _mapper;
@@ -19,7 +20,7 @@ public class UserFileService : IUserFileService
     /// </summary>
     /// <param name="repository"><see cref="IUserFilesRepository"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    public UserFileService(IUserFilesRepository repository, IMapper mapper)
+    public UserFilesService(IUserFilesRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
