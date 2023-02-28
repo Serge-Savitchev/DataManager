@@ -37,7 +37,7 @@ public class UsersRepository : IUsersRepository
             if (userToDelete is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserId {userId} not found";
 
                 return result;
@@ -52,7 +52,7 @@ public class UsersRepository : IUsersRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -72,7 +72,7 @@ public class UsersRepository : IUsersRepository
             if (user is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserId {userId} not found";
 
                 return result;
@@ -83,7 +83,7 @@ public class UsersRepository : IUsersRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -107,7 +107,7 @@ public class UsersRepository : IUsersRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -130,7 +130,7 @@ public class UsersRepository : IUsersRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -161,7 +161,7 @@ public class UsersRepository : IUsersRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;

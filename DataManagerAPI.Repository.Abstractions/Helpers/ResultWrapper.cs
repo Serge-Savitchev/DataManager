@@ -32,5 +32,5 @@ public class ResultWrapper<T>
     /// Error code.
     /// </summary>
     [DataMember(Order = 4)]
-    public int StatusCode { get; set; } = StatusCodes.Status200OK;
+    public int StatusCode { get; set; } = ResultStatusCodes.Status200OK;
 }

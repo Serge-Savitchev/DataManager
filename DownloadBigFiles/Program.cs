@@ -1,9 +1,44 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Net.Http.Headers;
-using System.Threading;
+﻿using System.Diagnostics;
+
+// Raw string literal text
+
+Console.WriteLine(""" "A" """);
+Console.WriteLine(@"""ABC""");
+
+Console.WriteLine(@" RETURNING ""Id""");
+
+var variable = @"
+V1
+   ""V2""
+V3
+
+                    1
+";
+
+var multyLines = @$"Line 1
+            Line 2
+""Line 3""
+       Line 4
+       {variable}";
+
+Console.WriteLine(multyLines);
+
+int fileId = 1, userDataId = 2;
+
+var request1 = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+Console.WriteLine(request1);
+
+var request2 = $"""SELECT "Oid" FROM "UserFiles" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
+Console.WriteLine(request2);
+
+var request3 = @$"SELECT ""Oid"" FROM ""UserFiles""
+WHERE ""Id""={fileId} AND ""UserDataId""={userDataId}";
+Console.WriteLine(request3);
+
+
+Console.ReadLine();
+return;
+
 
 const int _bufferSize = 1024 * 1024 * 10;
 

@@ -116,7 +116,7 @@ public class gRPCUserFilesClient : IUserFilesRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -159,16 +159,20 @@ public class gRPCUserFilesClient : IUserFilesRepository
                 }
                 gRPCresponse = responseLocal;   // response from gRPC service
 
+                if (!gRPCresponse.Success)
+                {
+                    break;
+                }
+
                 await inputStream!.WriteAsync(responseLocal.Data.Content.Memory, context.CancellationToken);
             }
 
             inputStream!.Close();   // copying finished
 
             // open out stream
-            var outputStream = new FileStream(newFileName, FileMode.Open, FileAccess.Read,
-                FileShare.None, _bufferSizeForStreamCopy, FileOptions.SequentialScan | FileOptions.DeleteOnClose);
-
-            var bufferedStream = new BufferedStream(outputStream, _bufferSizeForStreamCopy);
+            var outputStream = gRPCresponse!.Success ?
+                new FileStream(newFileName, FileMode.Open, FileAccess.Read,
+                    FileShare.None, _bufferSizeForStreamCopy, FileOptions.SequentialScan | FileOptions.DeleteOnClose) : null;
 
             // convert response from gRPC service to ResultWrapper<Abstractions.Models.UserFileStream>
             result = new ResultWrapper<Abstractions.Models.UserFileStream>
@@ -180,7 +184,7 @@ public class gRPCUserFilesClient : IUserFilesRepository
                         Id = gRPCresponse.Data.UserFile.Id,
                         Name = gRPCresponse.Data.UserFile.Name,
                         Size = (long)gRPCresponse.Data.UserFile.Size,
-                        Content = bufferedStream  // content of file to be downloaded
+                        Content = new BufferedStream(outputStream, _bufferSizeForStreamCopy)  // content of file to be downloaded
                     } : null,
                 Success = gRPCresponse.Success && gRPCresponse.Data != null,
                 Message = string.IsNullOrWhiteSpace(gRPCresponse.Message) ? null : gRPCresponse.Message,
@@ -190,7 +194,7 @@ public class gRPCUserFilesClient : IUserFilesRepository
         catch (Exception ex)
         {
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;

@@ -34,6 +34,7 @@ public class UsersController : ControllerBase
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserDto>> DeleteUser([FromQuery][Required] int userId)
     {
         var result = await _service.DeleteUser(userId);
@@ -65,6 +66,7 @@ public class UsersController : ControllerBase
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserDto[]>> GetAllUsers()
     {
         var result = await _service.GetAllUsers();
@@ -80,7 +82,9 @@ public class UsersController : ControllerBase
     [Route("role")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDto[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserDto[]>> GetUsersByRole([FromQuery][RoleValidation] string role)
     {
         var result = await _service.GetUsersByRole(role);
@@ -97,6 +101,7 @@ public class UsersController : ControllerBase
     [Authorize(Policy = "PowerUser")]
     [ProducesResponseType(typeof(int[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<int>> UpdateOwners([FromBody] UpdateOwnerRequestDto request)
     {
         var result = await _service.UpdateOwners(request);

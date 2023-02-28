@@ -169,5 +169,9 @@ public class grpcProtoService : ProtoServiceBase
                 Console.WriteLine($"Download: {++count}\t{read}");
             }
         }
+        else
+        {
+            await responseStream.WriteAsync(result, context.CancellationToken);
+        }
     }
 }

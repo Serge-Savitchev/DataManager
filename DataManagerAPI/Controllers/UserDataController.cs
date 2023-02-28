@@ -35,7 +35,7 @@ public class UserDataController : ControllerBase
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpPost]
     [Route("Add")]
     public async Task<ActionResult<UserDataDto>> AddUserData([FromBody] AddUserDataDto data, [FromQuery] int UserId = 0)
@@ -58,8 +58,10 @@ public class UserDataController : ControllerBase
     /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>Updated user data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpPut]
     [Route("Update")]
     public async Task<ActionResult<UserDataDto>> UpdateUserData([FromBody] AddUserDataDto data, [FromQuery] int UserDataId, [FromQuery] int UserId = 0)
@@ -80,6 +82,10 @@ public class UserDataController : ControllerBase
     /// <param name="UserDataId">Id of UserData</param>
     /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>Deleted user data. <see cref="UserDataDto"/></returns>
+    [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpDelete]
     [Route("Delete")]
     public async Task<ActionResult<UserDataDto>> DeleteUserData([FromQuery] int UserDataId, [FromQuery] int UserId = 0)
@@ -101,7 +107,10 @@ public class UserDataController : ControllerBase
     /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>User data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
     [HttpGet]
     public async Task<ActionResult<UserDataDto>> GetUserData([FromQuery] int UserDataId, [FromQuery] int UserId = 0)
     {
@@ -121,6 +130,8 @@ public class UserDataController : ControllerBase
     /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>Array of user's data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet]
     [Route("All")]

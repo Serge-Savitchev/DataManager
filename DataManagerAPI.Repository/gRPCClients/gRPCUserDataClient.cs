@@ -64,4 +64,11 @@ public class gRPCUserDataClient : IUserDataRepository
         return _igRPCUserDataRepository.UpdateUserDataAsync(userDataToUpdate,
             new CallOptions(cancellationToken: cancellationToken));
     }
+
+    /// <inheritdoc />
+    public Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default)
+    {
+        return _igRPCUserDataRepository.GetUserAsync(new Int32Request { Value = userDataId },
+            new CallOptions(cancellationToken: cancellationToken));
+    }
 }

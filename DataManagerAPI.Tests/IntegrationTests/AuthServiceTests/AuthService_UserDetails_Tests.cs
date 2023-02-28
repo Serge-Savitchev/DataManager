@@ -8,14 +8,14 @@ namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 
 public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    #region UserDetails
+    #region GetUserDetails
     [Fact]
-    public async Task Get_UserDetails_Admin_ReturnsOk()
+    public async Task GetUserDetails_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
@@ -27,17 +27,17 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         var response = await responseMessage.Content.ReadAsAsync<UserDetailsDto>();
         Assert.NotNull(response);
         Assert.Equal(registredUser.Id, response.Id);
-        Assert.Equal(registredUser.UserData.LastName, response.LastName);
-        Assert.Equal(registredUser.UserData.Login, response.Login);
+        Assert.Equal(registredUser.RegisterUser.LastName, response.LastName);
+        Assert.Equal(registredUser.RegisterUser.Login, response.Login);
     }
 
     [Fact]
-    public async Task Get_UserDetails_NotAdmin_ReturnsForbidden()
+    public async Task GetUserDetails_NotAdmin_Returns_Forbidden()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 

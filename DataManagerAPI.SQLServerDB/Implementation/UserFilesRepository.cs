@@ -99,7 +99,7 @@ public class UserFilesRepository : IUserFilesRepository
 
         if (fileSize == null || fileSize <= 0 || string.IsNullOrWhiteSpace(fileName))
         {
-            result.StatusCode = StatusCodes.Status404NotFound;
+            result.StatusCode = ResultStatusCodes.Status404NotFound;
             return result;
         }
 
@@ -151,7 +151,7 @@ public class UserFilesRepository : IUserFilesRepository
         catch (Exception ex)
         {
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -179,7 +179,7 @@ public class UserFilesRepository : IUserFilesRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -215,7 +215,7 @@ public class UserFilesRepository : IUserFilesRepository
 
             if (fileName == null && fileStream.Id != 0) // file doesn't exist, but Id is not 0.
             {
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Success = false;
                 return result;
             }
@@ -235,7 +235,7 @@ public class UserFilesRepository : IUserFilesRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -372,7 +372,7 @@ public class UserFilesRepository : IUserFilesRepository
         catch (Exception)
         {
             result.Success = false;
-            result.StatusCode = StatusCodes.Status404NotFound;
+            result.StatusCode = ResultStatusCodes.Status404NotFound;
             result.Message = $"UserDataId {userDataId} not found";
         }
 

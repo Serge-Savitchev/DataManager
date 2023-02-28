@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="IntegrationTests\TestData\**" />
+    <EmbeddedResource Remove="IntegrationTests\TestData\**" />
+    <None Remove="IntegrationTests\TestData\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\DataManagerAPI\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

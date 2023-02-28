@@ -1,6 +1,9 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.Text;
 using Xunit;
 
 namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
@@ -9,32 +12,45 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 {
     #region Register
     [Fact]
-    public async Task Post_RedisterUser_Returns_NewUser()
+    public async Task RedisterUser_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData requestData = UsersForTestsHelper.GenerateUniqueUserData(RoleIds.Admin.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData requestData = UsersForTestsHelper.GenerateUniqueUserData(RoleIds.Admin.ToString());
 
-        //Act
-        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", requestData.UserData);
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(requestData.RegisterUser), Encoding.UTF8, "application/json")
+        };
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
 
         UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
         Assert.NotNull(response);
-        Assert.Equal(requestData.UserData!.FirstName, response.FirstName);
+        Assert.Equal(requestData.RegisterUser!.FirstName, response.FirstName);
 
         requestData.Id = response.Id;
     }
 
     [Fact]
-    public async Task Post_RedisterUser_UserExists_Returns_Conflict()
+    public async Task RedisterUser_UserExists_Returns_Conflict()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
-        //Act
-        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/register", registredUser.UserData);
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(registredUser.RegisterUser), Encoding.UTF8, "application/json")
+        };
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
         // Assert
         Assert.Equal(StatusCodes.Status409Conflict, (int)responseMessage.StatusCode);

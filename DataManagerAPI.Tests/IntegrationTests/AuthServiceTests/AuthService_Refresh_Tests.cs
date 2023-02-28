@@ -7,12 +7,12 @@ namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 
 public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    #region Refresh
+    #region RefreshToken
     [Fact]
-    public async Task Post_RefreshToken_ReturnsNewPairOfTokens()
+    public async Task RefreshToken_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
 
         // Expiration time of JWT token is stored in seconds.
         // If time passed between Login and Refresh is < 1 second,
@@ -25,7 +25,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             RefreshToken = registredUser.LoginData.RefreshToken
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
@@ -46,7 +46,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Post_RefreshToken_IncorrectAccessToken_ReturnsUnauthorized()
+    public async Task RefreshToken_IncorrectAccessToken_Returns_Unauthorized()
     {
         // Arrange
         TokenApiModelDto requestData = new TokenApiModelDto
@@ -55,7 +55,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             RefreshToken = "fake"
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
@@ -63,10 +63,10 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Post_RefreshToken_IncorrectRefreshToken_ReturnsUnauthorized()
+    public async Task RefreshToken_IncorrectRefreshToken_Returns_Unauthorized()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
 
         TokenApiModelDto requestData = new TokenApiModelDto
         {
@@ -74,7 +74,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             RefreshToken = "fake"
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", requestData);
 
         // Assert
@@ -88,7 +88,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     [InlineData("", "fake")]
     [InlineData("fake", "")]
     [InlineData("", "")]
-    public async Task Post_RefreshToken_IncorrectRequest_ReturnsBadRequest(string accessToken, string refreshToken)
+    public async Task RefreshToken_IncorrectRequest_Returns_BadRequest(string accessToken, string refreshToken)
     {
         // Arrange
         TokenApiModelDto? request = null;
@@ -97,7 +97,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             request = new TokenApiModelDto { AccessToken = accessToken!, RefreshToken = refreshToken };
         }
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/refresh", request);
 
         // Assert

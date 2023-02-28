@@ -56,4 +56,13 @@ public interface IUserDataRepository
     /// <returns>Array of User Data. <see cref="UserData"/></returns>
     [OperationContract]
     Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns owning user of UserData by UserData Id.
+    /// </summary>
+    /// <param name="userDataId">Id of user data</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns><see cref="User"/></returns>
+    [OperationContract]
+    Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default);
 }

@@ -52,4 +52,11 @@ public class gRPCUserDataRepository : IgRPCUserDataRepository
     {
         return _repository.UpdateUserDataAsync(userDataToUpdate);
     }
+
+    /// <inheritdoc />
+    public Task<ResultWrapper<User>> GetUserAsync(Int32Request userDataId, CallContext context = default)
+    {
+        return _repository.GetUserAsync(userDataId.Value);
+    }
+
 }

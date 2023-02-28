@@ -58,4 +58,12 @@ public interface IgRPCUserDataRepository
     [OperationContract]
     Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(Int32Request userId, CallContext context = default);
 
+    /// <summary>
+    /// Returns owning user of UserData by UserData Id.
+    /// </summary>
+    /// <param name="userDataId">Id of user data<see cref="Int32Request"/></param>
+    /// <param name="context"><see cref="CallContext"/></param>
+    /// <returns><see cref="User"/></returns>
+    [OperationContract]
+    Task<ResultWrapper<User>> GetUserAsync(Int32Request userDataId, CallContext context = default);
 }

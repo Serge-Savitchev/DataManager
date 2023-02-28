@@ -17,9 +17,9 @@ public static class PostgresMigrationExtensions
         const string tableName = "UserFiles";
 
         // add colunms 'Oid' for big files support.
-        migrationBuilder.Sql($"ALTER TABLE IF EXISTS public.\"{tableName}\" ADD COLUMN \"Oid\" bigint NOT NULL;", true);
+        migrationBuilder.Sql($"""ALTER TABLE IF EXISTS public."{tableName}" ADD COLUMN "Oid" bigint NOT NULL;""", true);
 
         // this column is used for storing data of "small" files.
-        migrationBuilder.Sql($"ALTER TABLE IF EXISTS public.\"{tableName}\" ADD COLUMN \"Data\" bytea;", true);
+        migrationBuilder.Sql($"""ALTER TABLE IF EXISTS public."{tableName}" ADD COLUMN "Data" bytea;""", true);
     }
 }

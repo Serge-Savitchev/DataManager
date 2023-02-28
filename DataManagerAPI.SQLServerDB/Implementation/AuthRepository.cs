@@ -29,7 +29,7 @@ public class AuthRepository : IAuthRepository
     {
         var result = new ResultWrapper<User>
         {
-            StatusCode = StatusCodes.Status201Created,
+            StatusCode = ResultStatusCodes.Status201Created,
             Success = true
         };
 
@@ -41,7 +41,7 @@ public class AuthRepository : IAuthRepository
             if (existingCredentials != null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status409Conflict;
+                result.StatusCode = ResultStatusCodes.Status409Conflict;
                 result.Message = $"User with login {userCredentials.Login} already exists.";
                 return result;
             }
@@ -59,7 +59,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -82,7 +82,7 @@ public class AuthRepository : IAuthRepository
             if (userCredentials is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"User with login {login} not found.";
 
                 return result;
@@ -97,7 +97,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -120,7 +120,7 @@ public class AuthRepository : IAuthRepository
             if (userCredentials is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"User with Id {userId} not found.";
 
                 return result;
@@ -135,7 +135,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -163,7 +163,7 @@ public class AuthRepository : IAuthRepository
             if (data is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserId {userId} not found";
 
                 return result;
@@ -175,7 +175,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -204,7 +204,7 @@ public class AuthRepository : IAuthRepository
             if (data is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"Login {login} not found";
 
                 return result;
@@ -216,7 +216,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -237,7 +237,7 @@ public class AuthRepository : IAuthRepository
             if (updatedCredentials is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserId {userId} not found";
 
                 return result;
@@ -253,7 +253,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -274,7 +274,7 @@ public class AuthRepository : IAuthRepository
             if (user is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserId {userId} not found";
 
                 return result;
@@ -288,7 +288,7 @@ public class AuthRepository : IAuthRepository
             else
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status409Conflict;
+                result.StatusCode = ResultStatusCodes.Status409Conflict;
                 result.Message = "The user role has not been chanhed.";
             }
 
@@ -298,7 +298,7 @@ public class AuthRepository : IAuthRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;

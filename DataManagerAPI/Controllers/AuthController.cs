@@ -1,5 +1,6 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Helpers;
+using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,9 +34,26 @@ public class AuthController : ControllerBase
     /// <returns>New user. <see cref="UserDto"/></returns>
     [HttpPost]
     [Route("register")]
-    public async Task<ActionResult<UserDto>> RegisterUser([FromBody] RegisterUserDto user
-        , CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserDto>> RegisterUser([FromBody] RegisterUserDto user,
+        CancellationToken cancellationToken = default)
     {
+        var role = Enum.Parse<RoleIds>(user.Role, true);
+
+        // only Admin can register new Admin or PowerUser.
+        if (role == RoleIds.Admin || role == RoleIds.PowerUser)
+        {
+            var currentUser = GetCurrentUser();
+            if (currentUser == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
+            if (Enum.Parse<RoleIds>(currentUser.User!.Role, true) != RoleIds.Admin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+        }
+
         var result = await _service.RegisterUser(user, cancellationToken);
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -178,6 +196,11 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<string>> UpdateUserRole([FromQuery][Required] int userId,
         [FromBody][RoleValidation] string newRole, CancellationToken cancellationToken = default)
     {
+        if (userId == 1)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden);  // can't change role for default admin
+        }
+
         var result = await _service.UpdateUserRole(userId, newRole, cancellationToken);
         return StatusCode(result.StatusCode, result.Data);
     }

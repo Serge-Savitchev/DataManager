@@ -10,16 +10,16 @@ namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 
 public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    #region Password
+    #region ChangePassword
     [Fact]
-    public async Task Put_ChangePassword_User_ReturnsOk()
+    public async Task ChangePassword_User_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
 
         string newPassword = "newPassword";
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changepassword");
         request.Content = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
@@ -28,12 +28,12 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        registredUser.UserData.Password = newPassword;
+        registredUser.RegisterUser.Password = newPassword;
 
         // check login with new password
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.UserData.Login,
+            Login = registredUser.RegisterUser.Login,
             Password = newPassword
         };
 
@@ -49,14 +49,14 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Put_ChangePassword_Admin_ReturnsOk()
+    public async Task ChangePassword_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.Admin.ToString());
-        using RegisterUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
         string newPassword = "newPassword";
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changepassword/{userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
@@ -65,12 +65,12 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        userToChange.UserData.Password = newPassword;
+        userToChange.RegisterUser.Password = newPassword;
 
         // check login with new password
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = userToChange.UserData.Login,
+            Login = userToChange.RegisterUser.Login,
             Password = newPassword
         };
 
@@ -86,13 +86,13 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Put_ChangePassword_NotAdmin_ReturnsForbidden()
+    public async Task ChangePassword_NotAdmin_Returns_Forbidden()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.PowerUser.ToString());
-        using RegisterUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changepassword/{userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject("newPassword"), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);

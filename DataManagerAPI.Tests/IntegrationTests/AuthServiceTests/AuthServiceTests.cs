@@ -11,27 +11,25 @@ namespace DataManagerAPI.Tests.IntegrationTests.AuthServiceTests;
 public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
-    private readonly CustomWebApplicationFactory<Program> _factory;
 
     public AuthServiceTests(CustomWebApplicationFactory<Program> factory)
     {
-        _factory = factory;
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
         });
 
-        DatabaseFixture.PrepareDatabase(_factory);
+        DatabaseFixture.PrepareDatabase(factory);
     }
 
     #region Revoke
     [Fact]
-    public async Task Post_Revoke_ReturnsOk()
+    public async Task Revoke_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/revoke");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
@@ -44,15 +42,15 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
     #region Role
     [Fact]
-    public async Task Put_ChangeRole_ReturnsNewRole()
+    public async Task UpdateUserRole_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.PowerUser.ToString());
-        using RegisterUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
 
         string newRole = "ReadOnlyUser";
 
-        //Act
+        // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole?userId={userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject(newRole), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
@@ -60,22 +58,40 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        userToChange.UserData.Role = newRole;
+        userToChange.RegisterUser.Role = newRole;
 
         var response = await responseMessage.Content.ReadAsStringAsync();
         Assert.NotNull(response);
         Assert.Equal(newRole, response, true);
     }
+
+    [Fact]
+    public async Task UpdateUserRole_For_DefaultAdmin_Returns_Forbidden()
+    {
+        // Arrange
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        string newRole = "ReadOnlyUser";
+
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole?userId=1");
+        request.Content = new StringContent(JsonConvert.SerializeObject(newRole), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(StatusCodes.Status403Forbidden, (int)responseMessage.StatusCode);
+    }
+
     #endregion
 
     #region Logout
     [Fact]
-    public async Task Post_Logout_ReturnsOk()
+    public async Task Logout_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
-        //Act
+        // Act
         HttpResponseMessage responseMessage;
         using (var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/logout"))
         {

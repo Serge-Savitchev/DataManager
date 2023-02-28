@@ -4,7 +4,7 @@
 /// Tis is subset of Microsoft.AspNetCore.Http.StatusCodes.
 /// We don't use original class to avoid dependence on Microsoft.AspNetCore.Http.
 /// </summary>
-public static class StatusCodes
+public static class ResultStatusCodes
 {
     /// <summary>
     /// HTTP status code 200.

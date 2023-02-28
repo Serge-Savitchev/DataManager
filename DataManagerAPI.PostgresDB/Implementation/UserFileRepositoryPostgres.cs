@@ -60,7 +60,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
         await connection.OpenAsync(cancellationToken);
 
-        var request = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+        var request = $"""SELECT "Oid" FROM "UserFiles" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
         await using var command = new NpgsqlCommand(request, connection);
 
         uint? oid = null;
@@ -86,7 +86,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         }
 
         // delete record
-        command.CommandText = $"DELETE FROM \"UserFiles\" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+        command.CommandText = $"""DELETE FROM "UserFiles" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
         _ = await command.ExecuteScalarAsync(cancellationToken);
 
         return result;
@@ -108,8 +108,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
-            var request = "SELECT \"Oid\", \"Size\", \"Name\" FROM \"UserFiles\"" +
-                        $" WHERE \"Id\"={fileId} AND \"UserDataId\"={userDataId}";
+            var request = """SELECT "Oid", "Size", "Name" FROM "UserFiles""" +
+                        $""" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
 
             await using var command = new NpgsqlCommand(request, connection);
 
@@ -129,7 +129,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
             if (fileSize == null || fileSize <= 0 || string.IsNullOrWhiteSpace(fileName))
             {
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
             }
             else
             {
@@ -140,7 +140,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         catch (Exception ex)
         {
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -156,7 +156,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             await connection.OpenAsync(cancellationToken);
 
             using var command = new NpgsqlCommand(
-                $"SELECT \"Data\" FROM \"UserFiles\" WHERE \"Id\"={fileId}",
+                $"""SELECT "Data" FROM "UserFiles" WHERE "Id"={fileId}""",
                 connection);
 
             command.CommandTimeout = 0;
@@ -184,7 +184,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         catch (Exception ex)
         {
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -244,7 +244,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         catch (Exception ex)
         {
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -272,7 +272,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -297,14 +297,14 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
-            var request = $"SELECT \"Name\" FROM \"UserFiles\" WHERE \"Id\"={fileStream.Id} AND \"UserDataId\"={fileStream.UserDataId}";
+            var request = $"""SELECT "Name" FROM "UserFiles" WHERE "Id"={fileStream.Id} AND "UserDataId"={fileStream.UserDataId}""";
             await using var command = new NpgsqlCommand(request, connection);
 
             // take file name from DB. null value means that record doesn't exist.
             var fileName = await command.ExecuteScalarAsync(cancellationToken) as string;
             if (fileName == null && fileStream.Id != 0) // file doesn't exist, but Id is not 0.
             {
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Success = false;
                 return result;
             }
@@ -324,7 +324,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         return result;
@@ -355,14 +355,14 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
         if (newFile)   // new file
         {
-            request = $"INSERT INTO \"UserFiles\" (\"UserDataId\", \"Name\", \"Size\", \"Oid\", \"Data\")" +
+            request = $"""INSERT INTO "UserFiles" ("UserDataId", "Name", "Size", "Oid", "Data")""" +
                 $" VALUES({fileStream.UserDataId}, '{fileStream.Name}', {memoryStream.Length}, 0, @binaryValue)" +
-                $" RETURNING \"Id\"";
+                @" RETURNING ""Id""";
         }
         else
         {
-            request = $"UPDATE \"UserFiles\" SET \"Name\"='{fileStream.Name}', \"Size\"={memoryStream.Length}, \"Data\"='@binaryValue'" +
-                $" WHERE \"Id\"={fileStream.Id}";
+            request = $"""UPDATE "UserFiles" SET "Name"='{fileStream.Name}', "Size"={memoryStream.Length}, "Data"='@binaryValue'""" +
+                $""" WHERE "Id"={fileStream.Id}""";
         }
 
         await using var command = new NpgsqlCommand(request, connection);
@@ -383,7 +383,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
         await using (var command = new NpgsqlCommand(null, connection))
         {
-            command.CommandText = $"SELECT \"Oid\" FROM \"UserFiles\" WHERE \"Id\"={fileStream.Id} AND \"UserDataId\"={fileStream.UserDataId}";
+            command.CommandText = $"""SELECT "Oid" FROM "UserFiles" WHERE "Id"={fileStream.Id} AND "UserDataId"={fileStream.UserDataId}""";
 
             using (NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
             {
@@ -429,14 +429,14 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
             if (newFile)   // new file
             {
-                request = $"INSERT INTO \"UserFiles\" (\"UserDataId\", \"Name\", \"Size\", \"Oid\", \"Data\")" +
+                request = """INSERT INTO "UserFiles" ("UserDataId", "Name", "Size", "Oid", "Data")""" +
                     $" VALUES({fileStream.UserDataId}, '{fileStream.Name}', {stream.Length}, {oid}, NULL)" +
-                    $" RETURNING \"Id\"";
+                    @" RETURNING ""Id""";
             }
             else
             {
-                request = $"UPDATE \"UserFiles\" SET \"Name\"='{fileStream.Name}', \"Size\"={stream.Length}, \"Oid\"={oid}, \"Data\"=NULL" +
-                    $" WHERE \"Id\"={fileStream.Id}";
+                request = $"""UPDATE "UserFiles" SET "Name"='{fileStream.Name}', "Size"={stream.Length}, "Oid"={oid}, "Data"=NULL""" +
+                    $""" WHERE "Id"={fileStream.Id}""";
             }
 
             await using var cmd = new NpgsqlCommand(request, connection);
@@ -472,7 +472,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         catch (Exception)
         {
             result.Success = false;
-            result.StatusCode = StatusCodes.Status404NotFound;
+            result.StatusCode = ResultStatusCodes.Status404NotFound;
             result.Message = $"UserDataId {userDataId} not found";
         }
 

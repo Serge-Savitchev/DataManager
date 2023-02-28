@@ -38,7 +38,7 @@ public class LoggedOutUsersCollectionservice : ILoggedOutUsersCollectionService
 
         if (!_redisDB.IsConnected(default))
         {
-            logger.LogWarning($"Redis is not accessible. Connection string: \"{connectionString}\"");
+            logger.LogWarning(@"Redis is not accessible. Connection string: ""{connectionString}""", connectionString);
         }
     }
 

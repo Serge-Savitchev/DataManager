@@ -28,7 +28,7 @@ public class UserDataRepository : IUserDataRepository
     {
         var result = new ResultWrapper<UserData>
         {
-            StatusCode = StatusCodes.Status201Created,
+            StatusCode = ResultStatusCodes.Status201Created,
             Success = true
         };
 
@@ -48,7 +48,7 @@ public class UserDataRepository : IUserDataRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         result.Data = userDataToAdd;
@@ -74,7 +74,7 @@ public class UserDataRepository : IUserDataRepository
             if (userDataToDelete is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserDataId {userDataId} not found";
 
                 return result;
@@ -87,7 +87,7 @@ public class UserDataRepository : IUserDataRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         result.Data = userDataToDelete;
@@ -114,7 +114,7 @@ public class UserDataRepository : IUserDataRepository
             if (userData is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserDataId {userDataId} not found";
 
                 return result;
@@ -126,7 +126,7 @@ public class UserDataRepository : IUserDataRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         result.Data = userData;
@@ -161,7 +161,7 @@ public class UserDataRepository : IUserDataRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         result.Data = dataList;
@@ -193,7 +193,7 @@ public class UserDataRepository : IUserDataRepository
             if (updatedUserData is null)
             {
                 result.Success = false;
-                result.StatusCode = StatusCodes.Status404NotFound;
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
                 result.Message = $"UserDataId {userDataToUpdate.Id} not found";
 
                 return result;
@@ -208,12 +208,44 @@ public class UserDataRepository : IUserDataRepository
         {
             result.Success = false;
             result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
         }
 
         result.Data = updatedUserData;
         return result;
     }
+
+    /// <inheritdoc />
+    public async Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default)
+    {
+        var result = new ResultWrapper<User>();
+
+        try
+        {
+            IEnumerable<User> res = from data in _context.UserData
+                                    join user in _context.Users
+                                    on new { x1 = data.UserId, x2 = data.Id } equals new { x1 = user.Id, x2 = userDataId }
+                                    select user;
+
+            if (res != null)
+            {
+                User? foundUser = await res.AsQueryable().FirstOrDefaultAsync(cancellationToken);
+                if (foundUser != null)
+                {
+                    result.Success = true;
+                    result.Data = foundUser;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            result.Message = ex.Message;
+            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+        }
+
+        return result;
+    }
+
 
     /// <summary>
     /// Searches for usser by Id.
@@ -240,7 +272,7 @@ public class UserDataRepository : IUserDataRepository
         catch (Exception)
         {
             result.Success = false;
-            result.StatusCode = StatusCodes.Status404NotFound;
+            result.StatusCode = ResultStatusCodes.Status404NotFound;
             result.Message = $"UserId {userId} not found";
         }
 

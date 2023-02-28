@@ -9,18 +9,18 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 {
     #region Login
     [Fact]
-    public async Task Post_LoginUser_ReturnsPairOfTokens()
+    public async Task LoginUser_Returns_Ok()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
 
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.UserData.Login,
-            Password = registredUser.UserData.Password
+            Login = registredUser.RegisterUser.Login,
+            Password = registredUser.RegisterUser.Password
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
@@ -35,7 +35,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Post_LoginUser_IncorrectLogin_ReturnsNotFound()
+    public async Task LoginUser_IncorrectLogin_Returns_NotFound()
     {
         // Arrange
         LoginUserDto requestData = new LoginUserDto
@@ -44,7 +44,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             Password = "fake"
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
@@ -52,18 +52,18 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Post_LoginUser_IncorrectPassword_ReturnsUnauthorized()
+    public async Task LoginUser_IncorrectPassword_Returns_Unauthorized()
     {
         // Arrange
-        using RegisterUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegistredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
 
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.UserData.Login,
-            Password = $"{registredUser.UserData.Password}Incorrect"
+            Login = registredUser.RegisterUser.Login,
+            Password = $"{registredUser.RegisterUser.Password}Incorrect"
         };
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", requestData);
 
         // Assert
@@ -77,7 +77,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     [InlineData("", "fake")]
     [InlineData("fake", "")]
     [InlineData("", "")]
-    public async Task Post_LoginUser_IncorrectRequest_ReturnsBadRequest(string login, string password)
+    public async Task LoginUser_IncorrectRequest_Returns_BadRequest(string login, string password)
     {
         // Arrange
         LoginUserDto? request = null;
@@ -87,7 +87,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
             request = new LoginUserDto { Login = login!, Password = password };
         }
 
-        //Act
+        // Act
         using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/auth/login", request);
 
         // Assert
