@@ -21,7 +21,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
         {
-            Content = new StringContent(JsonConvert.SerializeObject(requestData.RegisterUser), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonConvert.SerializeObject(requestData.RegisteredUser), Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
@@ -32,7 +32,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
         Assert.NotNull(response);
-        Assert.Equal(requestData.RegisterUser!.FirstName, response.FirstName);
+        Assert.Equal(requestData.RegisteredUser!.FirstName, response.FirstName);
 
         requestData.Id = response.Id;
     }
@@ -46,7 +46,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
         {
-            Content = new StringContent(JsonConvert.SerializeObject(registredUser.RegisterUser), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonConvert.SerializeObject(registredUser.RegisteredUser), Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);

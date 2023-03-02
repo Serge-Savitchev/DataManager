@@ -1,4 +1,6 @@
-﻿using DataManagerAPI.Repository.Abstractions.Constants;
+﻿using DataManagerAPI.PostgresDB;
+using DataManagerAPI.Repository.Abstractions.Constants;
+using DataManagerAPI.SQLServerDB;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -29,13 +31,26 @@ public class CustomWebApplicationFactory<TProgram>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices((context, conf) =>
+        builder.ConfigureServices((context, services) =>
         {
             if (!bool.TryParse(context.Configuration.GetConnectionString(SourceDatabases.UseGPRC), out bool useGPRC))
             {
                 useGPRC = false;
             }
             DatabaseFixture.UseGRPCServer = useGPRC;
+
+            if (useGPRC)
+            {
+                string sourceDatabaseType = context.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
+                if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
+                {
+                    services.AddSQLServerDBContext();  // context for SQL database
+                }
+                else if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValuePostgres, true) == 0)
+                {
+                    services.AddPostgresDBContext();   // context for Postgres database
+                }
+            }
         });
 
         //builder.ConfigureServices(services =>

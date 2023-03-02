@@ -159,17 +159,13 @@ public class UserDataController : ControllerBase
     private (int Code, int UserId) CheckPermissions(int userId)
     {
         CurrentUserDto? currentUser = GetCurrentUser();
-        if (currentUser == null)
-        {
-            return (Code: StatusCodes.Status401Unauthorized, UserId: userId);
-        }
 
         if (userId <= 0)    // if not set then set Id of current user
         {
-            return (Code: StatusCodes.Status200OK, UserId: currentUser.User!.Id);
+            return (Code: StatusCodes.Status200OK, UserId: currentUser!.User!.Id);
         }
 
-        if (currentUser.User!.Id != userId &&
+        if (currentUser!.User!.Id != userId &&
             Enum.Parse<RoleIds>(currentUser.User.Role, true) != RoleIds.Admin)
         {
             return (Code: StatusCodes.Status403Forbidden, UserId: currentUser.User!.Id);

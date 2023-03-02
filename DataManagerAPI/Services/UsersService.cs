@@ -28,41 +28,47 @@ public class UsersService : IUsersService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto>> DeleteUser(int userId)
+    public async Task<ResultWrapper<UserDto>> DeleteUser(int userId,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.DeleteUserAsync(userId);
+        var result = await _repository.DeleteUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto[]>> GetAllUsers()
+    public async Task<ResultWrapper<UserDto[]>> GetAllUsers(CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetAllUsersAsync();
+        var result = await _repository.GetAllUsersAsync(cancellationToken);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto>> GetUser(int userId)
+    public async Task<ResultWrapper<UserDto>> GetUser(int userId,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetUserAsync(userId);
+        var result = await _repository.GetUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto[]>> GetUsersByRole(string role)
+    public async Task<ResultWrapper<UserDto[]>> GetUsersByRole(string role,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetUsersByRoleAsync(Enum.Parse<RoleIds>(role, true));
+        var result = await _repository.GetUsersByRoleAsync(Enum.Parse<RoleIds>(role, true),
+            cancellationToken);
         var ret = ConvertWrapper(result);
         return ret;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequestDto request)
+    public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequestDto request,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds);
+        var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds,
+            cancellationToken);
         return result;
     }
 

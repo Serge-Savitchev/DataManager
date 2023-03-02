@@ -42,8 +42,10 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
 
             for (int i = 0; i < count; i++)
             {
-                Assert.Equal(files[i].Name, response[i].Name);
-                Assert.Equal(files[i].Size, response[i].Size);
+                var userFile = response.FirstOrDefault(x => x.Id == files[i].Id);
+                Assert.NotNull(userFile);
+                Assert.Equal(files[i].Size, userFile.Size);
+                Assert.Equal(files[i].Name, userFile.Name);
             }
         }
         finally
@@ -131,8 +133,10 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
 
             for (int i = 0; i < count; i++)
             {
-                Assert.Equal(files[i].Name, response[i].Name);
-                Assert.Equal(files[i].Size, response[i].Size);
+                var userFile = response.FirstOrDefault(x => x.Id == files[i].Id);
+                Assert.NotNull(userFile);
+                Assert.Equal(files[i].Size, userFile.Size);
+                Assert.Equal(files[i].Name, userFile.Name);
             }
         }
         finally

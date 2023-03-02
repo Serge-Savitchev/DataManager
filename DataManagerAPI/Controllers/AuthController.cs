@@ -29,12 +29,12 @@ public class AuthController : ControllerBase
     /// <summary>
     /// Register new user.
     /// </summary>
-    /// <param name="user"><see cref="RegisterUserDto"/></param>
+    /// <param name="user"><see cref="RegisteredUserDto"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>New user. <see cref="UserDto"/></returns>
     [HttpPost]
     [Route("register")]
-    public async Task<ActionResult<UserDto>> RegisterUser([FromBody] RegisterUserDto user,
+    public async Task<ActionResult<UserDto>> RegisterUser([FromBody] RegisteredUserDto user,
         CancellationToken cancellationToken = default)
     {
         var role = Enum.Parse<RoleIds>(user.Role, true);

@@ -108,8 +108,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync(cancellationToken);
 
-            var request = """SELECT "Oid", "Size", "Name" FROM "UserFiles""" +
-                        $""" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
+            var request = $"""SELECT "Oid", "Size", "Name" FROM "UserFiles" WHERE "Id"={fileId} AND "UserDataId"={userDataId}""";
 
             await using var command = new NpgsqlCommand(request, connection);
 
@@ -343,7 +342,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
             {
                 Console.WriteLine($"{++count}\t{read}");
-                await memoryStream.WriteAsync(buffer, cancellationToken);
+                await memoryStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
             }
         }
         else

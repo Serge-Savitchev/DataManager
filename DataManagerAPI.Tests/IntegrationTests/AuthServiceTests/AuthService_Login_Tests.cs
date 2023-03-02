@@ -16,8 +16,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.RegisterUser.Login,
-            Password = registredUser.RegisterUser.Password
+            Login = registredUser.RegisteredUser.Login,
+            Password = registredUser.RegisteredUser.Password
         };
 
         // Act
@@ -59,8 +59,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.RegisterUser.Login,
-            Password = $"{registredUser.RegisterUser.Password}Incorrect"
+            Login = registredUser.RegisteredUser.Login,
+            Password = $"{registredUser.RegisteredUser.Password}Incorrect"
         };
 
         // Act

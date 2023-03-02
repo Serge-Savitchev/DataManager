@@ -28,7 +28,7 @@ public class LoggedOutUsersCollectionservice : ILoggedOutUsersCollectionService
         _dataLifetime = int.Parse(configuration["Tokens:AccessTokenLifetime"]!);    // take from configuration
 
         // connection string for Redis server
-        string connectionString = configuration.GetConnectionString("Redis") ?? string.Empty;
+        string connectionString = configuration.GetConnectionString("Redis") ?? "localhost";
         ConfigurationOptions options = ConfigurationOptions.Parse(connectionString);
         options.AbortOnConnectFail = false;
 

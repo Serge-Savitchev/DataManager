@@ -45,7 +45,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         responseMessage.EnsureSuccessStatusCode();
 
         UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
-        Assert.Equal(registredUser.RegisterUser.FirstName, response.FirstName);
+        Assert.Equal(registredUser.RegisteredUser.FirstName, response.FirstName);
 
         UsersForTestsHelper.DeleteUser(registredUser);
 
@@ -122,8 +122,8 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         responseMessage.EnsureSuccessStatusCode();
 
         UserDto response = await responseMessage.Content.ReadAsAsync<UserDto>();
-        Assert.Equal(registredUser.RegisterUser.LastName, response.LastName);
-        Assert.Equal(registredUser.RegisterUser.Role, response.Role);
+        Assert.Equal(registredUser.RegisteredUser.LastName, response.LastName);
+        Assert.Equal(registredUser.RegisteredUser.Role, response.Role);
     }
 
     #endregion

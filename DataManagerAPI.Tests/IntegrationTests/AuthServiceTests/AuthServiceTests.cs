@@ -58,12 +58,46 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        userToChange.RegisterUser.Role = newRole;
+        userToChange.RegisteredUser.Role = newRole;
 
         var response = await responseMessage.Content.ReadAsStringAsync();
         Assert.NotNull(response);
         Assert.Equal(newRole, response, true);
     }
+
+    [Fact]
+    public async Task UpdateUserRole_Same_Role_Returns_Conflict()
+    {
+        // Arrange
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole?userId={userToChange.Id}");
+        request.Content = new StringContent(JsonConvert.SerializeObject(userToChange.RegisteredUser.Role), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(StatusCodes.Status409Conflict, (int)responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateUserRole_Incorrect_User_Returns_NotFound()
+    {
+        // Arrange
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+
+        // Act
+        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole?userId=100000");
+        request.Content = new StringContent(JsonConvert.SerializeObject("ReadOnlyUser"), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
+        using HttpResponseMessage responseMessage = await _client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(StatusCodes.Status404NotFound, (int)responseMessage.StatusCode);
+    }
+
 
     [Fact]
     public async Task UpdateUserRole_For_DefaultAdmin_Returns_Forbidden()

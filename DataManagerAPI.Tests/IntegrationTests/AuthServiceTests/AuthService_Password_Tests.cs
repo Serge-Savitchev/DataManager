@@ -28,12 +28,12 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        registredUser.RegisterUser.Password = newPassword;
+        registredUser.RegisteredUser.Password = newPassword;
 
         // check login with new password
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = registredUser.RegisterUser.Login,
+            Login = registredUser.RegisteredUser.Login,
             Password = newPassword
         };
 
@@ -65,12 +65,12 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert
         responseMessage.EnsureSuccessStatusCode();
-        userToChange.RegisterUser.Password = newPassword;
+        userToChange.RegisteredUser.Password = newPassword;
 
         // check login with new password
         LoginUserDto requestData = new LoginUserDto
         {
-            Login = userToChange.RegisterUser.Login,
+            Login = userToChange.RegisteredUser.Login,
             Password = newPassword
         };
 

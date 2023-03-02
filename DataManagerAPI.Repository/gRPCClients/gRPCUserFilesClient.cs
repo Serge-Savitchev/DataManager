@@ -184,7 +184,7 @@ public class gRPCUserFilesClient : IUserFilesRepository
                         Id = gRPCresponse.Data.UserFile.Id,
                         Name = gRPCresponse.Data.UserFile.Name,
                         Size = (long)gRPCresponse.Data.UserFile.Size,
-                        Content = new BufferedStream(outputStream, _bufferSizeForStreamCopy)  // content of file to be downloaded
+                        Content = new BufferedStream(outputStream!, _bufferSizeForStreamCopy)  // content of file to be downloaded
                     } : null,
                 Success = gRPCresponse.Success && gRPCresponse.Data != null,
                 Message = string.IsNullOrWhiteSpace(gRPCresponse.Message) ? null : gRPCresponse.Message,

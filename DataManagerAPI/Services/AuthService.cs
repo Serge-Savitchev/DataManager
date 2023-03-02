@@ -42,7 +42,7 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd
+    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisteredUserDto userToAdd
         , CancellationToken cancellationToken = default)
     {
         UserCredentials userCredentials = _userPasswordService.CreatePasswordHash(userToAdd.Password);
@@ -70,8 +70,8 @@ public class AuthService : IAuthService
             Success = false
         };
 
-        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByLoginAsync(loginData.Login
-            , cancellationToken);
+        ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByLoginAsync(loginData.Login,
+            cancellationToken);
         if (!userDetails.Success)
         {
             result.Message = userDetails.Message;
@@ -102,14 +102,7 @@ public class AuthService : IAuthService
 
         userDetails.Data.Credentials.RefreshToken = tokens.RefreshToken;
 
-        var loginResult = await _repository.LoginAsync(loginData.Login, userDetails.Data.Credentials, cancellationToken);
-        if (!loginResult.Success)
-        {
-            result.Message = userDetails.Message;
-            result.StatusCode = StatusCodes.Status401Unauthorized;
-
-            return result;
-        }
+        _ = await _repository.LoginAsync(loginData.Login, userDetails.Data.Credentials, cancellationToken);
 
         result.Data = _mapper.Map<LoginUserResponseDto>(userDetails.Data.User);
         result.Data.AccessToken = tokens.AccessToken!;
@@ -147,7 +140,7 @@ public class AuthService : IAuthService
             Success = false
         };
 
-        ClaimsPrincipal? principal = _tokenService.ValidateToken(tokenData.AccessToken, useLifetime: false);
+        ClaimsPrincipal? principal = _tokenService.ValidateToken(tokenData?.AccessToken!, useLifetime: false);
         if (principal is null)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
@@ -162,14 +155,14 @@ public class AuthService : IAuthService
         }
 
         ResultWrapper<UserCredentialsData> userDetails = await _repository.GetUserDetailsByIdAsync(user.User!.Id, cancellationToken);
-        if (!userDetails.Success || userDetails.Data == null)
+        if (!userDetails.Success)
         {
             result.StatusCode = userDetails.StatusCode;
             result.Message = userDetails.Message;
             return result;
         }
 
-        if (userDetails.Data.Credentials!.RefreshToken != tokenData.RefreshToken)
+        if (userDetails.Data!.Credentials!.RefreshToken != tokenData!.RefreshToken)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
             return result;
@@ -215,30 +208,19 @@ public class AuthService : IAuthService
             Success = true
         };
 
-        try
-        {
-            var res = await _repository.UpdateUserRoleAsync(userId, Enum.Parse<RoleIds>(newRole, true), cancellationToken);
-            if (!res.Success)
-            {
-                result.Success = false;
-                result.StatusCode = res.StatusCode;
-                result.Message = res.Message;
-
-                return result;
-            }
-            result.Data = res.Data.ToString();
-        }
-        catch (Exception ex)
+        var res = await _repository.UpdateUserRoleAsync(userId, Enum.Parse<RoleIds>(newRole, true), cancellationToken);
+        if (!res.Success)
         {
             result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = StatusCodes.Status500InternalServerError;
+            result.StatusCode = res.StatusCode;
+            result.Message = res.Message;
+
+            return result;
         }
 
-        if (result.Success)
-        {
-            _loggedOutUsersCollectionService.Add(userId);
-        }
+        result.Data = res.Data.ToString();
+
+        _loggedOutUsersCollectionService.Add(userId);
 
         return result;
     }

@@ -27,8 +27,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         var response = await responseMessage.Content.ReadAsAsync<UserDetailsDto>();
         Assert.NotNull(response);
         Assert.Equal(registredUser.Id, response.Id);
-        Assert.Equal(registredUser.RegisterUser.LastName, response.LastName);
-        Assert.Equal(registredUser.RegisterUser.Login, response.Login);
+        Assert.Equal(registredUser.RegisteredUser.LastName, response.LastName);
+        Assert.Equal(registredUser.RegisteredUser.Login, response.Login);
     }
 
     [Fact]

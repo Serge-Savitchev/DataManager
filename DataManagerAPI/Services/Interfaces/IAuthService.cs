@@ -11,10 +11,10 @@ public interface IAuthService
     /// <summary>
     /// Register new user.
     /// </summary>
-    /// <param name="userToAdd"><see cref="RegisterUserDto"/></param>
+    /// <param name="userToAdd"><see cref="RegisteredUserDto"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>New user. <see cref="UserDto"/></returns>
-    Task<ResultWrapper<UserDto>> RegisterUser(RegisterUserDto userToAdd, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserDto>> RegisterUser(RegisteredUserDto userToAdd, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Authenticates and authorizes user.

@@ -18,7 +18,7 @@ internal static class UsersForTestsHelper
             _uniqueUserNumber++;
             string newNumber = _uniqueUserNumber.ToString("D4");
 
-            RegisterUserDto user = new RegisterUserDto
+            RegisteredUserDto user = new RegisteredUserDto
             {
                 FirstName = $"FirstName{newNumber}",
                 LastName = $"LastName{newNumber}",
@@ -28,7 +28,7 @@ internal static class UsersForTestsHelper
                 Role = role
             };
 
-            var ret = new RegisteredUserTestData { Locked = true, RegisterUser = user };
+            var ret = new RegisteredUserTestData { Locked = true, RegisteredUser = user };
             _registerList.Add(ret);
 
             return ret;
@@ -42,7 +42,7 @@ internal static class UsersForTestsHelper
         {
             Locked = true,
             Id = 1,
-            RegisterUser = new RegisterUserDto
+            RegisteredUser = new RegisteredUserDto
             {
                 FirstName = "DefaultAdmin",
                 LastName = "DefaultAdmin",
@@ -73,7 +73,7 @@ internal static class UsersForTestsHelper
 
         try
         {
-            registredUser = FindRegisteredUser(x => x.LoginData == null && !x.Locked && role.Equals(x.RegisterUser.Role, StringComparison.InvariantCultureIgnoreCase));
+            registredUser = FindRegisteredUser(x => x.LoginData == null && !x.Locked && role.Equals(x.RegisteredUser.Role, StringComparison.InvariantCultureIgnoreCase));
 
             if (registredUser == null)
             {
@@ -102,8 +102,8 @@ internal static class UsersForTestsHelper
         {
             var requestData = new LoginUserDto
             {
-                Login = defaultAdmin.RegisterUser.Login,
-                Password = defaultAdmin.RegisterUser.Password
+                Login = defaultAdmin.RegisteredUser.Login,
+                Password = defaultAdmin.RegisteredUser.Password
             };
 
             using var responseMessage1 = await client.PostAsJsonAsync("api/auth/login", requestData);
@@ -116,11 +116,11 @@ internal static class UsersForTestsHelper
             return null;
         }
 
-        var role = Enum.Parse<RoleIds>(newUser.RegisterUser.Role, true);
+        var role = Enum.Parse<RoleIds>(newUser.RegisteredUser.Role, true);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
         {
-            Content = new StringContent(JsonConvert.SerializeObject(newUser.RegisterUser), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonConvert.SerializeObject(newUser.RegisteredUser), Encoding.UTF8, "application/json")
         };
 
         // register user with "Admin" and "PowerUser" roles
@@ -147,8 +147,8 @@ internal static class UsersForTestsHelper
 
             var requestData = new LoginUserDto
             {
-                Login = registeredUser!.RegisterUser.Login,
-                Password = registeredUser.RegisterUser.Password
+                Login = registeredUser!.RegisteredUser.Login,
+                Password = registeredUser.RegisteredUser.Password
             };
 
             using var responseMessage1 = await client.PostAsJsonAsync("api/auth/login", requestData);
@@ -173,7 +173,7 @@ internal static class UsersForTestsHelper
         RegisteredUserTestData? registredUser = null;
         try
         {
-            registredUser = FindRegisteredUser(x => x.LoginData != null && !x.Locked && role.Equals(x.RegisterUser.Role, StringComparison.InvariantCultureIgnoreCase));
+            registredUser = FindRegisteredUser(x => x.LoginData != null && !x.Locked && role.Equals(x.RegisteredUser.Role, StringComparison.InvariantCultureIgnoreCase));
 
             if (registredUser == null)
             {

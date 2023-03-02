@@ -249,7 +249,7 @@ public class UserFilesController : ControllerBase
 
     private bool AutoDetectBigFile()
     {
-        int lengthMB = Convert.ToInt32((Request.ContentLength! / 1024f / 1024f));
+        int lengthMB = Convert.ToInt32(Request.ContentLength! / 1024f / 1024f);
         return lengthMB >= _defaultBigFileSize;
     }
 

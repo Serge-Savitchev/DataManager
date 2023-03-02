@@ -6,7 +6,7 @@ namespace DataManagerAPI.Dto;
 /// <summary>
 /// Data for register of user.
 /// </summary>
-public class RegisterUserDto
+public class RegisteredUserDto
 {
     /// <summary>
     /// First name

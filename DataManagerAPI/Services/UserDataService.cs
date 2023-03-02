@@ -28,13 +28,14 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, int userDataId, AddUserDataDto userDataToAdd)
+    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, int userDataId, AddUserDataDto userDataToAdd,
+        CancellationToken cancellationToken = default)
     {
         var userData = _mapper.Map<UserData>(userDataToAdd);
         userData.UserId = userId;
         userData.Id = 0;
 
-        var result = await _repository.AddUserDataAsync(userData);
+        var result = await _repository.AddUserDataAsync(userData, cancellationToken);
 
         var ret = ConvertWrapper(result);
 
@@ -42,9 +43,10 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userId, int userDataId)
+    public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userId, int userDataId,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.DeleteUserDataAsync(userId, userDataId);
+        var result = await _repository.DeleteUserDataAsync(userId, userDataId, cancellationToken);
 
         var ret = ConvertWrapper(result);
 
@@ -52,9 +54,10 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> GetUserData(int userId, int userDataId)
+    public async Task<ResultWrapper<UserDataDto>> GetUserData(int userId, int userDataId,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetUserDataAsync(userId, userDataId);
+        var result = await _repository.GetUserDataAsync(userId, userDataId, cancellationToken);
 
         var ret = ConvertWrapper(result);
 
@@ -62,9 +65,10 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId)
+    public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _repository.GetUserDataByUserIdAsync(userId);
+        var result = await _repository.GetUserDataByUserIdAsync(userId, cancellationToken);
         var ret = new ResultWrapper<UserDataDto[]>()
         {
             Success = result.Success,
@@ -76,13 +80,14 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate)
+    public async Task<ResultWrapper<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate,
+        CancellationToken cancellationToken = default)
     {
         var userData = _mapper.Map<UserData>(userDataToUpdate);
         userData.UserId = userId;
         userData.Id = userDataId;
 
-        var result = await _repository.UpdateUserDataAsync(userData);
+        var result = await _repository.UpdateUserDataAsync(userData, cancellationToken);
 
         var ret = ConvertWrapper(result);
 

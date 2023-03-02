@@ -23,7 +23,6 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         });
 
         DatabaseFixture.PrepareDatabase(factory);
-        _testFile = Path.Combine("./TestData", "02-The Journey.mp3");
     }
 
     #region DownloadFile

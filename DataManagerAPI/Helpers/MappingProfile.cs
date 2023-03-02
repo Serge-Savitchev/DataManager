@@ -19,7 +19,7 @@ public class MappingProfile : Profile
         //    .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleId>(t!.Role, true)));
         //    .ReverseMap();
 
-        CreateMap<RegisterUserDto?, User>()
+        CreateMap<RegisteredUserDto?, User>()
             .ForMember(user => user.Role, c => c.MapFrom(t => Enum.Parse<RoleIds>(t!.Role, true)));
 
         CreateMap<UserDto, User>()

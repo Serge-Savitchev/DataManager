@@ -33,5 +33,5 @@ public static class ValidationTokenHelper
     /// <summary>
     /// Global secret key for token validation.
     /// </summary>
-    public static string SecretKey { get; set; } = "0123456789ABCDEF0123456789ABCDEF";
+    public static string SecretKey => "0123456789ABCDEF0123456789ABCDEF";
 }
