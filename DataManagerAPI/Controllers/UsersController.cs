@@ -3,7 +3,6 @@ using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace DataManagerAPI.Controllers;
 
@@ -15,14 +14,17 @@ namespace DataManagerAPI.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _service;
+    private readonly ILogger<UsersController> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="service"><see cref="IUsersService"/></param>
-    public UsersController(IUsersService service)
+    /// <param name="logger"></param>
+    public UsersController(IUsersService service, ILogger<UsersController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
     /// <summary>
@@ -31,29 +33,42 @@ public class UsersController : ControllerBase
     /// <param name="userId">User Id</param>
     /// <returns>Deleted user. <see cref="UserDto"/></returns>
     [HttpDelete]
+    [Route("{userId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<UserDto>> DeleteUser([FromQuery][Required] int userId)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserDto>> DeleteUser(int userId)
     {
+        _logger.LogInformation("Started");
+
         var result = await _service.DeleteUser(userId);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
     /// Gets user by Id.
     /// </summary>
-    /// <param name="UserId">User Id</param>
+    /// <param name="userId">User Id</param>
     /// <returns><see cref="UserDto"/></returns>
     [HttpGet]
+    [Route("{userId}")]
     [Authorize]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> GetUser([FromQuery] int UserId)
+    public async Task<ActionResult<UserDto>> GetUser(int userId)
     {
-        var result = await _service.GetUser(UserId);
+        _logger.LogInformation("Started");
+
+        var result = await _service.GetUser(userId);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
@@ -69,7 +84,12 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserDto[]>> GetAllUsers()
     {
+        _logger.LogInformation("Started");
+
         var result = await _service.GetAllUsers();
+
+        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
@@ -79,15 +99,20 @@ public class UsersController : ControllerBase
     /// <param name="role">Role name</param>
     /// <returns>Array of found users. <see cref="UserDto"/></returns>
     [HttpGet]
-    [Route("role")]
+    [Route("role/{role}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(UserDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<UserDto[]>> GetUsersByRole([FromQuery][RoleValidation] string role)
+    public async Task<ActionResult<UserDto[]>> GetUsersByRole([RoleValidation] string role)
     {
+        _logger.LogInformation("Started:{role}", role);
+
         var result = await _service.GetUsersByRole(role);
+
+        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
@@ -104,7 +129,13 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<int>> UpdateOwners([FromBody] UpdateOwnerRequestDto request)
     {
+        _logger.LogInformation("Started");
+        _logger.LogDebug("{@request}", request);
+
         var result = await _service.UpdateOwners(request);
+
+        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 }

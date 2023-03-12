@@ -16,7 +16,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
@@ -38,7 +38,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth?userId={registredUser.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
 
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);

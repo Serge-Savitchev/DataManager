@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
 
 namespace DataManagerAPI.Controllers;
 
@@ -21,6 +20,8 @@ namespace DataManagerAPI.Controllers;
 public class UserFilesController : ControllerBase
 {
     private readonly IUserFilesService _service;
+    private readonly ILogger<UserFilesController> _logger;
+
     private readonly int _defaultBufferSize = 1024 * 4;
     private readonly bool _useTemporaryFile;
 
@@ -33,9 +34,11 @@ public class UserFilesController : ControllerBase
     /// </summary>
     /// <param name="service"></param>
     /// <param name="configuration"></param>
-    public UserFilesController(IUserFilesService service, IConfiguration configuration)
+    /// <param name="logger"></param>
+    public UserFilesController(IUserFilesService service, IConfiguration configuration, ILogger<UserFilesController> logger)
     {
         _service = service;
+        _logger = logger;
 
         if (!bool.TryParse(configuration["Buffering:Client:UseTemporaryFile"], out _useTemporaryFile))
         {
@@ -51,6 +54,7 @@ public class UserFilesController : ControllerBase
         {
             _defaultBigFileSize = bigFileSize;
         }
+        _logger = logger;
     }
 
     /// <summary>
@@ -63,24 +67,23 @@ public class UserFilesController : ControllerBase
     [ProducesResponseType(typeof(UserFileStreamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Route("Download")]
-    public async Task<IActionResult> DownloadFile([FromQuery] int userDataId, [FromQuery] int fileId,
+    [Route("{userDataId}/{fileId}")]
+    public async Task<IActionResult> DownloadFile([FromRoute] int userDataId, [FromRoute] int fileId,
                 CancellationToken cancellationToken = default)
     {
-        var timer = new Stopwatch();
-        timer.Start();
+        _logger.LogInformation("Started");
 
-        ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFileAsync(GetCurrentUser(), userDataId, fileId, cancellationToken);
+        ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
+            _logger.LogInformation("Finished:{StatusCode}", ret.StatusCode);
             return StatusCode(ret.StatusCode);
         }
 
         new FileExtensionContentTypeProvider()
                         .TryGetContentType(ret.Data!.Name, out string? contentType);
 
-        timer.Stop();
-        Console.WriteLine($"DownloadFile {ret.Data.Name}: {timer.Elapsed.Minutes}:{timer.Elapsed.Seconds}, Length:{ret.Data.Size}");
+        _logger.LogInformation("Finished:{StatusCode},Size:{size}", ret.StatusCode, ret.Data.Size);
 
         return File(ret.Data.Content!, contentType ?? "application/octet-stream", ret.Data.Name);
     }
@@ -92,19 +95,20 @@ public class UserFilesController : ControllerBase
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Array of files <see cref="UserFileDto"/></returns>
     [HttpGet]
+    [Route("{userDataId}")]
     [ProducesResponseType(typeof(UserFileDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetList([FromQuery] int userDataId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList([FromRoute] int userDataId, CancellationToken cancellationToken = default)
     {
-        ResultWrapper<UserFileDto[]> ret = await _service.GetListAsync(GetCurrentUser(), userDataId, cancellationToken);
+        _logger.LogInformation("Started");
 
-        if (!ret.Success)
-        {
-            return StatusCode(ret.StatusCode);
-        }
+        ResultWrapper<UserFileDto[]> ret = await _service.GetList(GetCurrentUser(), userDataId, cancellationToken);
 
-        return Ok(ret.Data);
+        _logger.LogInformation("Finished:{StatusCode}", ret.StatusCode);
+
+        return ret.Success ? Ok(ret.Data) : StatusCode(ret.StatusCode);
     }
 
     /// <summary>
@@ -115,17 +119,18 @@ public class UserFilesController : ControllerBase
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Id of deleted file</returns>
     [HttpDelete]
-    public async Task<IActionResult> DeleteFile([FromQuery] int userDataId, [FromQuery] int fileId,
+    [Route("{userDataId}/{fileId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteFile([FromRoute] int userDataId, [FromRoute] int fileId,
                 CancellationToken cancellationToken = default)
     {
-        ResultWrapper<int> ret = await _service.DeleteFileAsync(GetCurrentUser(), userDataId, fileId, cancellationToken);
+        _logger.LogInformation("Started");
 
-        if (!ret.Success)
-        {
-            return StatusCode(ret.StatusCode);
-        }
+        ResultWrapper<int> ret = await _service.DeleteFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
 
-        return Ok(ret.Data);
+        _logger.LogInformation("Finished:{@ret}", ret);
+
+        return StatusCode(ret.StatusCode, ret);
     }
 
     /// <summary>
@@ -137,19 +142,15 @@ public class UserFilesController : ControllerBase
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns><see cref="UserFile"/></returns>
     [HttpPost]
-    [Route("Upload")]
+    [Route("{userDataId}/{fileId}")]
     [DisableRequestSizeLimit]
     [DisableFormValueModelBinding]
     [ProducesResponseType(typeof(UserFileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadFile(
-        [FromQuery] int userDataId, [FromQuery] int fileId, [FromQuery] string? bigFile,
+    public async Task<IActionResult> UploadFile([FromRoute] int userDataId, [FromRoute] int fileId, [FromQuery] string? bigFile,
         CancellationToken cancellationToken = default)
     {
-        var timer = new Stopwatch();
-        timer.Start();
-
-        Console.WriteLine($"Request length: {Request.ContentLength}");
+        _logger.LogInformation("Started");
 
         if (!bool.TryParse(Request.Query["BigFile"], out bool flagBigFile))
         {
@@ -163,22 +164,18 @@ public class UserFilesController : ControllerBase
         var reader = new MultipartReader(boundary!, Request.Body, _defaultBufferSize);
 
         var file = new UserFile { Id = fileId, UserDataId = userDataId };
-        ResultWrapper<UserFileDto> result = await UploadFile(reader, file, flagBigFile, cancellationToken);
+        ResultWrapper<UserFileDto> ret = await UploadFileInternal(reader, file, flagBigFile, cancellationToken);
 
-        if (!result.Success)
-        {
-            return StatusCode(result.StatusCode);
-        }
+        _logger.LogInformation("Finished:{StatusCode},Size:{size}", ret.StatusCode, Request.ContentLength);
 
-        timer.Stop();
-        Console.WriteLine($"DownloadFile {result.Data!.Name}: {timer.Elapsed.Minutes}:{timer.Elapsed.Seconds}, Length:{result.Data.Size}");
-
-        return Ok(result.Data);
+        return ret.Success ? Ok(ret.Data) : StatusCode(ret.StatusCode);
     }
 
-    private async Task<ResultWrapper<UserFileDto>> UploadFile(MultipartReader reader, UserFile file, bool flagBigFile,
+    private async Task<ResultWrapper<UserFileDto>> UploadFileInternal(MultipartReader reader, UserFile file, bool flagBigFile,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Started");
+
         ResultWrapper<UserFileDto> uploadedFile = new();  // result
 
         var section = await reader.ReadNextSectionAsync();
@@ -219,7 +216,7 @@ public class UserFilesController : ControllerBase
                     await using BufferedStream bufferedStream = new(uploadStream, _defaultBufferSize);
                     uploadData.Content = bufferedStream;
 
-                    uploadedFile = await _service.UploadFileAsync(GetCurrentUser(), uploadData, cancellationToken);
+                    uploadedFile = await _service.UploadFile(GetCurrentUser(), uploadData, cancellationToken);
                 }
                 finally
                 {
@@ -231,18 +228,24 @@ public class UserFilesController : ControllerBase
             }
         }
 
+        _logger.LogInformation("Finished");
+
         return uploadedFile;
     }
 
     #region Helpers
 
-    private static async Task<string> CopyStreamToFile(Stream inputStream, string fileName)
+    private async Task<string> CopyStreamToFile(Stream inputStream, string fileName)
     {
+        _logger.LogInformation("Started");
+
         DirectoryInfo tempDir = Directory.CreateTempSubdirectory("DataManagerAPI");
         string fullName = Path.Combine(tempDir.FullName, fileName);
 
         await using var outStream = new System.IO.FileStream(fullName, FileMode.CreateNew);
         await inputStream.CopyToAsync(outStream);
+
+        _logger.LogInformation("Finished");
 
         return fullName;
     }

@@ -1,4 +1,5 @@
-﻿using DataManagerAPI.Repository.Abstractions.Helpers;
+﻿using DataManagerAPI.NLogger;
+using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using Google.Protobuf;
 using Grpc.Core;
@@ -9,9 +10,11 @@ namespace DataManagerAPI.gRPCServer.Implementation;
 /// <summary>
 /// Service for streams processing. Implementaion of DownloadFileAsync and UploadFileAsync methods.
 /// </summary>
-public class grpcProtoService : ProtoServiceBase
+public class gRPCProtoService : ProtoServiceBase
 {
     private readonly IUserFilesRepository _repository;  // interface for working with database
+    private readonly ILogger<gRPCProtoService> _logger;
+
     private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
     /// <summary>
@@ -19,13 +22,17 @@ public class grpcProtoService : ProtoServiceBase
     /// </summary>
     /// <param name="repository"><see cref="IUserFilesRepository"/></param>
     /// <param name="configuration"><see cref="IConfiguration"/></param>
-    public grpcProtoService(IUserFilesRepository repository, IConfiguration configuration) : base()
+    /// <param name="logger"><see cref="ILogger"/></param>
+    public gRPCProtoService(IUserFilesRepository repository, IConfiguration configuration, ILogger<gRPCProtoService> logger) : base()
     {
         _repository = repository;
+        _logger = logger;
+
         if (int.TryParse(configuration["Buffering:Server:BufferSize"], out int size) && size > 0)
         {
             _bufferSizeForStreamCopy = size * 1024;
         }
+        _logger = logger;
     }
 
     /// <summary>
@@ -37,8 +44,13 @@ public class grpcProtoService : ProtoServiceBase
     public override async Task<Grpc.ResultWrapper> UploadFile(IAsyncStreamReader<Grpc.UserFileStream> requestStream,
         ServerCallContext context)
     {
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
         var result = new Grpc.ResultWrapper();
-        string newFileName = string.Empty;  // Path.Combine(Path.GetTempPath(), "DataManager\\UploadFile.tmp");
+        string newFileName = string.Empty;
 
         try
         {
@@ -47,9 +59,13 @@ public class grpcProtoService : ProtoServiceBase
 
             int count = 0;
 
+            _logger.LogInformation("Copying file content to temporary file");
+
             // read content of the file and write it to temporary file
             await foreach (Grpc.UserFileStream message in requestStream.ReadAllAsync(context.CancellationToken))
             {
+                count++;
+
                 if (request == null)    // the first pass
                 {
                     // open temporary file for writing
@@ -58,11 +74,10 @@ public class grpcProtoService : ProtoServiceBase
                 }
 
                 request = message;   // request from gRPC client
-
                 await outputStream!.WriteAsync(message.Content.Memory, context.CancellationToken);
-
-                Console.WriteLine($"Upload: {++count}\t{message.Content.Length}");
             }
+
+            _logger.LogDebug("IterationsCount:{count}", count);
 
             outputStream!.Close();  // copying finished
 
@@ -81,6 +96,7 @@ public class grpcProtoService : ProtoServiceBase
             await using var bufferedStream = new BufferedStream(inputStream, _bufferSizeForStreamCopy);
             repositoryRequest.Content = bufferedStream;
 
+            _logger.LogDebug("Call repository");
             // call repository
             ResultWrapper<Repository.Abstractions.Models.UserFile> repositoryResult =
                 await _repository.UploadFileAsync(repositoryRequest, context.CancellationToken);
@@ -110,11 +126,14 @@ public class grpcProtoService : ProtoServiceBase
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = StatusCodes.Status500InternalServerError;
+            _logger.LogError(ex, "{@result}", result);
         }
         finally
         {
             File.Delete(newFileName);   // delete temporary file
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
@@ -131,47 +150,71 @@ public class grpcProtoService : ProtoServiceBase
     {
         // responseStream contains stream for writing content of file to be downloded
 
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
         var result = new Grpc.ResultWrapper();
 
+        _logger.LogDebug("Call repository");
         // call repository
         ResultWrapper<Repository.Abstractions.Models.UserFileStream> repositoryResult =
             await _repository.DownloadFileAsync(request.UserDataId, request.FileId, context.CancellationToken);
+
+        _logger.LogDebug("Preparing response");
 
         // convert repository response to IServerStreamWriter<Grpc.ResultWrapper> type
         result.Success = repositoryResult.Success;
         result.Message = repositoryResult.Message ?? string.Empty;
         result.StatusCode = repositoryResult.StatusCode;
 
-        if (repositoryResult.Success && repositoryResult.Data != null)
+        try
         {
-            result.Data = new Grpc.UserFileStream
+            if (repositoryResult.Success && repositoryResult.Data != null)
             {
-                UserFile = new Grpc.UserFile
+                result.Data = new Grpc.UserFileStream
                 {
-                    Id = repositoryResult.Data.Id,
-                    UserDataId = repositoryResult.Data.UserDataId,
-                    Name = repositoryResult.Data.Name,
-                    Size = (ulong)repositoryResult.Data.Size,
-                },
-                BigFile = repositoryResult.Data.BigFile
-            };
+                    UserFile = new Grpc.UserFile
+                    {
+                        Id = repositoryResult.Data.Id,
+                        UserDataId = repositoryResult.Data.UserDataId,
+                        Name = repositoryResult.Data.Name,
+                        Size = (ulong)repositoryResult.Data.Size,
+                    },
+                    BigFile = repositoryResult.Data.BigFile
+                };
 
-            // copy file content to responseStream using memory buffer
-            int read = 0;
-            byte[] buffer = new byte[_bufferSizeForStreamCopy];
+                _logger.LogDebug("Copying file content to response stream using memory buffer");
+                // copy file content to responseStream using memory buffer
+                int read = 0;
+                byte[] buffer = new byte[_bufferSizeForStreamCopy];
 
-            int count = 0;
-            while ((read = await repositoryResult.Data.Content!.ReadAsync(buffer, context.CancellationToken)) > 0)
+                int count = 0;
+                while ((read = await repositoryResult.Data.Content!.ReadAsync(buffer, context.CancellationToken)) > 0)
+                {
+                    count++;
+                    result.Data.Content = ByteString.CopyFrom(new ReadOnlySpan<byte>(buffer, 0, read));
+                    await responseStream.WriteAsync(result, context.CancellationToken);
+                }
+
+                _logger.LogDebug("IterationsCount:{count}", count);
+            }
+            else
             {
-                result.Data.Content = ByteString.CopyFrom(new ReadOnlySpan<byte>(buffer, 0, read));
+                _logger.LogDebug("Copying file content directly tp response stream");
                 await responseStream.WriteAsync(result, context.CancellationToken);
-
-                Console.WriteLine($"Download: {++count}\t{read}");
             }
         }
-        else
+        catch (Exception ex)
         {
-            await responseStream.WriteAsync(result, context.CancellationToken);
+            result.Data = null;
+            result.Success = false;
+            result.Message = ex.Message;
+            result.StatusCode = StatusCodes.Status500InternalServerError;
+            _logger.LogError(ex, "{@result}", result);
         }
+
+        _logger.LogInformation("Finished");
     }
 }

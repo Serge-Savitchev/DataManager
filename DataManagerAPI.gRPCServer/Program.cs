@@ -1,4 +1,5 @@
 using DataManagerAPI.gRPCServer.Implementation;
+using DataManagerAPI.NLogger.Extensions;
 using DataManagerAPI.PostgresDB;
 using DataManagerAPI.PostgresDB.Implementation;
 using DataManagerAPI.Repository.Abstractions.Constants;
@@ -46,21 +47,16 @@ else
 
 builder.Services.AddCodeFirstGrpc(options => { options.MaxReceiveMessageSize = null; });
 
+builder.SetupNLogConfiguration();
+
 var app = builder.Build();
+
+app.UseNLogConfiguration();
 
 app.MapGrpcService<gRPCAuthRepository>();
 app.MapGrpcService<gRPCUsersRepository>();
 app.MapGrpcService<gRPCUserDataRepository>();
 app.MapGrpcService<gRPCUserFilesRepository>();
-app.MapGrpcService<grpcProtoService>();
-
-Console.WriteLine("Arguments:");
-
-foreach (var argument in Environment.GetCommandLineArgs())
-{
-    Console.WriteLine(argument);
-}
-
-Console.WriteLine($"Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
+app.MapGrpcService<gRPCProtoService>();
 
 app.Run();

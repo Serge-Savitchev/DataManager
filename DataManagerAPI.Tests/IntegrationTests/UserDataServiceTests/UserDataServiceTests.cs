@@ -35,7 +35,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Test Data"
         };
 
-        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/userdata/Add?UserId=1", data);
+        using HttpResponseMessage responseMessage = await _client.PostAsJsonAsync("api/userdata/1", data);
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -48,7 +48,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/add?UserId={registredUser.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{registredUser.Id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(2), Encoding.UTF8, "application/json")
         };
@@ -73,7 +73,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "api/userdata/add?UserId=1")
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/userdata/1")
         {
             Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json")
         };
@@ -98,7 +98,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/add?UserId={registredUser.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{registredUser.Id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json")
         };
@@ -131,7 +131,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Admin's Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/add?UserId={user.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{user.Id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json")
         };
@@ -164,7 +164,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Test Data"
         };
 
-        using HttpResponseMessage responseMessage = await _client.PutAsJsonAsync("api/userdata/Update?UserId=1", data);
+        using HttpResponseMessage responseMessage = await _client.PutAsJsonAsync("api/userdata/1/1", data);
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -177,7 +177,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/Update?UserId={registredUser.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/{registredUser.Id}/1")
         {
             Content = new StringContent(JsonConvert.SerializeObject(new AddUserDataDto { Data = "" }), Encoding.UTF8, "application/json")
         };
@@ -202,7 +202,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, "api/userdata/Update?UserId=1")
+        using var request = new HttpRequestMessage(HttpMethod.Put, "api/userdata/1/1")
         {
             Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json")
         };
@@ -235,7 +235,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "New User Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/Update?UserId={registredUser.Id}&UserDataId={response0.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/{registredUser.Id}/{response0.Id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(newData), Encoding.UTF8, "application/json")
         };
@@ -278,7 +278,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
             Data = "Admin's Test Data"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/Update?UserId={user.Id}&UserDataId={response0.Id}")
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/{user.Id}/{response0.Id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(newData), Encoding.UTF8, "application/json")
         };
@@ -305,7 +305,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     private async Task<UserDataDto> AddNewUserData(RegisteredUserTestData user, AddUserDataDto data)
     {
         UserDataDto? response0 = null;
-        using (var request0 = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/add?UserId={user.Id}"))
+        using (var request0 = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{user.Id}"))
         {
             request0.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
             request0.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.LoginData!.AccessToken);

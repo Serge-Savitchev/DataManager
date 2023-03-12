@@ -3,6 +3,7 @@ using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace DataManagerAPI.SQLServerDB.Implementation;
@@ -13,20 +14,25 @@ namespace DataManagerAPI.SQLServerDB.Implementation;
 public class AuthRepository : IAuthRepository
 {
     private readonly UsersDBContext _context;
+    private readonly ILogger<AuthRepository> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="context"><see cref="UsersDBContext"/></param>
-    public AuthRepository(UsersDBContext context)
+    /// <param name="logger"></param>
+    public AuthRepository(UsersDBContext context, ILogger<AuthRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials
-        , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started");
+
         var result = new ResultWrapper<User>
         {
             StatusCode = ResultStatusCodes.Status201Created,
@@ -43,6 +49,9 @@ public class AuthRepository : IAuthRepository
                 result.Success = false;
                 result.StatusCode = ResultStatusCodes.Status409Conflict;
                 result.Message = $"User with login {userCredentials.Login} already exists.";
+
+                _logger.LogWarning("Finished:{@result}", result);
+
                 return result;
             }
 
@@ -57,18 +66,20 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials
-                , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{login}", login);
+
         var result = new ResultWrapper<int>
         {
             Success = true
@@ -81,10 +92,7 @@ public class AuthRepository : IAuthRepository
 
             if (userCredentials is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"User with login {login} not found.";
-
+                Helpers.LogNotFoundWarning(result, $"User with login {login} not found.", _logger);
                 return result;
             }
 
@@ -95,18 +103,20 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken
-        , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = new ResultWrapper<int>
         {
             Success = true
@@ -119,10 +129,7 @@ public class AuthRepository : IAuthRepository
 
             if (userCredentials is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"User with Id {userId} not found.";
-
+                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
                 return result;
             }
 
@@ -133,18 +140,20 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId
-            , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = new ResultWrapper<UserCredentialsData>
         {
             Success = true
@@ -162,10 +171,7 @@ public class AuthRepository : IAuthRepository
 
             if (data is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserId {userId} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
                 return result;
             }
 
@@ -173,19 +179,21 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login
-        , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByLoginAsync(string login,
+        CancellationToken cancellationToken = default)
 
     {
+        _logger.LogInformation("Started:{login}", login);
+
         var result = new ResultWrapper<UserCredentialsData>
         {
             Success = true
@@ -203,10 +211,7 @@ public class AuthRepository : IAuthRepository
 
             if (data is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"Login {login} not found";
-
+                Helpers.LogNotFoundWarning(result, $"User with login {login} not found.", _logger);
                 return result;
             }
 
@@ -214,18 +219,20 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials
-                , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = new ResultWrapper<int>
         {
             Success = true
@@ -236,10 +243,7 @@ public class AuthRepository : IAuthRepository
             var updatedCredentials = await _context.UserCredentials.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
             if (updatedCredentials is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserId {userId} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
                 return result;
             }
 
@@ -251,18 +255,20 @@ public class AuthRepository : IAuthRepository
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole
-        , CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole,
+        CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId},{role}", userId, newRole);
+
         var result = new ResultWrapper<RoleIds>
         {
             Success = true
@@ -273,10 +279,7 @@ public class AuthRepository : IAuthRepository
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserId {userId} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
                 return result;
             }
 
@@ -290,16 +293,17 @@ public class AuthRepository : IAuthRepository
                 result.Success = false;
                 result.StatusCode = ResultStatusCodes.Status409Conflict;
                 result.Message = "The user role has not been chanhed.";
+                _logger.LogWarning("{@result}", result);
             }
 
             result.Data = user.Role;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }

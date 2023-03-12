@@ -35,7 +35,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         // Act
         HttpResponseMessage responseMessage;
 
-        using (var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users?userId={registredUser.Id}"))
+        using (var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users/{registredUser.Id}"))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
             responseMessage = await _client.SendAsync(request);
@@ -52,7 +52,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         responseMessage.Dispose();
 
         // check that user has been deleted
-        using (var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users?userId={registredUser.Id}"))
+        using (var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users/{registredUser.Id}"))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
             responseMessage = await _client.SendAsync(request);
@@ -69,7 +69,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users?userId={registredUser.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Delete, $"api/users/{registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
@@ -84,7 +84,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
         // Act
-        using HttpResponseMessage responseMessage = await _client.DeleteAsync($"api/users?userId={registredUser.Id}");
+        using HttpResponseMessage responseMessage = await _client.DeleteAsync($"api/users/{registredUser.Id}");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -101,7 +101,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
 
         // Act
-        using HttpResponseMessage responseMessage = await _client.GetAsync($"api/users?UserId={registredUser.Id}");
+        using HttpResponseMessage responseMessage = await _client.GetAsync($"api/users/{registredUser.Id}");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -114,7 +114,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users?UserId={registredUser.Id}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/{registredUser.Id}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
@@ -176,7 +176,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData user = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role?role=user");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role/user");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
@@ -196,7 +196,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData powerUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role?role=badrole");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role/badrole");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
@@ -212,7 +212,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         using RegisteredUserTestData powerUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role?role=admin");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/users/role/admin");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", powerUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
@@ -254,7 +254,7 @@ public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Progr
         Assert.Equal(2, response);
 
         // check that user1 has changed owner
-        using var request0 = new HttpRequestMessage(HttpMethod.Get, $"api/users?UserId={user1.Id}");
+        using var request0 = new HttpRequestMessage(HttpMethod.Get, $"api/users/{user1.Id}");
         request0.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user1.LoginData!.AccessToken);
 
         using HttpResponseMessage responseMessage0 = await _client.SendAsync(request0);

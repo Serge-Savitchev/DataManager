@@ -15,32 +15,44 @@ public class UsersService : IUsersService
 {
     private readonly IUsersRepository _repository;
     private readonly IMapper _mapper;
+    private readonly ILogger<UsersService> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="repository"><see cref="IUsersRepository"/></param>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    public UsersService(IUsersRepository repository, IMapper mapper)
+    /// <param name="logger"><see cref="ILogger"/></param>
+    public UsersService(IUsersRepository repository, IMapper mapper, ILogger<UsersService> logger)
     {
         _repository = repository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     /// <inheritdoc />
     public async Task<ResultWrapper<UserDto>> DeleteUser(int userId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = await _repository.DeleteUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
+
+        _logger.LogInformation("Finished");
+
         return ret;
     }
 
     /// <inheritdoc />
     public async Task<ResultWrapper<UserDto[]>> GetAllUsers(CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started");
+
         var result = await _repository.GetAllUsersAsync(cancellationToken);
         var ret = ConvertWrapper(result);
+        _logger.LogInformation("Finished");
+
         return ret;
     }
 
@@ -48,8 +60,13 @@ public class UsersService : IUsersService
     public async Task<ResultWrapper<UserDto>> GetUser(int userId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = await _repository.GetUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
+
+        _logger.LogInformation("Finished");
+
         return ret;
     }
 
@@ -57,9 +74,14 @@ public class UsersService : IUsersService
     public async Task<ResultWrapper<UserDto[]>> GetUsersByRole(string role,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{role}", role);
+
         var result = await _repository.GetUsersByRoleAsync(Enum.Parse<RoleIds>(role, true),
             cancellationToken);
         var ret = ConvertWrapper(result);
+
+        _logger.LogInformation("Finished");
+
         return ret;
     }
 
@@ -67,8 +89,13 @@ public class UsersService : IUsersService
     public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequestDto request,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", request.OwnerId);
+
         var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds,
             cancellationToken);
+
+        _logger.LogInformation("Finished");
+
         return result;
     }
 

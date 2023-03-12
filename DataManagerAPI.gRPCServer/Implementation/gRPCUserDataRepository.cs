@@ -1,5 +1,6 @@
-﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
-using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+﻿using DataManagerAPI.gRPC.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPC.Abstractions.gRPCRequests;
+using DataManagerAPI.NLogger;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -13,50 +14,107 @@ namespace DataManagerAPI.gRPCServer.Implementation;
 public class gRPCUserDataRepository : IgRPCUserDataRepository
 {
     private readonly IUserDataRepository _repository;
+    private readonly ILogger<gRPCUserDataRepository> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="repository"><see cref="IUserDataRepository"/></param>
-    public gRPCUserDataRepository(IUserDataRepository repository)
+    /// <param name="logger"><see cref="ILogger"/></param>
+    public gRPCUserDataRepository(IUserDataRepository repository, ILogger<gRPCUserDataRepository> logger)
     {
         _repository = repository;
+        _logger = logger;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd, CallContext context = default)
     {
-        return _repository.AddUserDataAsync(userDataToAdd);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.AddUserDataAsync(userDataToAdd);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<UserData>> DeleteUserDataAsync(Int32Int32Request userDataId, CallContext context = default)
     {
-        return _repository.DeleteUserDataAsync(userDataId.Value1, userDataId.Value2);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.DeleteUserDataAsync(userDataId.Value1, userDataId.Value2);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<UserData>> GetUserDataAsync(Int32Int32Request userDataId, CallContext context = default)
     {
-        return _repository.GetUserDataAsync(userDataId.Value1, userDataId.Value2);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.GetUserDataAsync(userDataId.Value1, userDataId.Value2);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(Int32Request userId, CallContext context = default)
     {
-        return _repository.GetUserDataByUserIdAsync(userId.Value);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.GetUserDataByUserIdAsync(userId.Value);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate, CallContext context = default)
     {
-        return _repository.UpdateUserDataAsync(userDataToUpdate);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.UpdateUserDataAsync(userDataToUpdate);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<User>> GetUserAsync(Int32Request userDataId, CallContext context = default)
     {
-        return _repository.GetUserAsync(userDataId.Value);
+        using var scope = _logger
+            .BeginScope(new[] { new KeyValuePair<string, object>(NLoggerConstants.ActivityIdKey, gRPCServerHelper.GetRemoteActivityTraceId(context)) });
+
+        _logger.LogInformation("Started");
+
+        var result = _repository.GetUserAsync(userDataId.Value);
+
+        _logger.LogInformation("Finished");
+
+        return result;
     }
 
 }

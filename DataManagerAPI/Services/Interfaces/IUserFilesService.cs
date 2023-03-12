@@ -15,7 +15,7 @@ public interface IUserFilesService
     /// <param name="userDataId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Array of files. <see cref="UserFileDto"/></returns>
-    Task<ResultWrapper<UserFileDto[]>> GetListAsync(CurrentUserDto? currentUser, int userDataId, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserFileDto[]>> GetList(CurrentUserDto? currentUser, int userDataId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes file from database.
@@ -25,7 +25,7 @@ public interface IUserFilesService
     /// <param name="fileId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Id of deleted file</returns>
-    Task<ResultWrapper<int>> DeleteFileAsync(CurrentUserDto? currentUser, int userDataId, int fileId, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<int>> DeleteFile(CurrentUserDto? currentUser, int userDataId, int fileId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Downloads file from database.
@@ -35,7 +35,7 @@ public interface IUserFilesService
     /// <param name="fileId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Stream for file downloading. <see cref="UserFileStreamDto"/></returns>
-    Task<ResultWrapper<UserFileStreamDto>> DownloadFileAsync(CurrentUserDto? currentUser, int userDataId, int fileId, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserFileStreamDto>> DownloadFile(CurrentUserDto? currentUser, int userDataId, int fileId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Uploads file to database.
@@ -44,5 +44,5 @@ public interface IUserFilesService
     /// <param name="fileStream"><see cref="UserFileStreamDto"/></param>
     /// <param name="cancellationToken"></param>
     /// <returns><see cref="UserFileDto"/></returns>
-    Task<ResultWrapper<UserFileDto>> UploadFileAsync(CurrentUserDto? currentUser, UserFileStreamDto fileStream, CancellationToken cancellationToken = default);
+    Task<ResultWrapper<UserFileDto>> UploadFile(CurrentUserDto? currentUser, UserFileStreamDto fileStream, CancellationToken cancellationToken = default);
 }

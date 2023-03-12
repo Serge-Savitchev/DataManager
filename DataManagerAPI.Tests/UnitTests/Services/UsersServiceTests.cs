@@ -5,6 +5,7 @@ using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ public class UsersServiceTests
         repository.Setup(x => x.GetUsersByRoleAsync(It.IsAny<RoleIds>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ResultWrapper<User[]> { Success = false, StatusCode = ResultStatusCodes.Status500InternalServerError });
 
-        var service = new UsersService(repository.Object, null!);
+        var service = new UsersService(repository.Object, null!, Mock.Of<ILogger<UsersService>>());
         // Act
         var response = await service.GetUsersByRole("user");
 

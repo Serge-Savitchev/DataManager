@@ -6,6 +6,7 @@ using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -18,7 +19,7 @@ public class UserFilesControllerTests
     {
         // Arrange
         var userFilesService = new Mock<IUserFilesService>();
-        userFilesService.Setup(x => x.DeleteFileAsync(
+        userFilesService.Setup(x => x.DeleteFile(
             It.IsAny<CurrentUserDto?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ResultWrapper<int> { StatusCode = ResultStatusCodes.Status403Forbidden });
 
@@ -35,13 +36,13 @@ public class UserFilesControllerTests
             HttpContext = new DefaultHttpContext()
         };
 
-        var controller = new UserFilesController(userFilesService.Object, configuration.Object);
+        var controller = new UserFilesController(userFilesService.Object, configuration.Object, Mock.Of<ILogger<UserFilesController>>());
         controller.ControllerContext = controllerContext;
 
         // Act
-        var response = await controller.DeleteFile(0, 0);
+        var response = await controller.DeleteFile(0, 0) as ObjectResult;
 
         // Assert
-        Assert.Equal(StatusCodes.Status403Forbidden, (response as StatusCodeResult)!.StatusCode);
+        Assert.Equal(StatusCodes.Status403Forbidden, (response!.Value as ResultWrapper<int>)!.StatusCode);
     }
 }

@@ -28,7 +28,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
                 files.Add(file);
             }
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
 
             // Act
@@ -58,7 +58,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task GetList_Unauthorized_Returns_Unauthorized()
     {
         // Act
-        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userfiles?userDataId=1");
+        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userfiles/1");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -84,7 +84,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
                 files.Add(file);
             }
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", powerUser.LoginData!.AccessToken);
 
             // Act
@@ -119,7 +119,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
                 files.Add(file);
             }
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
 
             // Act
@@ -163,7 +163,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
                 files.Add(file);
             }
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, "api/userfiles?userDataId=20000");
+            using var request = new HttpRequestMessage(HttpMethod.Get, "api/userfiles/20000");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
 
             // Act

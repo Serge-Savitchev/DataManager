@@ -1,24 +1,23 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Models;
 using System.Runtime.Serialization;
 
-namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+namespace DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 
 /// <summary>
 /// gRPC request.
 /// </summary>
 [DataContract]
-public class UpdateUserPasswordRequest
+public class LoginRequest
 {
     /// <summary>
-    /// UserId
+    /// Login
     /// </summary>
     [DataMember(Order = 1)]
-    public int UserId { get; set; }
+    public string Login { get; set; } = string.Empty;
 
     /// <summary>
-    /// UserCredentials
+    /// Credentials
     /// </summary>
     [DataMember(Order = 2)]
-    public UserCredentials? UserCredentials { get; set; }
-
+    public UserCredentials? Credentials { get; set; }
 }

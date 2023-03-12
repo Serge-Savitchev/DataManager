@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataManagerAPI.Dto\DataManagerAPI.Dto.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.NLogger\DataManagerAPI.NLogger.csproj" />
     <ProjectReference Include="..\DataManagerAPI.Repository\DataManagerAPI.Repository.csproj" />
   </ItemGroup>
 

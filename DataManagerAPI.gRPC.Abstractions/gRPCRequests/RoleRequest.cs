@@ -1,7 +1,7 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Models;
 using System.Runtime.Serialization;
 
-namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+namespace DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 
 /// <summary>
 /// gRPC request.

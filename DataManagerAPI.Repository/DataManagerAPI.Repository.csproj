@@ -15,25 +15,18 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.51.0" />
+    <!--<PackageReference Include="Grpc.Net.ClientFactory" Version="2.51.0" />
     <PackageReference Include="Google.Protobuf" Version="3.22.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.51.0" />
     <PackageReference Include="Grpc.Tools" Version="2.51.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    </PackageReference>-->
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Protos\grpc.proto" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="Protos\grpc.proto" GrpcServices="Client" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DataManagerAPI.gRPCServer\DataManagerAPI.gRPCServer.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.gRPC.Abstractions\DataManagerAPI.gRPC.Abstractions.csproj" />
+    <ProjectReference Include="..\DataManagerAPI.gRPCClient\DataManagerAPI.gRPCClient.csproj" />
     <ProjectReference Include="..\DataManagerAPI.PostgresDB\DataManagerAPI.PostgresDB.csproj" />
     <ProjectReference Include="..\DataManagerAPI.SQLServerDB\DataManagerAPI.SQLServerDB.csproj" />
   </ItemGroup>

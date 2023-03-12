@@ -1,13 +1,12 @@
-﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
-using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+﻿using DataManagerAPI.gRPC.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using Grpc.Core;
 using Grpc.Net.Client;
 using ProtoBuf.Grpc.Client;
 
-namespace DataManagerAPI.Repository.gRPCClients;
+namespace DataManagerAPI.gRPCClient;
 
 /// <summary>
 /// Implementation of <see cref="IAuthRepository"/> for gRPC client.
@@ -30,7 +29,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.GetUserDetailsByIdAsync(new Int32Request { Value = userId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -38,7 +37,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.GetUserDetailsByLoginAsync(new StringRequest { Value = login },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -46,7 +45,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.LoginAsync(new LoginRequest { Login = login, Credentials = credentials },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -54,7 +53,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.RefreshTokenAsync(new RefreshTokenRequest { UserId = userId, RefreshToken = refreshToken },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -62,7 +61,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.RegisterUserAsync(new RegisterUserRequest { User = userToAdd, UserCredentials = userCredentials },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -70,7 +69,7 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.UpdateUserPasswordAsync(new UpdateUserPasswordRequest { UserId = userId, UserCredentials = credentials },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -78,6 +77,6 @@ public class gRPCAuthClient : IAuthRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCAuthRepository.UpdateUserRoleAsync(new UpdateUserRoleRequest { UserId = userId, Role = newRole },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 }

@@ -81,9 +81,6 @@ public static class MigrationExtensions
         // Get connection string
         connectionString = config.GetConnectionString(configurationKey)!;
 
-        Console.WriteLine($"Environment: {environment}");
-        Console.WriteLine(connectionString);
-
         ConnectionStrings[configurationKey] = connectionString;
 
         return connectionString;

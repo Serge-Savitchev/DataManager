@@ -1,12 +1,7 @@
 ﻿using DataManagerAPI.Dto;
 using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DataManagerAPI.Tests.IntegrationTests.UserFilesServiceTests;
@@ -32,11 +27,11 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             }
 
             // request for file deleting
-            using var request0 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles?userDataId={newUserData.UserData.Id}&fileId={files[0].Id}");
+            using var request0 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles/{newUserData.UserData.Id}/{files[0].Id}");
             request0.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
 
             // request for file deleting
-            using var request1 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles?userDataId={newUserData.UserData.Id}&fileId={files[1].Id}");
+            using var request1 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles/{newUserData.UserData.Id}/{files[1].Id}");
             request1.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
 
             // Act
@@ -50,7 +45,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             responseMessage1.EnsureSuccessStatusCode();
 
             // Get list of files
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
             using HttpResponseMessage responseMessage = await _client.SendAsync(request);
             responseMessage.EnsureSuccessStatusCode();
@@ -73,7 +68,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DeleteFile_Unauthorized_Returns_Unauthorized()
     {
         // Act
-        using HttpResponseMessage responseMessage = await _client.DeleteAsync("api/userfiles?fileId=1&userDataId=1");
+        using HttpResponseMessage responseMessage = await _client.DeleteAsync("api/userfiles/1/1");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -91,7 +86,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         {
             var file = await UploadFile(newUserData, $"fileToDelete.bin", 512, false);
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", powerUser.LoginData!.AccessToken);
 
             // Act
@@ -126,7 +121,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             }
 
             // request for file deleting
-            using var request0 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles?userDataId={newUserData.UserData.Id}&fileId={files[0].Id}");
+            using var request0 = new HttpRequestMessage(HttpMethod.Delete, $"api/userfiles/{newUserData.UserData.Id}/{files[0].Id}");
             request0.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
 
             // Act
@@ -137,7 +132,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             responseMessage0.EnsureSuccessStatusCode();
 
             // Get list of files
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles?userDataId={newUserData.UserData.Id}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/userfiles/{newUserData.UserData.Id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newUserData.User.LoginData!.AccessToken);
             using HttpResponseMessage responseMessage = await _client.SendAsync(request);
             responseMessage.EnsureSuccessStatusCode();

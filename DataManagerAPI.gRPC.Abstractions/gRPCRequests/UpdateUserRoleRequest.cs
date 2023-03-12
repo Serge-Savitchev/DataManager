@@ -1,12 +1,13 @@
-﻿using System.Runtime.Serialization;
+﻿using DataManagerAPI.Repository.Abstractions.Models;
+using System.Runtime.Serialization;
 
-namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+namespace DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 
 /// <summary>
 /// gRPC request.
 /// </summary>
 [DataContract]
-public class RefreshTokenRequest
+public class UpdateUserRoleRequest
 {
     /// <summary>
     /// UserId
@@ -15,8 +16,8 @@ public class RefreshTokenRequest
     public int UserId { get; set; }
 
     /// <summary>
-    /// Refresh token
+    /// Role
     /// </summary>
     [DataMember(Order = 2)]
-    public string? RefreshToken { get; set; }
+    public RoleIds Role { get; set; }
 }

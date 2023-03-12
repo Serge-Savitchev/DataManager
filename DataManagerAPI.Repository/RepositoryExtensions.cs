@@ -1,8 +1,8 @@
-﻿using DataManagerAPI.PostgresDB;
+﻿using DataManagerAPI.gRPCClient;
+using DataManagerAPI.PostgresDB;
 using DataManagerAPI.PostgresDB.Implementation;
 using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
-using DataManagerAPI.Repository.gRPCClients;
 using DataManagerAPI.SQLServerDB;
 using DataManagerAPI.SQLServerDB.Implementation;
 using Grpc.Net.Client;

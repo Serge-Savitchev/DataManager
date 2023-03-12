@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+/*
 // Raw string literal text
 
 Console.WriteLine(""" "A" """);
@@ -38,7 +39,7 @@ Console.WriteLine(request3);
 
 Console.ReadLine();
 return;
-
+*/
 
 const int _bufferSize = 1024 * 1024 * 10;
 

@@ -6,6 +6,7 @@ using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services;
 using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
 using Xunit;
@@ -24,7 +25,7 @@ public class AuthServiceTests
         tokenSevice.Setup(x => x.CreateCurrentUser(It.IsAny<IEnumerable<Claim>>()))
             .Returns((CurrentUserDto?)null!);
 
-        var service = new AuthService(null!, null!, tokenSevice.Object, null!, null!);
+        var service = new AuthService(null!, null!, tokenSevice.Object, null!, null!, Mock.Of<ILogger<AuthService>>());
         // Act
         var response = await service.RefreshToken(new TokenApiModelDto { AccessToken = "" });
 
@@ -46,7 +47,7 @@ public class AuthServiceTests
         tokenSevice.Setup(x => x.CreateCurrentUser(It.IsAny<IEnumerable<Claim>>()))
             .Returns(new CurrentUserDto { User = new UserDto() });
 
-        var service = new AuthService(repository.Object, null!, tokenSevice.Object, null!, null!);
+        var service = new AuthService(repository.Object, null!, tokenSevice.Object, null!, null!, Mock.Of<ILogger<AuthService>>());
         // Act
         var response = await service.RefreshToken(new TokenApiModelDto { AccessToken = "" });
 

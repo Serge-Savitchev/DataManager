@@ -1,6 +1,7 @@
 using AutoMapper;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
+using DataManagerAPI.NLogger.Extensions;
 using DataManagerAPI.Repository;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services;
@@ -78,24 +79,33 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy =>
                       policy.RequireClaim("Role", RoleIds.Admin.ToString()));
     options.AddPolicy("PowerUser", policy =>
-                      policy.RequireClaim("Role", RoleIds.PowerUser.ToString()));
+                      policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString()));
     options.AddPolicy("User", policy =>
-                      policy.RequireClaim("Role", RoleIds.User.ToString()));
+                      policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString(), RoleIds.User.ToString()));
     options.AddPolicy("ReadOnlyUser", policy =>
-                      policy.RequireClaim("Role", RoleIds.ReadOnlyUser.ToString()));
+                      policy.RequireClaim("Role", RoleIds.Admin.ToString(), RoleIds.PowerUser.ToString(), RoleIds.ReadOnlyUser.ToString()));
 });
 
 builder.Services.AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
     .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, options => { });
 
+builder.Services.AddProblemDetails();
+
+builder.SetupNLogConfiguration();
+
 WebApplication app = builder.Build();
 
 //app.UseHttpLogging();   // enable HTTP request/response logging
+
+app.UseNLogConfiguration();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();

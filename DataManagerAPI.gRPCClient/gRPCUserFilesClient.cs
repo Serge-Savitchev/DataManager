@@ -1,5 +1,5 @@
-﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
-using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+﻿using DataManagerAPI.gRPC.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
@@ -7,9 +7,10 @@ using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using ProtoBuf.Grpc.Client;
 
-namespace DataManagerAPI.Repository.gRPCClients;
+namespace DataManagerAPI.gRPCClient;
 
 /// <summary>
 /// Implementation of <see cref="IUserFilesRepository"/> for gRPC client.
@@ -17,6 +18,8 @@ namespace DataManagerAPI.Repository.gRPCClients;
 public class gRPCUserFilesClient : IUserFilesRepository
 {
     private readonly IgRPCUserFilesRepository _igRPCUserFilesRepository;
+    private readonly ILogger<gRPCUserFilesClient> _logger;
+
     private readonly GrpcClient.ProtoService.ProtoServiceClient _protoClient;
     private readonly int _bufferSizeForStreamCopy = 1024 * 1024 * 4;    // default size of the buffer 4 MB
 
@@ -25,9 +28,12 @@ public class gRPCUserFilesClient : IUserFilesRepository
     /// </summary>
     /// <param name="channel"><see cref="GrpcChannel"/></param>
     /// <param name="configuration"><see cref="IConfiguration"/></param>
-    public gRPCUserFilesClient(GrpcChannel channel, IConfiguration configuration)
+    /// <param name="logger"></param>
+    public gRPCUserFilesClient(GrpcChannel channel, IConfiguration configuration, ILogger<gRPCUserFilesClient> logger)
     {
         _igRPCUserFilesRepository = channel.CreateGrpcService<IgRPCUserFilesRepository>();
+        _logger = logger;
+
         _protoClient = new GrpcClient.ProtoService.ProtoServiceClient(channel);
 
         if (int.TryParse(configuration["Buffering:Server:BufferSize"], out int size) && size > 0)
@@ -40,21 +46,23 @@ public class gRPCUserFilesClient : IUserFilesRepository
     public Task<ResultWrapper<int>> DeleteFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
     {
         return _igRPCUserFilesRepository.DeleteFileAsync(new Int32Int32Request { Value1 = userDataId, Value2 = fileId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
-    public Task<ResultWrapper<Abstractions.Models.UserFile[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default)
+    public Task<ResultWrapper<Repository.Abstractions.Models.UserFile[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default)
     {
         return _igRPCUserFilesRepository.GetListAsync(new Int32Request { Value = userDataId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<Abstractions.Models.UserFile>> UploadFileAsync(
-        Abstractions.Models.UserFileStream fileStream, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<Repository.Abstractions.Models.UserFile>> UploadFileAsync(
+        Repository.Abstractions.Models.UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        var result = new ResultWrapper<Abstractions.Models.UserFile>
+        _logger.LogInformation("Started:{userDataId},{fileId},{name}", fileStream.UserDataId, fileStream.Id, fileStream.Name);
+
+        var result = new ResultWrapper<Repository.Abstractions.Models.UserFile>
         {
             Success = true
         };
@@ -74,8 +82,9 @@ public class gRPCUserFilesClient : IUserFilesRepository
                 BigFile = fileStream.BigFile
             };
 
-            CallOptions context = new(cancellationToken: cancellationToken);
+            CallOptions context = gRPCClientsHelper.CreateCallOptions(cancellationToken);
 
+            _logger.LogInformation("Call UploadFile service");
             // call gRPC service
             using var call = _protoClient.UploadFile(context);
 
@@ -83,24 +92,31 @@ public class gRPCUserFilesClient : IUserFilesRepository
 
             int read = 0;
 
+            _logger.LogDebug("Copying to server's stream");
+
             // copy file content to gRPC service using memory buffer
             byte[] buffer = new byte[_bufferSizeForStreamCopy];
-
+            int count = 0;
             while ((read = await fileStream.Content!.ReadAsync(buffer, cancellationToken)) > 0)
             {
+                count++;
                 request.Content = ByteString.CopyFrom(new ReadOnlySpan<byte>(buffer, 0, read));
                 await call.RequestStream.WriteAsync(request, context.CancellationToken);
             }
 
+            _logger.LogDebug("IterationsCount:{count}", count);
+
             await call.RequestStream.CompleteAsync();   // copying finished
+
+            _logger.LogDebug("Getting server's response");
 
             GrpcClient.ResultWrapper gRPCresponse = await call; // get gRPC service response
 
             // convert gRPC service response to ResultWrapper<Abstractions.Models.UserFile> type
-            result = new ResultWrapper<Abstractions.Models.UserFile>
+            result = new ResultWrapper<Repository.Abstractions.Models.UserFile>
             {
                 Data = gRPCresponse.Success ?
-                    new Abstractions.Models.UserFile
+                    new Repository.Abstractions.Models.UserFile
                     {
                         UserDataId = gRPCresponse.Data.UserFile.UserDataId,
                         Id = gRPCresponse.Data.UserFile.Id,
@@ -117,15 +133,20 @@ public class gRPCUserFilesClient : IUserFilesRepository
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            _logger.LogError(ex, "{@wrapper}", result);
         }
+
+        _logger.LogInformation("Finished:{@data}", result.Data);
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<Abstractions.Models.UserFileStream>> DownloadFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<Repository.Abstractions.Models.UserFileStream>> DownloadFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
     {
-        var result = new ResultWrapper<Abstractions.Models.UserFileStream>();
+        _logger.LogInformation("Started:{userDataId},{fileId}", userDataId, fileId);
+
+        var result = new ResultWrapper<Repository.Abstractions.Models.UserFileStream>();
 
         try
         {
@@ -136,11 +157,12 @@ public class gRPCUserFilesClient : IUserFilesRepository
                 FileId = fileId
             };
 
-            string newFileName = string.Empty; // Path.Combine(Path.GetTempPath(), "DataManager\\DowloadFile.tmp");
+            string newFileName = string.Empty;
 
-            CallOptions context = new(cancellationToken: cancellationToken);
+            CallOptions context = gRPCClientsHelper.CreateCallOptions(cancellationToken);
             FileStream? inputStream = null;
 
+            _logger.LogInformation("Call DownloadFile service");
             // call gRPC service
             using var call = _protoClient.DownloadFile(request, context);
 
@@ -148,9 +170,13 @@ public class gRPCUserFilesClient : IUserFilesRepository
 
             // copy content of call.ResponseStream to temporary file
 
+            _logger.LogInformation("Copying file content to temporary file");
+
+            int count = 0;
             GrpcClient.ResultWrapper? gRPCresponse = null;
             await foreach (var responseLocal in call.ResponseStream.ReadAllAsync(context.CancellationToken))
             {
+                count++;
                 if (gRPCresponse == null)   // the first pass
                 {
                     // open file for writing
@@ -167,6 +193,8 @@ public class gRPCUserFilesClient : IUserFilesRepository
                 await inputStream!.WriteAsync(responseLocal.Data.Content.Memory, context.CancellationToken);
             }
 
+            _logger.LogDebug("IterationsCount:{count}", count);
+
             inputStream!.Close();   // copying finished
 
             // open out stream
@@ -175,10 +203,10 @@ public class gRPCUserFilesClient : IUserFilesRepository
                     FileShare.None, _bufferSizeForStreamCopy, FileOptions.SequentialScan | FileOptions.DeleteOnClose) : null;
 
             // convert response from gRPC service to ResultWrapper<Abstractions.Models.UserFileStream>
-            result = new ResultWrapper<Abstractions.Models.UserFileStream>
+            result = new ResultWrapper<Repository.Abstractions.Models.UserFileStream>
             {
                 Data = gRPCresponse!.Success ?
-                    new Abstractions.Models.UserFileStream
+                    new Repository.Abstractions.Models.UserFileStream
                     {
                         UserDataId = gRPCresponse.Data.UserFile.UserDataId,
                         Id = gRPCresponse.Data.UserFile.Id,
@@ -193,9 +221,13 @@ public class gRPCUserFilesClient : IUserFilesRepository
         }
         catch (Exception ex)
         {
+            result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            _logger.LogError(ex, "{@wrapper}", result);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }

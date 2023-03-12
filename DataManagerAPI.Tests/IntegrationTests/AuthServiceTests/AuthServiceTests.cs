@@ -51,7 +51,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         string newRole = "ReadOnlyUser";
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole?userId={userToChange.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole/{userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject(newRole), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
@@ -73,7 +73,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole?userId={userToChange.Id}");
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole/{userToChange.Id}");
         request.Content = new StringContent(JsonConvert.SerializeObject(userToChange.RegisteredUser.Role), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
@@ -89,7 +89,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole?userId=100000");
+        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole/100000");
         request.Content = new StringContent(JsonConvert.SerializeObject("ReadOnlyUser"), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);
@@ -107,7 +107,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
         string newRole = "ReadOnlyUser";
 
         // Act
-        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole?userId=1");
+        using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole/1");
         request.Content = new StringContent(JsonConvert.SerializeObject(newRole), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", registredUser.LoginData!.AccessToken);
         using HttpResponseMessage responseMessage = await _client.SendAsync(request);

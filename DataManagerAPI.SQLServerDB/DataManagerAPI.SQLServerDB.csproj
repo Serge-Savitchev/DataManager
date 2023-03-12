@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataManagerAPI.NLogger\DataManagerAPI.NLogger.csproj" />
     <ProjectReference Include="..\DataManagerAPI.Repository.Abstractions\DataManagerAPI.Repository.Abstractions.csproj" />
   </ItemGroup>
 

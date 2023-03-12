@@ -51,6 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataManagerAPI.gRPCServer\DataManagerAPI.gRPCServer.csproj" />
     <ProjectReference Include="..\DataManagerAPI\DataManagerAPI.csproj" />
   </ItemGroup>
 

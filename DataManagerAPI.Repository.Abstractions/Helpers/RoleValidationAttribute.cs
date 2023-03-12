@@ -28,18 +28,12 @@ public sealed class RoleValidationAttribute : ValidationAttribute
             return false;
         }
 
-        bool result = true;
-
-        try
+        if (!Enum.TryParse<RoleIds>(role, true, out _))
         {
-            Enum.Parse<RoleIds>(role, true);
-        }
-        catch (Exception)
-        {
-            result = false;
+            return false;
         }
 
-        return result;
+        return true;
     }
 
     /// <summary>

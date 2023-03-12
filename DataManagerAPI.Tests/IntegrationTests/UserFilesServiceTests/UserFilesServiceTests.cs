@@ -12,7 +12,6 @@ namespace DataManagerAPI.Tests.IntegrationTests.UserFilesServiceTests;
 public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
-    private readonly string _testFile;
     private const int _defaultBufferSize = 1024 * 4;
 
     public UserFilesServiceTests(CustomWebApplicationFactory<Program> factory)
@@ -38,7 +37,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         {
             // Act
             using var request = new HttpRequestMessage(HttpMethod.Get,
-                $"api/userfiles/Download?UserDataId={uploadedFile.UserData.Id}&fileId={uploadedFile.UserFile.Id}");
+                $"api/userfiles/{uploadedFile.UserData.Id}/{uploadedFile.UserFile.Id}");
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", uploadedFile.User.LoginData!.AccessToken);
 
@@ -74,7 +73,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         {
             // Act
             using var request = new HttpRequestMessage(HttpMethod.Get,
-                $"api/userfiles/Download?UserDataId={uploadedFile.UserData.Id}&fileId={uploadedFile.UserFile.Id + 1}");
+                $"api/userfiles/Download/{uploadedFile.UserData.Id}/{uploadedFile.UserFile.Id + 1}");
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", uploadedFile.User.LoginData!.AccessToken);
 
@@ -138,7 +137,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             multipartContent.Add(fileContent, "multipart/form-data", name2);
 
             using var request = new HttpRequestMessage(HttpMethod.Post,
-                $"api/userfiles/Upload?userDataId={uploadedFile.UserData.Id}&fileId={uploadedFile.UserFile.Id}&bigFile=auto")
+                $"api/userfiles/{uploadedFile.UserData.Id}/{uploadedFile.UserFile.Id}?bigFile=auto")
             {
                 Content = multipartContent
             };
@@ -182,7 +181,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             multipartContent.Add(fileContent, "multipart/form-data", "fake.bin");
 
             using var request = new HttpRequestMessage(HttpMethod.Post,
-                $"api/userfiles/Upload?userDataId={newUserData.UserData.Id + 1}&fileId=0&bigFile=false")
+                $"api/userfiles/{newUserData.UserData.Id + 1}/0?bigFile=false")
             {
                 Content = multipartContent
             };
@@ -228,7 +227,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         multipartContent.Add(fileContent, "multipart/form-data", fileName);
 
         using var request = new HttpRequestMessage(HttpMethod.Post,
-            $"api/userfiles/Upload?userDataId={userData.UserData.Id}&fileId=0&bigFile={bigFile}")
+            $"api/userfiles/{userData.UserData.Id}/0?bigFile={bigFile}")
         {
             Content = multipartContent
         };
@@ -249,7 +248,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
 
         // add new user data
         UserDataDto? response0 = null;
-        using (var request0 = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/add?UserId={user.Id}"))
+        using (var request0 = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{user.Id}"))
         {
             var data = new AddUserDataDto
             {

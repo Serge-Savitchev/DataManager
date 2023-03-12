@@ -16,20 +16,23 @@ namespace DataManagerAPI.Controllers;
 public class UserDataController : ControllerBase
 {
     private readonly IUserDataService _service;
+    private readonly ILogger<UserDataController> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="service"><see cref="IUserDataService"/></param>
-    public UserDataController(IUserDataService service)
+    /// <param name="logger"></param>
+    public UserDataController(IUserDataService service, ILogger<UserDataController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
     /// <summary>
     /// Adds new user data.
     /// </summary>
-    /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <param name="data"><see cref="AddUserDataDto"/></param>
     /// <returns></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
@@ -37,74 +40,100 @@ public class UserDataController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpPost]
-    [Route("Add")]
-    public async Task<ActionResult<UserDataDto>> AddUserData([FromBody] AddUserDataDto data, [FromQuery] int UserId = 0)
+    [Route("{userId}")]
+    public async Task<ActionResult<UserDataDto>> AddUserData([FromRoute] int userId, [FromBody] AddUserDataDto data)
     {
-        (int Code, int UserId) permission = CheckPermissions(UserId);
+        _logger.LogInformation("Started");
+
+        (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
+            _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", permission.Code, permission.UserId);
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto> result = await _service.AddUserData(permission.UserId, 0, data);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, permission.UserId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
     /// Updates existing user data.
     /// </summary>
+    /// <param name="userId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userDataId">Id of UserData</param>
     /// <param name="data"><see cref="AddUserDataDto"/></param>
-    /// <param name="UserDataId">Id of UserData</param>
-    /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>Updated user data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpPut]
-    [Route("Update")]
-    public async Task<ActionResult<UserDataDto>> UpdateUserData([FromBody] AddUserDataDto data, [FromQuery] int UserDataId, [FromQuery] int UserId = 0)
+    [Route("{userId}/{userDataId}")]
+    public async Task<ActionResult<UserDataDto>> UpdateUserData([FromRoute] int userId, [FromRoute] int userDataId,
+        [FromBody] AddUserDataDto data)
     {
-        (int Code, int UserId) permission = CheckPermissions(UserId);
+        _logger.LogInformation("Started");
+
+        (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
+            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+                permission.Code, permission.UserId, userDataId);
+
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.UpdateUserData(permission.UserId, UserDataId, data);
+        ResultWrapper<UserDataDto> result = await _service.UpdateUserData(permission.UserId, userDataId, data);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+            result.StatusCode, permission.UserId, userDataId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
     /// Deletes user data by Id.
     /// </summary>
-    /// <param name="UserDataId">Id of UserData</param>
-    /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userDataId">Id of UserData</param>
     /// <returns>Deleted user data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpDelete]
-    [Route("Delete")]
-    public async Task<ActionResult<UserDataDto>> DeleteUserData([FromQuery] int UserDataId, [FromQuery] int UserId = 0)
+    [Route("{userId}/{userDataId}")]
+
+    public async Task<ActionResult<UserDataDto>> DeleteUserData([FromRoute] int userId, [FromRoute] int userDataId)
     {
-        (int Code, int UserId) permission = CheckPermissions(UserId);
+        _logger.LogInformation("Started");
+
+        (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
+            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+                permission.Code, permission.UserId, userDataId);
+
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.DeleteUserData(permission.UserId, UserDataId);
+        ResultWrapper<UserDataDto> result = await _service.DeleteUserData(permission.UserId, userDataId);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+            result.StatusCode, permission.UserId, userDataId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
     /// Gets user data by Id.
     /// </summary>
-    /// <param name="UserDataId">Id of UserData</param>
-    /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userDataId">Id of UserData</param>
     /// <returns>User data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -112,38 +141,52 @@ public class UserDataController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
     [HttpGet]
-    public async Task<ActionResult<UserDataDto>> GetUserData([FromQuery] int UserDataId, [FromQuery] int UserId = 0)
+    [Route("{userId}/{userDataId}")]
+    public async Task<ActionResult<UserDataDto>> GetUserData([FromRoute] int userId, [FromRoute] int userDataId)
     {
-        (int Code, int UserId) permission = CheckPermissions(UserId);
+        _logger.LogInformation("Started");
+
+        (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
+            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+                permission.Code, permission.UserId, userDataId);
+
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.GetUserData(permission.UserId, UserDataId);
+        ResultWrapper<UserDataDto> result = await _service.GetUserData(permission.UserId, userDataId);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
+            result.StatusCode, permission.UserId, userDataId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
     /// Gets array of user data by user Id.
     /// </summary>
-    /// <param name="UserId">Id of user. If 0 then Id of current user is assumed.</param>
+    /// <param name="userId">Id of user. If 0 then Id of current user is assumed.</param>
     /// <returns>Array of user's data. <see cref="UserDataDto"/></returns>
     [ProducesResponseType(typeof(UserDataDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Route("All")]
-    public async Task<ActionResult<UserDataDto[]>> GetUserDataByUserId([FromQuery] int UserId = 0)
+    [Route("{userId}/All")]
+    public async Task<ActionResult<UserDataDto[]>> GetUserDataByUserId([FromRoute] int userId)
     {
-        (int Code, int UserId) permission = CheckPermissions(UserId);
+        (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
+            _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", permission.Code, permission.UserId);
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto[]> result = await _service.GetUserDataByUserId(permission.UserId);
+
+        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, permission.UserId);
+
         return StatusCode(result.StatusCode, result.Data);
     }
 

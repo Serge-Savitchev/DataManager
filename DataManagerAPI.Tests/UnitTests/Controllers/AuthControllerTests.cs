@@ -2,6 +2,8 @@
 using DataManagerAPI.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace DataManagerAPI.Tests.UnitTests.Controllers;
@@ -22,10 +24,10 @@ public class AuthControllerTests
             User = new UserDto { Role = "PowerUser" }
         };
 
-        var controller = new AuthController(null!);
+        var controller = new AuthController(null!, Mock.Of<ILogger<AuthController>>());
         controller.ControllerContext = controllerContext;
 
-        RegisteredUserDto user = new RegisteredUserDto
+        var user = new RegisteredUserDto
         {
             Role = "PowerUser"
         };
@@ -45,7 +47,7 @@ public class AuthControllerTests
     public async Task OtherMethods_Unauthorized_Returns_Unauthorized(string method)
     {
         // Arrange
-        var controller = new AuthController(null!);
+        var controller = new AuthController(null!, Mock.Of<ILogger<AuthController>>());
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext()

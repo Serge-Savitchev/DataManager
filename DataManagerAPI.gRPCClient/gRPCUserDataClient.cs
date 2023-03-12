@@ -1,13 +1,12 @@
-﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
-using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+﻿using DataManagerAPI.gRPC.Abstractions.gRPCInterfaces;
+using DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using Grpc.Core;
 using Grpc.Net.Client;
 using ProtoBuf.Grpc.Client;
 
-namespace DataManagerAPI.Repository.gRPCClients;
+namespace DataManagerAPI.gRPCClient;
 
 /// <summary>
 /// Implementation of <see cref="IUserDataRepository"/> for gRPC client.
@@ -30,7 +29,7 @@ public class gRPCUserDataClient : IUserDataRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.AddUserDataAsync(userDataToAdd,
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -38,7 +37,7 @@ public class gRPCUserDataClient : IUserDataRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.DeleteUserDataAsync(new Int32Int32Request { Value1 = userId, Value2 = userDataId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -46,7 +45,7 @@ public class gRPCUserDataClient : IUserDataRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.GetUserDataAsync(new Int32Int32Request { Value1 = userId, Value2 = userDataId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -54,7 +53,7 @@ public class gRPCUserDataClient : IUserDataRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.GetUserDataByUserIdAsync(new Int32Request { Value = userId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
@@ -62,13 +61,13 @@ public class gRPCUserDataClient : IUserDataRepository
         CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.UpdateUserDataAsync(userDataToUpdate,
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 
     /// <inheritdoc />
     public Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default)
     {
         return _igRPCUserDataRepository.GetUserAsync(new Int32Request { Value = userDataId },
-            new CallOptions(cancellationToken: cancellationToken));
+            gRPCClientsHelper.CreateCallOptions(cancellationToken));
     }
 }

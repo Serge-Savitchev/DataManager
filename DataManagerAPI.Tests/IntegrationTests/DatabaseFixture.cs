@@ -50,7 +50,7 @@ public static class DatabaseFixture
         var processFileName = Directory.GetCurrentDirectory() + "\\" + ProcessName + ".exe";
         var arguments = $"/K set ASPNETCORE_ENVIRONMENT=Test&{processFileName}";
 
-        ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", arguments)
+        ProcessStartInfo processInfo = new("cmd.exe", arguments)
         {
             UseShellExecute = true,
             CreateNoWindow = false,

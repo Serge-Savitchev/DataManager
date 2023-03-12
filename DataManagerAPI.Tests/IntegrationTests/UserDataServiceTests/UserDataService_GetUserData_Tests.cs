@@ -11,8 +11,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     #region GetUserData
 
     [Theory]
-    [InlineData("UserId={userId}&UserDataId={UserDataId}")]
-    [InlineData("UserDataId={UserDataId}")]
+    [InlineData("{userId}/{UserDataId}")]
+    [InlineData("0/{UserDataId}")]
     public async Task GetUserData_Own_Returns_Ok(string queryValue)
     {
         // Arrange
@@ -27,7 +27,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         UserDataDto response0 = await AddNewUserData(registredUser, data);
 
         // Act
-        string query = "api/userdata?" +
+        string query = "api/userdata/" +
             queryValue
             .Replace("{userId}", registredUser.Id.ToString())
             .Replace("{UserDataId}", response0.Id.ToString());
@@ -65,7 +65,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         UserDataDto response0 = await AddNewUserData(user, data);
 
         // Act
-        string query = $"api/userdata?UserId={user.Id}&UserDataId={response0.Id}";
+        string query = $"api/userdata/{user.Id}/{response0.Id}";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
@@ -87,7 +87,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserData_Unauthorized_Returns_Unauthorized()
     {
         // Act
-        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userdata?UserId=1&userDataId=1");
+        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userdata/1/1");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -99,7 +99,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         // Arrange
         using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
-        string query = "api/userdata?UserId=1&UserDataId=1";
+        string query = "api/userdata/1/1";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.LoginData!.AccessToken);
@@ -136,8 +136,9 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         }
 
         // Act
-        string query = "api/userdata/all" +
-            (useUserId ? $"?userId={user.Id}" : "");
+        string query = "api/userdata/" +
+            (useUserId ? $"{user.Id}" : "0") +
+            "/all";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
 
@@ -177,7 +178,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         }
 
         // Act
-        string query = $"api/userdata/all?UserId={user.Id}";
+        string query = $"api/userdata/{user.Id}/all";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.LoginData!.AccessToken);
@@ -197,7 +198,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserDataByUserId_Unauthorized_Returns_Unauthorized()
     {
         // Act
-        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userdata/all?UserId=1");
+        using HttpResponseMessage responseMessage = await _client.GetAsync("api/userdata/1/all");
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, (int)responseMessage.StatusCode);
@@ -209,7 +210,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
         // Arrange
         using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.PowerUser.ToString());
 
-        string query = "api/userdata/all?UserId=1";
+        string query = "api/userdata/1/all";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.LoginData!.AccessToken);

@@ -1,10 +1,10 @@
-﻿using DataManagerAPI.gRPCRepository.Abstractions.gRPCRequests;
+﻿using DataManagerAPI.gRPC.Abstractions.gRPCRequests;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Models;
 using ProtoBuf.Grpc;
 using System.ServiceModel;
 
-namespace DataManagerAPI.gRPCRepository.Abstractions.gRPCInterfaces;
+namespace DataManagerAPI.gRPC.Abstractions.gRPCInterfaces;
 
 /// <summary>
 /// Interface for UserRepository in gRPC server.

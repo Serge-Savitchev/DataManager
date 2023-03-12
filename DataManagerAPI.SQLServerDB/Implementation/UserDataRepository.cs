@@ -3,6 +3,7 @@ using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DataManagerAPI.SQLServerDB.Implementation;
 
@@ -12,20 +13,25 @@ namespace DataManagerAPI.SQLServerDB.Implementation;
 public class UserDataRepository : IUserDataRepository
 {
     private readonly UsersDBContext _context;
+    private readonly ILogger<UserDataRepository> _logger;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="context"><see cref="UsersDBContext"/></param>
-    public UserDataRepository(UsersDBContext context)
+    /// <param name="logger"></param>
+    public UserDataRepository(UsersDBContext context, ILogger<UserDataRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     /// <inheritdoc />
     public async Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userDataToAdd.UserId);
+
         var result = new ResultWrapper<UserData>
         {
             StatusCode = ResultStatusCodes.Status201Created,
@@ -43,15 +49,16 @@ public class UserDataRepository : IUserDataRepository
             userDataToAdd.UserFiles = new List<UserFile>();
             await _context.UserData.AddAsync(userDataToAdd, cancellationToken);
             _context.SaveChanges();
+
+            result.Data = userDataToAdd;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
 
-        result.Data = userDataToAdd;
+        _logger.LogInformation("Finished");
+
         return result;
     }
 
@@ -59,6 +66,8 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+
         var result = new ResultWrapper<UserData>
         {
             Success = true
@@ -73,24 +82,22 @@ public class UserDataRepository : IUserDataRepository
 
             if (userDataToDelete is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserDataId {userDataId} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
                 return result;
             }
 
             _context.UserData.Remove(userDataToDelete);
             await _context.SaveChangesAsync(cancellationToken);
+
+            result.Data = userDataToDelete;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
 
-        result.Data = userDataToDelete;
+        _logger.LogInformation("Finished");
+
         return result;
     }
 
@@ -98,6 +105,8 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+
         var result = new ResultWrapper<UserData>
         {
             Success = true
@@ -113,23 +122,21 @@ public class UserDataRepository : IUserDataRepository
 
             if (userData is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserDataId {userDataId} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
                 return result;
             }
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            result.Data = userData;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
 
-        result.Data = userData;
+        _logger.LogInformation("Finished");
+
         return result;
     }
 
@@ -137,6 +144,8 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId,
             CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId}", userId);
+
         var result = new ResultWrapper<UserData[]>
         {
             Success = true
@@ -156,15 +165,16 @@ public class UserDataRepository : IUserDataRepository
                 .Include(data => data.UserFiles)
                 .Where(y => y.UserId == userId)
                 .ToArrayAsync(cancellationToken);
+
+            result.Data = dataList;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
 
-        result.Data = dataList;
+        _logger.LogInformation("Finished");
+
         return result;
     }
 
@@ -172,6 +182,8 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate,
             CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userId},{userDataId}", userDataToUpdate.UserId, userDataToUpdate.Id);
+
         var result = new ResultWrapper<UserData>
         {
             Success = true
@@ -192,10 +204,7 @@ public class UserDataRepository : IUserDataRepository
 
             if (updatedUserData is null)
             {
-                result.Success = false;
-                result.StatusCode = ResultStatusCodes.Status404NotFound;
-                result.Message = $"UserDataId {userDataToUpdate.Id} not found";
-
+                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataToUpdate.Id} not found", _logger);
                 return result;
             }
 
@@ -203,21 +212,24 @@ public class UserDataRepository : IUserDataRepository
             updatedUserData.Data = userDataToUpdate.Data;
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            result.Data = updatedUserData;
         }
         catch (Exception ex)
         {
-            result.Success = false;
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
 
-        result.Data = updatedUserData;
+        _logger.LogInformation("Finished");
+
         return result;
     }
 
     /// <inheritdoc />
     public async Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Started:{userDataId}", userDataId);
+
         var result = new ResultWrapper<User>();
 
         try
@@ -235,17 +247,21 @@ public class UserDataRepository : IUserDataRepository
                     result.Success = true;
                     result.Data = foundUser;
                 }
+                else
+                {
+                    Helpers.LogNotFoundWarning(result, $"User owning UserData:{userDataId} not found", _logger);
+                }
             }
         }
         catch (Exception ex)
         {
-            result.Message = ex.Message;
-            result.StatusCode = ResultStatusCodes.Status500InternalServerError;
+            Helpers.LogException(result, ex, _logger);
         }
+
+        _logger.LogInformation("Finished");
 
         return result;
     }
-
 
     /// <summary>
     /// Searches for usser by Id.
@@ -261,19 +277,10 @@ public class UserDataRepository : IUserDataRepository
             Success = true
         };
 
-        try
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+        if (user is null)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
-            if (user is null)
-            {
-                throw new Exception();
-            }
-        }
-        catch (Exception)
-        {
-            result.Success = false;
-            result.StatusCode = ResultStatusCodes.Status404NotFound;
-            result.Message = $"UserId {userId} not found";
+            Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
         }
 
         return result;

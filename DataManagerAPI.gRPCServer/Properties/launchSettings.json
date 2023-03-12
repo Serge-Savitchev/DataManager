@@ -2,6 +2,7 @@
   "profiles": {
     "http": {
       "commandName": "Project",
+      "workingDirectory": "D:\\Work\\Source\\Learning\\DataManagerAPI\\DataManagerAPI.gRPCServer\\bin\\Debug\\net7.0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -24,11 +24,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.SQLServerDB"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.gRPCServer", "DataManagerAPI.gRPCServer\DataManagerAPI.gRPCServer.csproj", "{69C68E56-6C3F-490C-B128-AAF1A7DF43FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.gRPCRepository.Abstractions", "DataManagerAPI.gRPCRepository.Abstractions\DataManagerAPI.gRPCRepository.Abstractions.csproj", "{B7C23896-02D4-4F5D-8043-22B893508137}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.gRPC.Abstractions", "DataManagerAPI.gRPC.Abstractions\DataManagerAPI.gRPC.Abstractions.csproj", "{B7C23896-02D4-4F5D-8043-22B893508137}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{52FF3495-B287-4E1F-898E-52A54770DBAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadBigFiles", "DownloadBigFiles\DownloadBigFiles.csproj", "{03E0E13C-E660-4DEB-93EB-B9F696DE3408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DownloadBigFiles", "DownloadBigFiles\DownloadBigFiles.csproj", "{03E0E13C-E660-4DEB-93EB-B9F696DE3408}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagerAPI.NLogger", "DataManagerAPI.NLogger\DataManagerAPI.NLogger.csproj", "{7118700C-2956-4371-B5A1-70ABFD5903B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagerAPI.gRPCClient", "DataManagerAPI.gRPCClient\DataManagerAPI.gRPCClient.csproj", "{38048FAB-6E91-4D0F-B521-6E364F62D0D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +80,14 @@ Global
 		{03E0E13C-E660-4DEB-93EB-B9F696DE3408}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03E0E13C-E660-4DEB-93EB-B9F696DE3408}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03E0E13C-E660-4DEB-93EB-B9F696DE3408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7118700C-2956-4371-B5A1-70ABFD5903B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7118700C-2956-4371-B5A1-70ABFD5903B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7118700C-2956-4371-B5A1-70ABFD5903B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7118700C-2956-4371-B5A1-70ABFD5903B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38048FAB-6E91-4D0F-B521-6E364F62D0D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38048FAB-6E91-4D0F-B521-6E364F62D0D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38048FAB-6E91-4D0F-B521-6E364F62D0D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38048FAB-6E91-4D0F-B521-6E364F62D0D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
