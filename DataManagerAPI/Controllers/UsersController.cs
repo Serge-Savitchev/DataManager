@@ -45,7 +45,7 @@ public class UsersController : ControllerBase
 
         var result = await _service.DeleteUser(userId);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -67,7 +67,7 @@ public class UsersController : ControllerBase
 
         var result = await _service.GetUser(userId);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -88,7 +88,7 @@ public class UsersController : ControllerBase
 
         var result = await _service.GetAllUsers();
 
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -107,11 +107,11 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserDto[]>> GetUsersByRole([RoleValidation] string role)
     {
-        _logger.LogInformation("Started:{role}", role);
+        _logger.LogInformation("Started");
 
         var result = await _service.GetUsersByRole(role);
 
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -130,11 +130,10 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<int>> UpdateOwners([FromBody] UpdateOwnerRequestDto request)
     {
         _logger.LogInformation("Started");
-        _logger.LogDebug("{@request}", request);
 
         var result = await _service.UpdateOwners(request);
 
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }

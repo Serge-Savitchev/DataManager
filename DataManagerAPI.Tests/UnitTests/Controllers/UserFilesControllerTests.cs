@@ -43,6 +43,6 @@ public class UserFilesControllerTests
         var response = await controller.DeleteFile(0, 0) as ObjectResult;
 
         // Assert
-        Assert.Equal(StatusCodes.Status403Forbidden, (response!.Value as ResultWrapper<int>)!.StatusCode);
+        Assert.Equal(StatusCodes.Status403Forbidden, response!.StatusCode);
     }
 }

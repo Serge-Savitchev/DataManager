@@ -54,21 +54,20 @@ public class AuthController : ControllerBase
             var currentUser = GetCurrentUser();
             if (currentUser == null)
             {
-                _logger.LogWarning("Finished:{StatusCode}", StatusCodes.Status401Unauthorized);
+                _logger.LogWarning("Finished:{StatusCode},{login}", StatusCodes.Status401Unauthorized, user.Login);
                 return StatusCode(StatusCodes.Status401Unauthorized);
             }
 
             if (Enum.Parse<RoleIds>(currentUser.User!.Role, true) != RoleIds.Admin)
             {
-                _logger.LogWarning("Finished:{StatusCode}", StatusCodes.Status403Forbidden);
+                _logger.LogWarning("Finished:{StatusCode},{login}", StatusCodes.Status403Forbidden, user.Login);
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
         }
 
         var result = await _service.RegisterUser(user, cancellationToken);
 
-        _logger.LogDebug("{@result}", result);
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -87,11 +86,10 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<LoginUserResponseDto>> Login([FromBody] LoginUserDto user, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started");
-        _logger.LogDebug("{login}", user.Login);
 
         var result = await _service.Login(user, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, result.Data != null ? result.Data.Id : 0);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -118,7 +116,7 @@ public class AuthController : ControllerBase
 
         _service.LogOut(currentUser.User!.Id);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", StatusCodes.Status200OK, currentUser.User!.Id);
+        _logger.LogInformation("Finished");
 
         return Ok();
     }
@@ -147,7 +145,7 @@ public class AuthController : ControllerBase
 
         var result = await _service.Revoke(currentUser.User!.Id, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, currentUser.User!.Id);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode);
     }
@@ -168,15 +166,10 @@ public class AuthController : ControllerBase
         _logger.LogInformation("Started");
 
         ResultWrapper<TokenApiModelDto> result = await _service.RefreshToken(tokens, cancellationToken);
-        if (!result.Success)
-        {
-            _logger.LogWarning("Finished:{StatusCode}", result.StatusCode);
-            return StatusCode(result.StatusCode, result.Message);
-        }
 
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished");
 
-        return Ok(result.Data);
+        return StatusCode(result.StatusCode, result.Data);
     }
 
     /// <summary>
@@ -199,7 +192,7 @@ public class AuthController : ControllerBase
 
         ResultWrapper<int> result = await _service.UpdateUserPassword(userId, newPassword, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode);
     }
@@ -228,7 +221,7 @@ public class AuthController : ControllerBase
 
         var result = await _service.UpdateUserPassword(currentUser.User!.Id, newPassword, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, currentUser.User!.Id);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode);
     }
@@ -255,13 +248,13 @@ public class AuthController : ControllerBase
 
         if (userId == 1)
         {
-            _logger.LogWarning("Finished:{StatusCode}", StatusCodes.Status403Forbidden);
+            _logger.LogWarning("Finished:{StatusCode}{id},{role}", StatusCodes.Status403Forbidden, userId, newRole);
             return StatusCode(StatusCodes.Status403Forbidden);  // can't change role for default admin
         }
 
         var result = await _service.UpdateUserRole(userId, newRole, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -285,7 +278,7 @@ public class AuthController : ControllerBase
 
         var result = await _service.GetUserDetails(userId, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }

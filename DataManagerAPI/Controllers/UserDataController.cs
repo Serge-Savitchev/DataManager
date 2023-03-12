@@ -52,9 +52,9 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.AddUserData(permission.UserId, 0, data);
+        ResultWrapper<UserDataDto> result = await _service.AddUserData(permission.UserId, data);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, permission.UserId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -81,16 +81,14 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-                permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto> result = await _service.UpdateUserData(permission.UserId, userDataId, data);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-            result.StatusCode, permission.UserId, userDataId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -115,16 +113,14 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-                permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto> result = await _service.DeleteUserData(permission.UserId, userDataId);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-            result.StatusCode, permission.UserId, userDataId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -149,16 +145,14 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-                permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto> result = await _service.GetUserData(permission.UserId, userDataId);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id},UserDataId:{userDataId}",
-            result.StatusCode, permission.UserId, userDataId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }
@@ -179,13 +173,13 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", permission.Code, permission.UserId);
+            _logger.LogInformation("Finished:{StatusCode},{Id}", permission.Code, permission.UserId);
             return StatusCode(permission.Code);
         }
 
         ResultWrapper<UserDataDto[]> result = await _service.GetUserDataByUserId(permission.UserId);
 
-        _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", result.StatusCode, permission.UserId);
+        _logger.LogInformation("Finished");
 
         return StatusCode(result.StatusCode, result.Data);
     }

@@ -162,11 +162,14 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         }
     }
 
-    [Fact]
-    public async Task UploadFile_Incorrect_UserDataId_Returns_BadRequest()
+    [Theory]
+    [InlineData(StatusCodes.Status403Forbidden)]    // expected status code
+    [InlineData(StatusCodes.Status400BadRequest)]   // expected status code
+    public async Task UploadFile_Incorrect_UserDataId_Returns_StatusCode(int statusCode)
     {
         // Arrange
         (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIds.User);
+        (RegisteredUserTestData User, UserDataDto UserData) otherUserData = await CreateUserData(RoleIds.ReadOnlyUser);
 
         try
         {
@@ -180,8 +183,13 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
 
             multipartContent.Add(fileContent, "multipart/form-data", "fake.bin");
 
+            // set userData Id in accordance with expected status code
+            int userDataId = statusCode == StatusCodes.Status403Forbidden ?
+                otherUserData.UserData.Id :     // real existing user data. expect Status403Forbidden
+                200000;                         // non-existent user data. expect Status400BadRequest
+
             using var request = new HttpRequestMessage(HttpMethod.Post,
-                $"api/userfiles/{newUserData.UserData.Id + 1}/0?bigFile=false")
+                $"api/userfiles/{userDataId}/0?bigFile=false")
             {
                 Content = multipartContent
             };
@@ -192,11 +200,12 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
             using HttpResponseMessage responseMessage = await _client.SendAsync(request);
 
             // Assert
-            Assert.Equal(StatusCodes.Status400BadRequest, (int)responseMessage.StatusCode);
+            Assert.Equal(statusCode, (int)responseMessage.StatusCode);
         }
         finally
         {
             newUserData.User?.Dispose();
+            otherUserData.User?.Dispose();
         }
     }
     #endregion

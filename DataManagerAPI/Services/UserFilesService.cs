@@ -38,20 +38,22 @@ public class UserFilesService : IUserFilesService
     public async Task<ResultWrapper<int>> DeleteFile(CurrentUserDto? currentUser, int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId},{fileId}", currentUser?.User?.Id, userDataId, fileId);
+        _logger.LogInformation("Started:{id},{userDataId},{fileId}", currentUser?.User?.Id, userDataId, fileId);
 
         var permissions = await CheckPermissions(currentUser, userDataId, cancellationToken);
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
             var ret = new ResultWrapper<int> { StatusCode = permissions };
-            _logger.LogWarning("Finished:{@ret}", ret);
+            _logger.LogWarning("Finished:{StatusCode},{id},{userDataId},{fileId}",
+                ret.StatusCode, currentUser?.User?.Id, userDataId, fileId);
             return ret;
         }
 
         var result = await _repository.DeleteFileAsync(userDataId, fileId, cancellationToken);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id},{userDataId},{fileId}",
+            result.StatusCode, currentUser?.User?.Id, userDataId, fileId);
 
         return result;
     }
@@ -60,14 +62,16 @@ public class UserFilesService : IUserFilesService
     public async Task<ResultWrapper<UserFileStreamDto>> DownloadFile(CurrentUserDto? currentUser, int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId},{fileId}", currentUser?.User?.Id, userDataId, fileId);
+        _logger.LogInformation("Started:{id},{userDataId},{fileId}", currentUser?.User?.Id, userDataId, fileId);
 
         var permissions = await CheckPermissions(currentUser, userDataId, cancellationToken);
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
             var ret = new ResultWrapper<UserFileStreamDto> { StatusCode = permissions };
-            _logger.LogWarning("Finished:{@ret}", ret);
+            _logger.LogWarning("Finished:{StatusCode},{id},{userDataId},{fileId}",
+                ret.StatusCode, currentUser?.User?.Id, userDataId, fileId);
+
             return ret;
         }
 
@@ -80,7 +84,8 @@ public class UserFilesService : IUserFilesService
             Data = res.Data != null ? _mapper.Map<UserFileStreamDto>(res.Data) : null
         };
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id},{userDataId},{fileId},{name}",
+            result.StatusCode, currentUser?.User?.Id, userDataId, fileId, result.Data?.Name);
 
         return result;
     }
@@ -89,14 +94,16 @@ public class UserFilesService : IUserFilesService
     public async Task<ResultWrapper<UserFileDto[]>> GetList(CurrentUserDto? currentUser, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", currentUser?.User?.Id, userDataId);
+        _logger.LogInformation("Started:{id},{userDataId}", currentUser?.User?.Id, userDataId);
 
         var permissions = await CheckPermissions(currentUser, userDataId, cancellationToken);
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
             var ret = new ResultWrapper<UserFileDto[]> { StatusCode = permissions };
-            _logger.LogWarning("Finished:{@ret}", ret);
+            _logger.LogWarning("Finished:{StatusCode},{id},{userDataId}",
+                ret.StatusCode, currentUser?.User?.Id, userDataId);
+
             return ret;
         }
 
@@ -110,7 +117,8 @@ public class UserFilesService : IUserFilesService
             Data = res.Data?.Select(x => _mapper.Map<UserFileDto>(x)).ToArray()
         };
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id},{userDataId},{length}",
+            result.StatusCode, currentUser?.User?.Id, userDataId, result.Data?.Length);
 
         return result;
     }
@@ -119,14 +127,16 @@ public class UserFilesService : IUserFilesService
     public async Task<ResultWrapper<UserFileDto>> UploadFile(CurrentUserDto? currentUser, UserFileStreamDto fileStream,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId},{fileId}", currentUser?.User?.Id, fileStream.UserDataId, fileStream.Id);
+        _logger.LogInformation("Started:{userId},{userDataId},{fileId},{name}",
+            currentUser?.User?.Id, fileStream.UserDataId, fileStream.Id, fileStream.Name);
 
         var permissions = await CheckPermissions(currentUser, fileStream.UserDataId, cancellationToken);
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
             var ret = new ResultWrapper<UserFileDto> { StatusCode = permissions };
-            _logger.LogWarning("Finished:{@ret}", ret);
+            _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId},{fileId},{name}",
+                ret.StatusCode, currentUser?.User?.Id, fileStream.UserDataId, fileStream.Id, fileStream.Name);
             return ret;
         }
 
@@ -140,7 +150,8 @@ public class UserFilesService : IUserFilesService
             Data = res.Data != null ? _mapper.Map<UserFileDto>(res.Data) : null
         };
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId},{fileId},{name}",
+            result.StatusCode, currentUser?.User?.Id, fileStream.UserDataId, fileStream.Id, result.Data?.Name);
 
         return result;
     }

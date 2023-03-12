@@ -76,14 +76,13 @@ public class UserFilesController : ControllerBase
         ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
-            _logger.LogInformation("Finished:{StatusCode}", ret.StatusCode);
+            _logger.LogWarning("Finished:{StatusCode}", ret.StatusCode);
             return StatusCode(ret.StatusCode);
         }
 
-        new FileExtensionContentTypeProvider()
-                        .TryGetContentType(ret.Data!.Name, out string? contentType);
+        new FileExtensionContentTypeProvider().TryGetContentType(ret.Data!.Name, out string? contentType);
 
-        _logger.LogInformation("Finished:{StatusCode},Size:{size}", ret.StatusCode, ret.Data.Size);
+        _logger.LogInformation("Finished");
 
         return File(ret.Data.Content!, contentType ?? "application/octet-stream", ret.Data.Name);
     }
@@ -106,9 +105,9 @@ public class UserFilesController : ControllerBase
 
         ResultWrapper<UserFileDto[]> ret = await _service.GetList(GetCurrentUser(), userDataId, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode}", ret.StatusCode);
+        _logger.LogInformation("Finished");
 
-        return ret.Success ? Ok(ret.Data) : StatusCode(ret.StatusCode);
+        return StatusCode(ret.StatusCode, ret.Data);
     }
 
     /// <summary>
@@ -128,9 +127,9 @@ public class UserFilesController : ControllerBase
 
         ResultWrapper<int> ret = await _service.DeleteFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
 
-        _logger.LogInformation("Finished:{@ret}", ret);
+        _logger.LogInformation("Finished");
 
-        return StatusCode(ret.StatusCode, ret);
+        return StatusCode(ret.StatusCode, ret.Data);
     }
 
     /// <summary>
@@ -166,9 +165,9 @@ public class UserFilesController : ControllerBase
         var file = new UserFile { Id = fileId, UserDataId = userDataId };
         ResultWrapper<UserFileDto> ret = await UploadFileInternal(reader, file, flagBigFile, cancellationToken);
 
-        _logger.LogInformation("Finished:{StatusCode},Size:{size}", ret.StatusCode, Request.ContentLength);
+        _logger.LogInformation("Finished");
 
-        return ret.Success ? Ok(ret.Data) : StatusCode(ret.StatusCode);
+        return StatusCode(ret.StatusCode, ret.Data);
     }
 
     private async Task<ResultWrapper<UserFileDto>> UploadFileInternal(MultipartReader reader, UserFile file, bool flagBigFile,

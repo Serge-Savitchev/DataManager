@@ -4,6 +4,7 @@ using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
 using DataManagerAPI.Services.Interfaces;
+using StackExchange.Redis;
 using System.Data;
 
 namespace DataManagerAPI.Services;
@@ -31,15 +32,14 @@ public class UsersService : IUsersService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto>> DeleteUser(int userId,
-        CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<UserDto>> DeleteUser(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:{id}", userId);
 
         var result = await _repository.DeleteUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id}", ret.StatusCode, userId);
 
         return ret;
     }
@@ -51,7 +51,8 @@ public class UsersService : IUsersService
 
         var result = await _repository.GetAllUsersAsync(cancellationToken);
         var ret = ConvertWrapper(result);
-        _logger.LogInformation("Finished");
+
+        _logger.LogInformation("Finished:{StatusCode},{length}", ret.StatusCode, ret.Data?.Length);
 
         return ret;
     }
@@ -65,7 +66,7 @@ public class UsersService : IUsersService
         var result = await _repository.GetUserAsync(userId, cancellationToken);
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id}", ret.StatusCode, userId);
 
         return ret;
     }
@@ -80,7 +81,7 @@ public class UsersService : IUsersService
             cancellationToken);
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{role},{length}", ret.StatusCode, role, ret.Data?.Length);
 
         return ret;
     }
@@ -89,14 +90,13 @@ public class UsersService : IUsersService
     public async Task<ResultWrapper<int>> UpdateOwners(UpdateOwnerRequestDto request,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", request.OwnerId);
+        _logger.LogInformation("Started:{id}", request.OwnerId);
 
-        var result = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds,
-            cancellationToken);
+        var ret = await _repository.UpdateOwnersAsync(request.OwnerId, request.UserIds, cancellationToken);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{id},{data}", ret.StatusCode, request.OwnerId, ret.Data);
 
-        return result;
+        return ret;
     }
 
     private ResultWrapper<UserDto> ConvertWrapper(ResultWrapper<User> source)

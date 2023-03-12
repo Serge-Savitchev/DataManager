@@ -31,10 +31,10 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, int userDataId, AddUserDataDto userDataToAdd,
+    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, AddUserDataDto userDataToAdd,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:{userId}", userId);
 
         var userData = _mapper.Map<UserData>(userDataToAdd);
         userData.UserId = userId;
@@ -44,7 +44,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, ret.Data?.Id);
         return ret;
     }
 
@@ -58,7 +58,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }
@@ -73,7 +73,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }
@@ -93,7 +93,7 @@ public class UserDataService : IUserDataService
             StatusCode = result.StatusCode
         };
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{count}", ret.StatusCode, userId, ret.Data?.Length);
 
         return ret;
     }
@@ -112,7 +112,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }
