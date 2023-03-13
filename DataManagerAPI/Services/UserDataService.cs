@@ -34,7 +34,7 @@ public class UserDataService : IUserDataService
     public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, AddUserDataDto userDataToAdd,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var userData = _mapper.Map<UserData>(userDataToAdd);
         userData.UserId = userId;
@@ -44,7 +44,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, ret.Data?.Id);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", ret.StatusCode, userId, ret.Data?.Id);
         return ret;
     }
 
@@ -52,13 +52,13 @@ public class UserDataService : IUserDataService
     public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
 
         var result = await _repository.DeleteUserDataAsync(userId, userDataId, cancellationToken);
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }
@@ -67,13 +67,13 @@ public class UserDataService : IUserDataService
     public async Task<ResultWrapper<UserDataDto>> GetUserData(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
 
         var result = await _repository.GetUserDataAsync(userId, userDataId, cancellationToken);
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }
@@ -82,7 +82,7 @@ public class UserDataService : IUserDataService
     public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = await _repository.GetUserDataByUserIdAsync(userId, cancellationToken);
         var ret = new ResultWrapper<UserDataDto[]>()
@@ -93,7 +93,7 @@ public class UserDataService : IUserDataService
             StatusCode = result.StatusCode
         };
 
-        _logger.LogInformation("Finished:{StatusCode},{userId},{count}", ret.StatusCode, userId, ret.Data?.Length);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},length:{length}", ret.StatusCode, userId, ret.Data?.Length);
 
         return ret;
     }
@@ -102,7 +102,7 @@ public class UserDataService : IUserDataService
     public async Task<ResultWrapper<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
 
         var userData = _mapper.Map<UserData>(userDataToUpdate);
         userData.UserId = userId;
@@ -112,7 +112,7 @@ public class UserDataService : IUserDataService
 
         var ret = ConvertWrapper(result);
 
-        _logger.LogInformation("Finished:{StatusCode},{userId},{userDataId}", ret.StatusCode, userId, userDataId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", ret.StatusCode, userId, userDataId);
 
         return ret;
     }

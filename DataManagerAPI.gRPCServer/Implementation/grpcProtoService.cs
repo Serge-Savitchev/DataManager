@@ -59,7 +59,7 @@ public class gRPCProtoService : ProtoServiceBase
 
             int count = 0;
 
-            _logger.LogInformation("Copying file content to temporary file");
+            _logger.LogDebug("Copying file content to temporary file");
 
             // read content of the file and write it to temporary file
             await foreach (Grpc.UserFileStream message in requestStream.ReadAllAsync(context.CancellationToken))
@@ -96,7 +96,7 @@ public class gRPCProtoService : ProtoServiceBase
             await using var bufferedStream = new BufferedStream(inputStream, _bufferSizeForStreamCopy);
             repositoryRequest.Content = bufferedStream;
 
-            _logger.LogDebug("Call repository");
+            _logger.LogDebug("Calling repository");
             // call repository
             ResultWrapper<Repository.Abstractions.Models.UserFile> repositoryResult =
                 await _repository.UploadFileAsync(repositoryRequest, context.CancellationToken);
@@ -126,7 +126,7 @@ public class gRPCProtoService : ProtoServiceBase
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = StatusCodes.Status500InternalServerError;
-            _logger.LogError(ex, "{@result}", result);
+            _logger.LogError(ex, "{@wrapper}", result);
         }
         finally
         {
@@ -212,7 +212,7 @@ public class gRPCProtoService : ProtoServiceBase
             result.Success = false;
             result.Message = ex.Message;
             result.StatusCode = StatusCodes.Status500InternalServerError;
-            _logger.LogError(ex, "{@result}", result);
+            _logger.LogError(ex, "{@wrapper}", result);
         }
 
         _logger.LogInformation("Finished");

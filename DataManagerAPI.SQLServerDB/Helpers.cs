@@ -38,6 +38,6 @@ public static class Helpers
         wrapper.Success = false;
         wrapper.Message = message;
         wrapper.StatusCode = ResultStatusCodes.Status404NotFound;
-        logger.LogWarning("Finished:{@result}", wrapper);
+        logger.LogWarning("Finished:{StatusCode},{message},message:not found", wrapper.StatusCode, message);
     }
 }

@@ -18,7 +18,7 @@ internal static class UsersForTestsHelper
             _uniqueUserNumber++;
             string newNumber = _uniqueUserNumber.ToString("D4");
 
-            RegisteredUserDto user = new RegisteredUserDto
+            var user = new RegisteredUserDto
             {
                 FirstName = $"FirstName{newNumber}",
                 LastName = $"LastName{newNumber}",
@@ -94,7 +94,7 @@ internal static class UsersForTestsHelper
         return registredUser!;
     }
 
-    private static async Task<RegisteredUserTestData?> RegisterNewUser(HttpClient client, RegisteredUserTestData? newUser)
+    public static void LoginDefaultAdmin(HttpClient client)
     {
         RegisteredUserTestData defaultAdmin = _registerList[0];
 
@@ -106,11 +106,14 @@ internal static class UsersForTestsHelper
                 Password = defaultAdmin.RegisteredUser.Password
             };
 
-            using var responseMessage1 = await client.PostAsJsonAsync("api/auth/login", requestData);
-            LoginUserResponseDto response = await responseMessage1.Content.ReadAsAsync<LoginUserResponseDto>();
+            using var responseMessage1 = client.PostAsJsonAsync("api/auth/login", requestData).Result;
+            LoginUserResponseDto response = responseMessage1.Content.ReadAsAsync<LoginUserResponseDto>().Result;
             defaultAdmin.LoginData = response;
         }
+    }
 
+    private static async Task<RegisteredUserTestData?> RegisterNewUser(HttpClient client, RegisteredUserTestData? newUser)
+    {
         if (newUser == null)
         {
             return null;
@@ -124,10 +127,10 @@ internal static class UsersForTestsHelper
         };
 
         // register user with "Admin" and "PowerUser" roles
-        // requires authentication of default admin
+        // requires authentication of admin. use default admin for that.
         if (role == RoleIds.Admin || role == RoleIds.PowerUser)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", defaultAdmin.LoginData!.AccessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _registerList[0].LoginData!.AccessToken);
         }
         using HttpResponseMessage responseMessage = await client.SendAsync(request);
 

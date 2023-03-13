@@ -14,7 +14,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 
-string sourceDatabaseType = builder.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
+string sourceDatabaseType = builder.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? "";
 if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
 {
     builder.Services.AddScoped<IUserFilesRepository, UserFilesRepository>();
@@ -47,7 +47,23 @@ else
 
 builder.Services.AddCodeFirstGrpc(options => { options.MaxReceiveMessageSize = null; });
 
-builder.SetupNLogConfiguration();
+builder.SetupNLogConfiguration(x =>
+{
+    // remove "${aspnet-request-url..." from template
+    string lower = x.ToLower();
+
+    int urlindex = lower.IndexOf("|${aspnet-request-url");
+    if (urlindex >= 0)
+    {
+        int endIndex = lower.IndexOf("}", urlindex);
+        if (endIndex > urlindex)
+        {
+            x = x.Remove(urlindex, endIndex - urlindex + 1);
+        }
+    }
+
+    return x;
+});
 
 var app = builder.Build();
 
@@ -58,5 +74,8 @@ app.MapGrpcService<gRPCUsersRepository>();
 app.MapGrpcService<gRPCUserDataRepository>();
 app.MapGrpcService<gRPCUserFilesRepository>();
 app.MapGrpcService<gRPCProtoService>();
+
+Console.WriteLine($"Current directory:{Directory.GetCurrentDirectory()}");
+Console.WriteLine($"Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
 
 app.Run();

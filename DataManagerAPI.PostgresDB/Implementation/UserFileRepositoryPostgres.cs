@@ -54,7 +54,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> DeleteFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId}", userDataId, fileId);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId}", userDataId, fileId);
 
         var result = new ResultWrapper<int>
         {
@@ -83,8 +83,9 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
             if (oid == null)    // there is no such record
             {
-                Helpers.LogNotFoundWarning(result, $"File {fileId} in UserData {userDataId} not found", _logger);
-                return result;  // nothing to delete
+                Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId},fileId:{fileId}", _logger);
+                _logger.LogInformation("Finished");
+                return result;
             }
 
             if (oid.Value != 0) // delete BLOB
@@ -105,7 +106,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId}",
+            result.StatusCode, userDataId, fileId);
 
         return result;
     }
@@ -120,7 +122,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
     private async Task<ResultWrapper<FileInfo>> GetFileInformation(int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started");
+        _logger.LogInformation("Started:userDataId{userDataId},fileId{fileId}", userDataId, fileId);
 
         var result = new ResultWrapper<FileInfo>();
 
@@ -163,7 +165,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished:{@data}", result.Data);
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId}",
+                    result.StatusCode, userDataId, fileId);
 
         return result;
     }
@@ -246,7 +249,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserFileStream>> DownloadFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId}", userDataId, fileId);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId}", userDataId, fileId);
 
         var result = new ResultWrapper<UserFileStream>();
 
@@ -256,13 +259,20 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             result.StatusCode = info.StatusCode;
             result.Message = info.Message;
 
-            _logger.LogInformation("Finished");
+            if (info.StatusCode == ResultStatusCodes.Status404NotFound)
+            {
+                Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId},fileId:{fileId}", _logger);
+            }
 
+            _logger.LogInformation("Finished");
             return result;
         }
 
         try
         {
+            _logger.LogDebug("name:{name},size:{size},bigfile:{bigFile}",
+                info.Data?.FileName, info.Data?.FileSize, info.Data?.Oid != 0);
+
             if (info.Data!.Oid != 0)    // big file
             {
                 return await DownloadBigFile(userDataId, fileId, info.Data, cancellationToken);
@@ -277,7 +287,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name},size:{size}",
+            result.StatusCode, userDataId, fileId, result.Data?.Name, result.Data?.Size);
 
         return result;
     }
@@ -285,7 +296,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserFile[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId}", userDataId);
+        _logger.LogInformation("Started:userDataId:{userDataId}", userDataId);
 
         var result = new ResultWrapper<UserFile[]>
         {
@@ -297,6 +308,7 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             var userData = await FindUserData<UserFile[]>(userDataId, cancellationToken);
             if (!userData.Success)  // there is no UserData item
             {
+                _logger.LogInformation("Finished");
                 return userData;
             }
 
@@ -307,7 +319,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},length:{length}",
+            result.StatusCode, userDataId, result.Data?.Length);
 
         return result;
     }
@@ -315,7 +328,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserFile>> UploadFileAsync(UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId},{name}", fileStream.UserDataId, fileStream.Id, fileStream.Name);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId},name:{name}",
+            fileStream.UserDataId, fileStream.Id, fileStream.Name);
 
         var result = new ResultWrapper<UserFile>
         {
@@ -324,6 +338,13 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
 
         try
         {
+            var userData = await FindUserData<UserFile>(fileStream.UserDataId, cancellationToken);
+            if (!userData.Success)  // there is no UserData item
+            {
+                _logger.LogInformation("Finished");
+                return userData;
+            }
+
             ResultWrapper<FileInfo> info = await GetFileInformation(fileStream.UserDataId, fileStream.Id, cancellationToken);
 
             if (info.Data == null && fileStream.Id != 0) // file doesn't exist, but Id is not 0.
@@ -331,7 +352,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
                 result.Success = false;
                 result.Message = "FileId not equal 0 is not allowed for new file";
                 result.StatusCode = ResultStatusCodes.Status400BadRequest;
-                _logger.LogWarning("Finished:{@result}", result);
+                _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name},message:{message}",
+                    result.StatusCode, fileStream.UserDataId, fileStream.Id, fileStream.Name, result.Message);
 
                 return result;
             }
@@ -355,7 +377,8 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished:{@data}", result.Data);
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name}",
+            result.StatusCode, fileStream.UserDataId, fileStream.Id, fileStream.Name);
 
         return result;
     }
@@ -503,10 +526,9 @@ public class UserFileRepositoryPostgres : IUserFilesRepository
         var userData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId, cancellationToken);
         if (userData is null)
         {
-            Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
+            Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId}", _logger);
         }
 
         return result;
     }
-
 }

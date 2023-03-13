@@ -49,7 +49,7 @@ public class AuthService : IAuthService
     public async Task<ResultWrapper<UserDto>> RegisterUser(RegisteredUserDto userToAdd
         , CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{login}", userToAdd.Login);
+        _logger.LogInformation("Started:login:{login}", userToAdd.Login);
 
         UserCredentials userCredentials = _userPasswordService.CreatePasswordHash(userToAdd.Password);
         userCredentials.Login = userToAdd.Login;
@@ -64,7 +64,7 @@ public class AuthService : IAuthService
             StatusCode = result.StatusCode
         };
 
-        _logger.LogInformation("Finished:{StatusCode},{id},{login},{role}",
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},login:{login},role:{role}",
             ret.StatusCode, ret.Data?.Id, userToAdd.Login, ret.Data?.Role);
 
         return ret;
@@ -74,7 +74,7 @@ public class AuthService : IAuthService
     public async Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData
         , CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{login}", loginData.Login);
+        _logger.LogInformation("Started:login:{login}", loginData.Login);
 
         var result = new ResultWrapper<LoginUserResponseDto>
         {
@@ -87,7 +87,7 @@ public class AuthService : IAuthService
         {
             result.Message = userDetails.Message;
             result.StatusCode = userDetails.StatusCode;
-            _logger.LogWarning("Finished:{StatusCode},{login}", result.StatusCode, loginData.Login);
+            _logger.LogWarning("Finished:{StatusCode},login:{login}", result.StatusCode, loginData.Login);
 
             return result;
         }
@@ -95,9 +95,9 @@ public class AuthService : IAuthService
         if (!_userPasswordService
             .VerifyPasswordHash(loginData.Password, userDetails.Data!.Credentials!.PasswordHash))
         {
-            result.Message = "Invalide login or password";
+            result.Message = "Invalid login or password";
             result.StatusCode = StatusCodes.Status401Unauthorized;
-            _logger.LogWarning("Finished:{StatusCode},{login},{message}", result.StatusCode, loginData.Login, result.Message);
+            _logger.LogWarning("Finished:{StatusCode},login:{login},message:{message}", result.StatusCode, loginData.Login, result.Message);
 
             return result;
         }
@@ -125,7 +125,7 @@ public class AuthService : IAuthService
 
         _loggedOutUsersCollectionService.Remove(result.Data.Id);
 
-        _logger.LogInformation("Finished:{StatusCode},{login},{id}", result.StatusCode, loginData.Login, result.Data.Id);
+        _logger.LogInformation("Finished:{StatusCode},login:{login},userId:{userId}", result.StatusCode, loginData.Login, result.Data.Id);
 
         return result;
     }
@@ -133,17 +133,17 @@ public class AuthService : IAuthService
     /// <inheritdoc />
     public void LogOut(int userId)
     {
-        _logger.LogInformation("Started:{id}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         _loggedOutUsersCollectionService.Add(userId);
 
-        _logger.LogInformation("Finished:{StatusCode},{id}", StatusCodes.Status200OK, userId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", StatusCodes.Status200OK, userId);
     }
 
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> Revoke(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{id}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = await _repository.RefreshTokenAsync(userId, null, cancellationToken);
         if (result.Success)
@@ -151,7 +151,7 @@ public class AuthService : IAuthService
             _loggedOutUsersCollectionService.Add(userId);
         }
 
-        _logger.LogInformation("Finished:{StatusCode},{id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }
@@ -171,7 +171,7 @@ public class AuthService : IAuthService
         if (principal is null)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
-            _logger.LogWarning("Finished:{StatusCode},{message}", result.StatusCode, "principal is null");
+            _logger.LogWarning("Finished:{StatusCode},message:{message}", result.StatusCode, "principal is null");
             return result;
         }
 
@@ -179,7 +179,7 @@ public class AuthService : IAuthService
         if (user is null)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
-            _logger.LogWarning("Finished:{StatusCode},{message}", result.StatusCode, "user is null");
+            _logger.LogWarning("Finished:{StatusCode},message:{message}", result.StatusCode, "user is null");
             return result;
         }
 
@@ -188,14 +188,14 @@ public class AuthService : IAuthService
         {
             result.StatusCode = userDetails.StatusCode;
             result.Message = userDetails.Message;
-            _logger.LogWarning("Finished:{StatusCode},{message}", result.StatusCode, result.Message);
+            _logger.LogWarning("Finished:{StatusCode},userId:{userId},message:{message}", result.StatusCode, user.User.Id, result.Message);
             return result;
         }
 
         if (userDetails.Data!.Credentials!.RefreshToken != tokenData!.RefreshToken)
         {
             result.StatusCode = StatusCodes.Status401Unauthorized;
-            _logger.LogWarning("Finished:{StatusCode},{message}", result.StatusCode, "Finished: incorrect refresh token");
+            _logger.LogWarning("Finished:{StatusCode},userId:{userId},message:{message}", result.StatusCode, user.User.Id, "Finished: incorrect refresh token");
             return result;
         }
 
@@ -213,7 +213,7 @@ public class AuthService : IAuthService
             _loggedOutUsersCollectionService.Add(user.User!.Id);
         }
 
-        _logger.LogInformation("Finished:{StatusCode}", result.StatusCode);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, user.User.Id);
 
         return result;
     }
@@ -221,7 +221,7 @@ public class AuthService : IAuthService
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{id}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var credentials = _userPasswordService.CreatePasswordHash(newPassword);
 
@@ -232,7 +232,7 @@ public class AuthService : IAuthService
             _loggedOutUsersCollectionService.Add(userId);
         }
 
-        _logger.LogInformation("Finished:{StatusCode},{id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }
@@ -240,7 +240,7 @@ public class AuthService : IAuthService
     /// <inheritdoc />
     public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{id},{role}", userId, newRole);
+        _logger.LogInformation("Started:userId:{userId},role:{role}", userId, newRole);
 
         var result = new ResultWrapper<string>
         {
@@ -254,7 +254,7 @@ public class AuthService : IAuthService
             result.StatusCode = res.StatusCode;
             result.Message = res.Message;
 
-            _logger.LogWarning("Finished:{StatusCode}{id},{role}", result.StatusCode, userId, newRole);
+            _logger.LogWarning("Finished:{StatusCode}userId:{userId},role:{role}", result.StatusCode, userId, newRole);
 
             return result;
         }
@@ -263,7 +263,7 @@ public class AuthService : IAuthService
 
         _loggedOutUsersCollectionService.Add(userId);
 
-        _logger.LogInformation("Finished:{StatusCode},{id},{role}", result.StatusCode, userId, newRole);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},role:{role}", result.StatusCode, userId, newRole);
 
         return result;
     }
@@ -271,7 +271,7 @@ public class AuthService : IAuthService
     /// <inheritdoc />
     public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{id}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var userDetails = await _repository.GetUserDetailsByIdAsync(userId, cancellationToken);
 
@@ -288,7 +288,7 @@ public class AuthService : IAuthService
             result.Data.Login = userDetails.Data.Credentials!.Login;
         }
 
-        _logger.LogInformation("Finished:{StatusCode},{id}", result.StatusCode, userId);
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }

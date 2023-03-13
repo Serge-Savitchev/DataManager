@@ -14,12 +14,12 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
 
     public AuthServiceTests(CustomWebApplicationFactory<Program> factory)
     {
+        DatabaseFixture.PrepareDatabase(factory);
+
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
         });
-
-        DatabaseFixture.PrepareDatabase(factory);
     }
 
     #region Revoke

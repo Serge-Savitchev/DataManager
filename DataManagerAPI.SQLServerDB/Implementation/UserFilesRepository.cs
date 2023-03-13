@@ -55,7 +55,7 @@ public class UserFilesRepository : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<int>> DeleteFileAsync(int userDataId, int fileId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId}", userDataId, fileId);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId}", userDataId, fileId);
 
         var result = new ResultWrapper<int>
         {
@@ -68,14 +68,13 @@ public class UserFilesRepository : IUserFilesRepository
             var record = await _context.UserFiles.FirstOrDefaultAsync(x => x.Id == fileId && x.UserDataId == userDataId, cancellationToken);
             if (record != null) // record exists
             {
-                _logger.LogDebug("Deleting record");
-
                 _context.UserFiles.Remove(record);
                 await _context.SaveChangesAsync(cancellationToken);
             }
             else
             {
-                Helpers.LogNotFoundWarning(result, $"File {fileId} in UserData {userDataId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId},fileId:{fileId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
         }
@@ -84,7 +83,8 @@ public class UserFilesRepository : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId}",
+            result.StatusCode, userDataId, fileId);
 
         return result;
     }
@@ -93,7 +93,7 @@ public class UserFilesRepository : IUserFilesRepository
     public async Task<ResultWrapper<UserFileStream>> DownloadFileAsync(int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId}", userDataId, fileId);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId}", userDataId, fileId);
 
         var result = new ResultWrapper<UserFileStream>();
         try
@@ -107,7 +107,7 @@ public class UserFilesRepository : IUserFilesRepository
             string? fileName = null;
 
             var request = $"SELECT LEN(Content), LEN(Data), Size, Name FROM {dbName}.dbo.UserFiles" +
-                $" WHERE Id={fileId} AND UserDataId={userDataId}";
+                $" WHERE Id=fileId:{fileId} AND UserDataId=userDataId:{userDataId}";
 
             var sqlCommand = new SqlCommand(request, sqlConnection);
 
@@ -124,18 +124,19 @@ public class UserFilesRepository : IUserFilesRepository
 
             if (fileSize == null || fileSize <= 0 || string.IsNullOrWhiteSpace(fileName))
             {
-                Helpers.LogNotFoundWarning(result, $"File {fileId} in UserData {userDataId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId},fileId:{fileId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
 
             Stream? outStream = null;
 
-            _logger.LogDebug("File:{fileName},Size:{fileSize},Bigfile:{bigFile}", fileName, fileSize, contentSize != null && contentSize > 0);
+            _logger.LogDebug("name:{name},size:{size},bigfile:{bigFile}", fileName, fileSize, contentSize != null && contentSize > 0);
 
             if (contentSize != null && contentSize > 0)   // Big file
             {
                 sqlCommand.Transaction = sqlConnection.BeginTransaction("mainTranaction");
-                sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
+                sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id=fileId:{fileId}";
 
                 string? filePath = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
 
@@ -148,7 +149,7 @@ public class UserFilesRepository : IUserFilesRepository
             {
                 byte[] data = new byte[dataSize.Value];
 
-                sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
+                sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id=fileId:{fileId}";
                 await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken);
 
                 await reader.ReadAsync(cancellationToken);
@@ -158,7 +159,7 @@ public class UserFilesRepository : IUserFilesRepository
             }
             else
             {
-                throw new Exception($"Unexpected data. UserDataId:{userDataId} Id: {fileId}");
+                throw new Exception($"userDataId:{userDataId},fileId:{fileId}");
             }
 
             result.Data = new UserFileStream
@@ -177,7 +178,8 @@ public class UserFilesRepository : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name},size:{size}",
+            result.StatusCode, userDataId, fileId, result.Data?.Name, result.Data?.Size);
 
         return result;
     }
@@ -185,7 +187,7 @@ public class UserFilesRepository : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserFile[]>> GetListAsync(int userDataId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId}", userDataId);
+        _logger.LogInformation("Started:userDataId:{userDataId}", userDataId);
 
         var result = new ResultWrapper<UserFile[]>
         {
@@ -197,6 +199,7 @@ public class UserFilesRepository : IUserFilesRepository
             var userData = await FindUserData<UserFile[]>(userDataId, cancellationToken);
             if (!userData.Success)  // there is no UserData item
             {
+                _logger.LogInformation("Finished");
                 return userData;
             }
 
@@ -207,7 +210,8 @@ public class UserFilesRepository : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},length:{length}",
+            result.StatusCode, userDataId, result.Data?.Length);
 
         return result;
     }
@@ -215,7 +219,8 @@ public class UserFilesRepository : IUserFilesRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<UserFile>> UploadFileAsync(UserFileStream fileStream, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId},{fileId},{name}", fileStream.UserDataId, fileStream.Id, fileStream.Name);
+        _logger.LogInformation("Started:userDataId:{userDataId},fileId:{fileId},name:{name}",
+            fileStream.UserDataId, fileStream.Id, fileStream.Name);
 
         var result = new ResultWrapper<UserFile>
         {
@@ -224,9 +229,10 @@ public class UserFilesRepository : IUserFilesRepository
 
         try
         {
-            ResultWrapper<UserFile> userData = await FindUserData<UserFile>(fileStream.UserDataId, cancellationToken);
-            if (!userData.Success)     // there is no UserData
+            var userData = await FindUserData<UserFile>(fileStream.UserDataId, cancellationToken);
+            if (!userData.Success)  // there is no UserData item
             {
+                _logger.LogInformation("Finished");
                 return userData;
             }
 
@@ -247,7 +253,8 @@ public class UserFilesRepository : IUserFilesRepository
                 result.Success = false;
                 result.Message = "FileId not equal 0 is not allowed for new file";
                 result.StatusCode = ResultStatusCodes.Status400BadRequest;
-                _logger.LogWarning("Finished:{@result}", result);
+                _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name},message:{message}",
+                    result.StatusCode, fileStream.UserDataId, fileStream.Id, fileStream.Name, result.Message);
 
                 return result;
             }
@@ -268,7 +275,8 @@ public class UserFilesRepository : IUserFilesRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished:{@data}", result.Data);
+        _logger.LogInformation("Finished:{StatusCode},userDataId:{userDataId},fileId:{fileId},name:{name}",
+            result.StatusCode, fileStream.UserDataId, fileStream.Id, fileStream.Name);
 
         return result;
     }
@@ -419,7 +427,7 @@ public class UserFilesRepository : IUserFilesRepository
         var userData = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId, cancellationToken);
         if (userData is null)
         {
-            Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
+            Helpers.LogNotFoundWarning(result, $"userDataId:{userDataId}", _logger);
         }
 
         return result;

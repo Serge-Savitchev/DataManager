@@ -54,13 +54,13 @@ public class AuthController : ControllerBase
             var currentUser = GetCurrentUser();
             if (currentUser == null)
             {
-                _logger.LogWarning("Finished:{StatusCode},{login}", StatusCodes.Status401Unauthorized, user.Login);
+                _logger.LogWarning("Finished:{StatusCode},login:{login}", StatusCodes.Status401Unauthorized, user.Login);
                 return StatusCode(StatusCodes.Status401Unauthorized);
             }
 
             if (Enum.Parse<RoleIds>(currentUser.User!.Role, true) != RoleIds.Admin)
             {
-                _logger.LogWarning("Finished:{StatusCode},{login}", StatusCodes.Status403Forbidden, user.Login);
+                _logger.LogWarning("Finished:{StatusCode},login:{login}", StatusCodes.Status403Forbidden, user.Login);
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
         }
@@ -248,7 +248,7 @@ public class AuthController : ControllerBase
 
         if (userId == 1)
         {
-            _logger.LogWarning("Finished:{StatusCode}{id},{role}", StatusCodes.Status403Forbidden, userId, newRole);
+            _logger.LogWarning("Finished:{StatusCode}userId:{userId},{role}", StatusCodes.Status403Forbidden, userId, newRole);
             return StatusCode(StatusCodes.Status403Forbidden);  // can't change role for default admin
         }
 

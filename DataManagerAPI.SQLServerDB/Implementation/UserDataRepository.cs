@@ -30,7 +30,7 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> AddUserDataAsync(UserData userDataToAdd,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userDataToAdd.UserId);
+        _logger.LogInformation("Started:userId:{userId}", userDataToAdd.UserId);
 
         var result = new ResultWrapper<UserData>
         {
@@ -43,6 +43,7 @@ public class UserDataRepository : IUserDataRepository
             var userData = await FindUserAsync<UserData>(userDataToAdd.UserId, cancellationToken);
             if (!userData.Success)
             {
+                _logger.LogInformation("Finished");
                 return userData;
             }
 
@@ -57,7 +58,8 @@ public class UserDataRepository : IUserDataRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
+            result.StatusCode, userDataToAdd.UserId, result.Data?.Id);
 
         return result;
     }
@@ -66,23 +68,37 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> DeleteUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
 
-        var result = new ResultWrapper<UserData>
-        {
-            Success = true
-        };
+        var result = new ResultWrapper<UserData>();
 
         UserData? userDataToDelete = null;
 
         try
         {
-            userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == userDataId,
-                cancellationToken);
+            var user = await FindUserAsync<User>(userId, cancellationToken);
+            if (!user.Success)
+            {
+                _logger.LogInformation("Finished");
+                result.StatusCode = ResultStatusCodes.Status404NotFound;
+                return result;
+            }
+
+            if (user.Data?.Role == RoleIds.Admin)
+            {
+                userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.Id == userDataId,
+                    cancellationToken);
+            }
+            else
+            {
+                userDataToDelete = await _context.UserData.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == userDataId,
+                    cancellationToken);
+            }
 
             if (userDataToDelete is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId},userDataId:{userDataId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
 
@@ -90,13 +106,15 @@ public class UserDataRepository : IUserDataRepository
             await _context.SaveChangesAsync(cancellationToken);
 
             result.Data = userDataToDelete;
+            result.Success = true;
         }
         catch (Exception ex)
         {
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
+            result.StatusCode, userId, result.Data?.Id);
 
         return result;
     }
@@ -105,7 +123,7 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> GetUserDataAsync(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userId, userDataId);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
 
         var result = new ResultWrapper<UserData>
         {
@@ -122,7 +140,8 @@ public class UserDataRepository : IUserDataRepository
 
             if (userData is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId},userDataId:{userDataId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
 
@@ -135,16 +154,16 @@ public class UserDataRepository : IUserDataRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
+            result.StatusCode, userId, result.Data?.Id);
 
         return result;
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId,
-            CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<UserData[]>> GetUserDataByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<UserData[]>
         {
@@ -158,6 +177,7 @@ public class UserDataRepository : IUserDataRepository
             var user = await FindUserAsync<UserData[]>(userId, cancellationToken);
             if (!user.Success)
             {
+                _logger.LogInformation("Finished");
                 return user;
             }
 
@@ -173,7 +193,8 @@ public class UserDataRepository : IUserDataRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},length:{length}",
+            result.StatusCode, userId, result.Data?.Length);
 
         return result;
     }
@@ -182,7 +203,7 @@ public class UserDataRepository : IUserDataRepository
     public async Task<ResultWrapper<UserData>> UpdateUserDataAsync(UserData userDataToUpdate,
             CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{userDataId}", userDataToUpdate.UserId, userDataToUpdate.Id);
+        _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userDataToUpdate.UserId, userDataToUpdate.Id);
 
         var result = new ResultWrapper<UserData>
         {
@@ -196,6 +217,7 @@ public class UserDataRepository : IUserDataRepository
             var user = await FindUserAsync<UserData>(userDataToUpdate.UserId, cancellationToken);
             if (!user.Success)
             {
+                _logger.LogInformation("Finished");
                 return user;
             }
 
@@ -204,7 +226,7 @@ public class UserDataRepository : IUserDataRepository
 
             if (updatedUserData is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserDataId {userDataToUpdate.Id} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userDataToUpdate.UserId},userDataId:{userDataToUpdate.Id}", _logger);
                 return result;
             }
 
@@ -220,7 +242,8 @@ public class UserDataRepository : IUserDataRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
+            result.StatusCode, userDataToUpdate.UserId, userDataToUpdate.Id);
 
         return result;
     }
@@ -228,9 +251,9 @@ public class UserDataRepository : IUserDataRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<User>> GetUserAsync(int userDataId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userDataId}", userDataId);
+        _logger.LogInformation("Started:userDataId:{userDataId}", userDataId);
 
-        var result = new ResultWrapper<User>();
+        var result = new ResultWrapper<User>() { StatusCode = ResultStatusCodes.Status404NotFound };
 
         try
         {
@@ -245,11 +268,8 @@ public class UserDataRepository : IUserDataRepository
                 if (foundUser != null)
                 {
                     result.Success = true;
+                    result.StatusCode = ResultStatusCodes.Status200OK;
                     result.Data = foundUser;
-                }
-                else
-                {
-                    Helpers.LogNotFoundWarning(result, $"User owning UserData:{userDataId} not found", _logger);
                 }
             }
         }
@@ -258,7 +278,8 @@ public class UserDataRepository : IUserDataRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
+            result.StatusCode, result.Data?.Id, userDataId);
 
         return result;
     }
@@ -280,7 +301,7 @@ public class UserDataRepository : IUserDataRepository
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
         if (user is null)
         {
-            Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+            Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
         }
 
         return result;

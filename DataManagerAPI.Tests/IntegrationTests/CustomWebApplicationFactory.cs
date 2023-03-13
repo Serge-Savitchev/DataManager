@@ -11,11 +11,11 @@ public class CustomWebApplicationFactory<TProgram>
     : WebApplicationFactory<TProgram> where TProgram : class
 {
 
-    private static int _objectsCount = 0;
+    private static int _objectsCount = 0;   // count of CustomWebApplicationFactory instances
 
     public CustomWebApplicationFactory() : base()
     {
-        _objectsCount = Interlocked.Increment(ref _objectsCount);
+        _objectsCount = Interlocked.Increment(ref _objectsCount);   // increase count
     }
 
     public override async ValueTask DisposeAsync()
@@ -23,7 +23,7 @@ public class CustomWebApplicationFactory<TProgram>
         await base.DisposeAsync();
 
         _objectsCount = Interlocked.Decrement(ref _objectsCount);
-        if (_objectsCount <= 0)
+        if (_objectsCount <= 0) // stop gRPC server if all instances have been disposed
         {
             DatabaseFixture.ShutdownGRPCService();
         }
@@ -33,6 +33,7 @@ public class CustomWebApplicationFactory<TProgram>
     {
         builder.ConfigureServices((context, services) =>
         {
+            // check if configuration requires running gRPC server
             if (!bool.TryParse(context.Configuration.GetConnectionString(SourceDatabases.UseGPRC), out bool useGPRC))
             {
                 useGPRC = false;
@@ -41,7 +42,7 @@ public class CustomWebApplicationFactory<TProgram>
 
             if (useGPRC)
             {
-                string sourceDatabaseType = context.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
+                string sourceDatabaseType = context.Configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? "";
                 if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValueSQL, true) == 0)
                 {
                     services.AddSQLServerDBContext();  // context for SQL database
@@ -49,6 +50,10 @@ public class CustomWebApplicationFactory<TProgram>
                 else if (string.Compare(sourceDatabaseType, SourceDatabases.DatabaseTypeValuePostgres, true) == 0)
                 {
                     services.AddPostgresDBContext();   // context for Postgres database
+                }
+                else
+                {
+                    throw new Exception("Unknown configuration");
                 }
             }
         });

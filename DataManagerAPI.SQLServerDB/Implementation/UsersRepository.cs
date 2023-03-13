@@ -27,10 +27,9 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<User>> DeleteUserAsync(int userId,
-            CancellationToken cancellationToken = default)
+    public async Task<ResultWrapper<User>> DeleteUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<User>
         {
@@ -42,7 +41,8 @@ public class UsersRepository : IUsersRepository
             var userToDelete = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (userToDelete is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
 
@@ -56,7 +56,7 @@ public class UsersRepository : IUsersRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }
@@ -64,7 +64,7 @@ public class UsersRepository : IUsersRepository
     /// <inheritdoc />
     public async Task<ResultWrapper<User>> GetUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<User>
         {
@@ -76,7 +76,8 @@ public class UsersRepository : IUsersRepository
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
             result.Data = user;
@@ -86,7 +87,7 @@ public class UsersRepository : IUsersRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }
@@ -95,7 +96,7 @@ public class UsersRepository : IUsersRepository
     public async Task<ResultWrapper<User[]>> GetUsersByRoleAsync(RoleIds roleId,
             CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{roleId}", roleId);
+        _logger.LogInformation("Started:role:{role}", roleId);
 
         var result = new ResultWrapper<User[]>
         {
@@ -112,7 +113,7 @@ public class UsersRepository : IUsersRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},role:{role},length:{length}", result.StatusCode, roleId, result.Data?.Length);
 
         return result;
     }
@@ -137,7 +138,7 @@ public class UsersRepository : IUsersRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},length:{length}", result.StatusCode, result.Data?.Length);
 
         return result;
     }
@@ -146,7 +147,7 @@ public class UsersRepository : IUsersRepository
     public async Task<ResultWrapper<int>> UpdateOwnersAsync(int ownerId, int[] users,
                 CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{owerId}", ownerId);
+        _logger.LogInformation("Started:userId{userId},length:{length}", ownerId, users.Length);
 
         var result = new ResultWrapper<int>
         {
@@ -170,7 +171,7 @@ public class UsersRepository : IUsersRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId{userId},length:{length}", result.StatusCode, ownerId, result.Data);
 
         return result;
     }

@@ -31,7 +31,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<User>> RegisterUserAsync(User userToAdd, UserCredentials userCredentials,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started");
+        _logger.LogInformation("Started:login:{login}", userCredentials.Login);
 
         var result = new ResultWrapper<User>
         {
@@ -50,7 +50,8 @@ public class AuthRepository : IAuthRepository
                 result.StatusCode = ResultStatusCodes.Status409Conflict;
                 result.Message = $"User with login {userCredentials.Login} already exists.";
 
-                _logger.LogWarning("Finished:{@result}", result);
+                _logger.LogWarning("Finished:{StatusCode},login:{login},message:{message}",
+                    result.StatusCode, userCredentials.Login, "User with this login already exists");
 
                 return result;
             }
@@ -69,7 +70,8 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},login:{login}",
+            result.StatusCode, result.Data?.Id, userCredentials.Login);
 
         return result;
     }
@@ -78,7 +80,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<int>> LoginAsync(string login, UserCredentials credentials,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{login}", login);
+        _logger.LogInformation("Started:login:{login}", login);
 
         var result = new ResultWrapper<int>
         {
@@ -92,7 +94,8 @@ public class AuthRepository : IAuthRepository
 
             if (userCredentials is null)
             {
-                Helpers.LogNotFoundWarning(result, $"User with login {login} not found.", _logger);
+                Helpers.LogNotFoundWarning(result, $"login:{login}", _logger);
+                _logger.LogInformation("Finished");
                 return result;
             }
 
@@ -106,7 +109,8 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},login:{login}",
+            result.StatusCode, result.Data, login);
 
         return result;
     }
@@ -115,7 +119,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<int>> RefreshTokenAsync(int userId, string? refreshToken,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<int>
         {
@@ -129,7 +133,9 @@ public class AuthRepository : IAuthRepository
 
             if (userCredentials is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
+                _logger.LogInformation("Finished");
+
                 return result;
             }
 
@@ -143,7 +149,7 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, result.Data);
 
         return result;
     }
@@ -152,7 +158,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<UserCredentialsData>> GetUserDetailsByIdAsync(int userId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<UserCredentialsData>
         {
@@ -171,7 +177,9 @@ public class AuthRepository : IAuthRepository
 
             if (data is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
+                _logger.LogInformation("Finished");
+
                 return result;
             }
 
@@ -182,7 +190,7 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
         return result;
     }
@@ -192,7 +200,7 @@ public class AuthRepository : IAuthRepository
         CancellationToken cancellationToken = default)
 
     {
-        _logger.LogInformation("Started:{login}", login);
+        _logger.LogInformation("Started:login:{login}", login);
 
         var result = new ResultWrapper<UserCredentialsData>
         {
@@ -211,7 +219,9 @@ public class AuthRepository : IAuthRepository
 
             if (data is null)
             {
-                Helpers.LogNotFoundWarning(result, $"User with login {login} not found.", _logger);
+                Helpers.LogNotFoundWarning(result, $"login:{login}", _logger);
+                _logger.LogInformation("Finished");
+
                 return result;
             }
 
@@ -222,7 +232,8 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},login:{login}",
+            result.StatusCode, result.Data?.User?.Id, login);
 
         return result;
     }
@@ -231,7 +242,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<int>> UpdateUserPasswordAsync(int userId, UserCredentials credentials,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId}", userId);
+        _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = new ResultWrapper<int>
         {
@@ -243,7 +254,9 @@ public class AuthRepository : IAuthRepository
             var updatedCredentials = await _context.UserCredentials.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
             if (updatedCredentials is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId}", _logger);
+                _logger.LogInformation("Finished");
+
                 return result;
             }
 
@@ -258,7 +271,7 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, result.Data);
 
         return result;
     }
@@ -267,7 +280,7 @@ public class AuthRepository : IAuthRepository
     public async Task<ResultWrapper<RoleIds>> UpdateUserRoleAsync(int userId, RoleIds newRole,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Started:{userId},{role}", userId, newRole);
+        _logger.LogInformation("Started:userId:{userId},role:{role}", userId, newRole);
 
         var result = new ResultWrapper<RoleIds>
         {
@@ -279,7 +292,9 @@ public class AuthRepository : IAuthRepository
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
             if (user is null)
             {
-                Helpers.LogNotFoundWarning(result, $"UserId {userId} not found", _logger);
+                Helpers.LogNotFoundWarning(result, $"userId:{userId},role:{newRole}", _logger);
+                _logger.LogInformation("Finished");
+
                 return result;
             }
 
@@ -292,8 +307,10 @@ public class AuthRepository : IAuthRepository
             {
                 result.Success = false;
                 result.StatusCode = ResultStatusCodes.Status409Conflict;
-                result.Message = "The user role has not been chanhed.";
-                _logger.LogWarning("{@result}", result);
+                _logger.LogWarning("Finished:{StatusCode},userId:{userId},role:{role},message:{message}",
+                    result.StatusCode, userId, newRole, "The user role has not been changed");
+
+                return result;
             }
 
             result.Data = user.Role;
@@ -303,7 +320,8 @@ public class AuthRepository : IAuthRepository
             Helpers.LogException(result, ex, _logger);
         }
 
-        _logger.LogInformation("Finished");
+        _logger.LogInformation("Finished:{StatusCode},userId:{userId},role:{role}",
+            result.StatusCode, userId, newRole);
 
         return result;
     }

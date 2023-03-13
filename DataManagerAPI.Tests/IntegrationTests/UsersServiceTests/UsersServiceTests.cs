@@ -12,17 +12,15 @@ namespace DataManagerAPI.Tests.IntegrationTests.UsersServiceTests;
 public class UsersServiceTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
-    private readonly CustomWebApplicationFactory<Program> _factory;
 
     public UsersServiceTests(CustomWebApplicationFactory<Program> factory)
     {
-        _factory = factory;
+        DatabaseFixture.PrepareDatabase(factory);
+
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
         });
-
-        DatabaseFixture.PrepareDatabase(_factory);
     }
 
     #region DeleteUser

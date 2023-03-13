@@ -48,7 +48,7 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},UserId:{Id}", permission.Code, permission.UserId);
+            _logger.LogInformation("Finished:{StatusCode},UserId:userId:{userId}", permission.Code, permission.UserId);
             return StatusCode(permission.Code);
         }
 
@@ -81,7 +81,7 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
@@ -113,7 +113,7 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
@@ -145,7 +145,7 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},{Id},{userDataId}", permission.Code, permission.UserId, userDataId);
+            _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}", permission.Code, permission.UserId, userDataId);
 
             return StatusCode(permission.Code);
         }
@@ -173,7 +173,7 @@ public class UserDataController : ControllerBase
         (int Code, int UserId) permission = CheckPermissions(userId);
         if (permission.Code != StatusCodes.Status200OK)
         {
-            _logger.LogInformation("Finished:{StatusCode},{Id}", permission.Code, permission.UserId);
+            _logger.LogInformation("Finished:{StatusCode},userId:{userId}", permission.Code, permission.UserId);
             return StatusCode(permission.Code);
         }
 

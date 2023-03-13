@@ -26,7 +26,7 @@ public static class RepositoryExtensions
             ConfigurationManager configuration)
     {
         // take type of database: SQL or Postgres
-        string sourceDatabaseType = configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? SourceDatabases.DatabaseTypeValueSQL;
+        string sourceDatabaseType = configuration.GetConnectionString(SourceDatabases.DatabaseType) ?? "";
 
         bool useGPRC = false;   // check if we are working via gRPC service 
         if (!bool.TryParse(configuration.GetConnectionString(SourceDatabases.UseGPRC), out useGPRC))
@@ -62,6 +62,10 @@ public static class RepositoryExtensions
             {
                 serviceCollection.AddScoped<IUserFilesRepository, UserFileRepositoryPostgres>();
                 serviceCollection.AddPostgresDBContext();   // context for Postgres database
+            }
+            else
+            {
+                throw new Exception("Unknown configuration");
             }
         }
 

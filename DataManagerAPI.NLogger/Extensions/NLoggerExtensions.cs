@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
+using NLog.Config;
 using NLog.Extensions.Logging;
+using NLog.Targets;
 using NLog.Web;
 
 namespace DataManagerAPI.NLogger.Extensions;
@@ -17,7 +19,8 @@ public static class NLoggerExtensions
     /// Setup NLog configuration.
     /// </summary>
     /// <param name="webBuilder"><see cref="WebApplicationBuilder"/></param>
-    public static void SetupNLogConfiguration(this WebApplicationBuilder webBuilder)
+    /// <param name="updateTargetsTemplate"></param>
+    public static void SetupNLogConfiguration(this WebApplicationBuilder webBuilder, Func<string, string>? updateTargetsTemplate)
     {
         // get environment
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
@@ -42,13 +45,22 @@ public static class NLoggerExtensions
         _ = LogManager.Setup().GetCurrentClassLogger();
 
         // https://github.com/NLog/NLog/wiki/Configure-from-code
-        //var configuration = LogManager.Configuration;
-        //var consoleTarget = configuration.FindTargetByName<ConsoleTarget>("logconsole");
-        //var layout = consoleTarget.Layout;
-        //var text = layout.ToString();
-        //consoleTarget.Layout = text;
 
-        //LogManager.Configuration = configuration;
+        LoggingConfiguration configuration = LogManager.Configuration;
+
+        if (updateTargetsTemplate != null)
+        {
+            foreach (var target in configuration.AllTargets.OfType<TargetWithLayout>())
+            {
+                var layout = target.Layout.ToString();
+                if (!string.IsNullOrEmpty(layout))
+                {
+                    var text = updateTargetsTemplate(layout!);
+                    target.Layout = text;
+                }
+            }
+            LogManager.Configuration = configuration;
+        }
     }
 
     /// <summary>

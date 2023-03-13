@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(options => options.DefaultScheme = JwtBearerD
 
 builder.Services.AddProblemDetails();
 
-builder.SetupNLogConfiguration();
+builder.SetupNLogConfiguration(null!);
 
 WebApplication app = builder.Build();
 
@@ -101,7 +101,7 @@ app.UseNLogConfiguration();
 
 app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

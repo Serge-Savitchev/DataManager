@@ -15,12 +15,12 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
 
     public UserDataServiceTests(CustomWebApplicationFactory<Program> factory)
     {
+        DatabaseFixture.PrepareDatabase(factory);
+
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
         });
-
-        DatabaseFixture.PrepareDatabase(factory);
     }
 
     #region AddUserData

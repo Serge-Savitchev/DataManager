@@ -76,7 +76,7 @@ public class UserFilesController : ControllerBase
         ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
-            _logger.LogWarning("Finished:{StatusCode}", ret.StatusCode);
+            _logger.LogWarning("Finished");
             return StatusCode(ret.StatusCode);
         }
 
