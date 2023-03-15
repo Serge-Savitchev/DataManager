@@ -1,7 +1,7 @@
 ﻿using DataManagerAPI.Repository.Abstractions.Constants;
+using DataManagerAPI.SQLServerDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace DataManagerAPI.PostgresDB;
 
@@ -17,22 +17,11 @@ public class UsersDBContextFactory : IDesignTimeDbContextFactory<PostgresDBConte
     /// <returns>Database context. <see cref="PostgresDBContext"/></returns>
     public PostgresDBContext CreateDbContext(string[] args)
     {
-        // Get environment
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
-
-        // Build config
-        var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-
-        IConfigurationRoot config = builder.Build();
-
         // Get connection string
-        var optionsBuilder = new DbContextOptionsBuilder<PostgresDBContext>();
-        optionsBuilder.UseNpgsql(config.GetConnectionString(SourceDatabases.PostgresConnectionString));
+        var connectionString = MigrationExtensions.GetConnectionString(SourceDatabases.PostgresConnectionString);
 
-        Console.WriteLine($"Environment: {environment}");
-        Console.WriteLine(config.GetConnectionString(SourceDatabases.PostgresConnectionString));
+        var optionsBuilder = new DbContextOptionsBuilder<PostgresDBContext>();
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new PostgresDBContext(optionsBuilder.Options);
     }

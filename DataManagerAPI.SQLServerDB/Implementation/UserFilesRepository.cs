@@ -107,7 +107,7 @@ public class UserFilesRepository : IUserFilesRepository
             string? fileName = null;
 
             var request = $"SELECT LEN(Content), LEN(Data), Size, Name FROM {dbName}.dbo.UserFiles" +
-                $" WHERE Id=fileId:{fileId} AND UserDataId=userDataId:{userDataId}";
+                $" WHERE Id={fileId} AND UserDataId={userDataId}";
 
             var sqlCommand = new SqlCommand(request, sqlConnection);
 
@@ -136,7 +136,7 @@ public class UserFilesRepository : IUserFilesRepository
             if (contentSize != null && contentSize > 0)   // Big file
             {
                 sqlCommand.Transaction = sqlConnection.BeginTransaction("mainTranaction");
-                sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id=fileId:{fileId}";
+                sqlCommand.CommandText = $"SELECT Content.PathName() FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
 
                 string? filePath = await sqlCommand.ExecuteScalarAsync(cancellationToken) as string;
 
@@ -149,7 +149,7 @@ public class UserFilesRepository : IUserFilesRepository
             {
                 byte[] data = new byte[dataSize.Value];
 
-                sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id=fileId:{fileId}";
+                sqlCommand.CommandText = $"SELECT Data FROM {dbName}.dbo.UserFiles WHERE Id={fileId}";
                 await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync(cancellationToken);
 
                 await reader.ReadAsync(cancellationToken);

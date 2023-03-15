@@ -45,4 +45,37 @@ public class UserFilesControllerTests
         // Assert
         Assert.Equal(StatusCodes.Status403Forbidden, response!.StatusCode);
     }
+
+    [Fact]
+    public async Task DownloadFile_Incorrect_User_Returns_NotFound()
+    {
+        // Arrange
+        var userFilesService = new Mock<IUserFilesService>();
+        userFilesService.Setup(x => x.DownloadFile(
+            It.IsAny<CurrentUserDto?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ResultWrapper<UserFileStreamDto> { StatusCode = ResultStatusCodes.Status404NotFound });
+
+        var configuration = new Mock<IConfiguration>();
+        configuration.SetupGet(x => x[It.Is<string>(s => s == "Buffering:Client:UseTemporaryFile")])
+            .Returns("auto");
+        configuration.SetupGet(x => x[It.Is<string>(s => s == "Buffering:Client:BufferSize")])
+            .Returns("10");
+        configuration.SetupGet(x => x[It.Is<string>(s => s == "Buffering:Client:BigFileSize")])
+            .Returns("bad");
+
+        var controllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        var controller = new UserFilesController(userFilesService.Object, configuration.Object, Mock.Of<ILogger<UserFilesController>>());
+        controller.ControllerContext = controllerContext;
+
+        // Act
+        var response = await controller.DownloadFile(0, 0) as StatusCodeResult;
+
+        // Assert
+        Assert.Equal(StatusCodes.Status404NotFound, response!.StatusCode);
+    }
+
 }

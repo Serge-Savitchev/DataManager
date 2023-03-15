@@ -66,7 +66,7 @@ public static class DatabaseFixture
         // start server via cmd.exe
 
         var processFileName = Directory.GetCurrentDirectory() + "\\" + ProcessName + ".exe";
-        var arguments = $"/K set ASPNETCORE_ENVIRONMENT=Test&{processFileName}";
+        var arguments = $"/C set ASPNETCORE_ENVIRONMENT=Test&{processFileName}";
 
         ProcessStartInfo processInfo = new("cmd.exe", arguments)
         {

@@ -73,7 +73,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         {
             // Act
             using var request = new HttpRequestMessage(HttpMethod.Get,
-                $"api/userfiles/Download/{uploadedFile.UserData.Id}/{uploadedFile.UserFile.Id + 1}");
+                $"api/userfiles/{uploadedFile.UserData.Id}/{uploadedFile.UserFile.Id + 20000}");
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", uploadedFile.User.LoginData!.AccessToken);
 

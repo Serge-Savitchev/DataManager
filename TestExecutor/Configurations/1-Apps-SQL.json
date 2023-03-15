@@ -1,0 +1,34 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "DataManagerAPI": "Debug",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DatabaseType": "SQL", // "Postgres" or "SQL"
+    "SQLConnectionString": "Server=.;Database=TestDB;Timeout=60;Command Timeout=60;Trusted_Connection=true;Trust Server Certificate=true",
+    //"SQLServerDB": "Server=azureserges.uksouth.cloudapp.azure.com;Database=UserDataDB;Timeout=600;Command Timeout=600;User Id=<>;Password=<>;Trusted_Connection=false;Trust Server Certificate=true",
+    "PostgresConnectionString": "Host=localhost;Database=TestDB;Timeout=60;Command Timeout=60;Username=postgres;Password=Admin",
+    "gRPCConnectionString": "https://localhost:7181",
+    "UseGPRC": "false",
+    "Redis": "localhost:6380"
+  },
+  "Tokens": {
+    "AccessTokenLifetime": 60 // minutes
+  },
+  "Buffering": {
+    "Client": {
+      "BufferSize": 1024, // KBs
+      "UseTemporaryFile": false,
+      "BigFileSize": 50 // MB
+    },
+    "Server": {
+      "BufferSize": 10240, // KBs
+      "UseBufferingForBigFiles": false,
+      "UseBufferingForSmallFiles": false
+    }
+  }
+}

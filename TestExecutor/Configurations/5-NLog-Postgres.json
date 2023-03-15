@@ -1,0 +1,33 @@
+{
+  "NLog": {
+    "extensions": [
+      { "assembly": "NLog.Web.AspNetCore" }
+    ],
+    "throwConfigExceptions": true,
+    "targets": {
+      "async": true,
+      "logfile": {
+        "layout": "${longdate}|${uppercase:${level}}|${gdc:item=ActivityId}|${scopeproperty:ActivityId}|${callsite}|${aspnet-request-url:IncludeHost=false:IncludePort=false:IncludeQueryString=true:IncludeScheme=false}|${message}|${exception:format=tostring}",
+        "type": "File",
+        "fileName": "5-NLog-Postgres-${shortdate}.log",
+        "concurrentwrites": true
+      },
+      "logconsole": {
+        "layout": "${longdate}|${uppercase:${level}}|${gdc:item=ActivityId}|${scopeproperty:ActivityId}|${callsite}|${aspnet-request-url:IncludeHost=false:IncludePort=false:IncludeQueryString=true:IncludeScheme=false}|${message}|${exception:format=tostring}",
+        "type": "Console"
+      }
+    },
+    "rules": [
+      {
+        "logger": "*",
+        //"minLevel": "Debug",
+        "writeTo": "logfile"
+      },
+      {
+        "logger": "*",
+        //"minLevel": "Trace",
+        "writeTo": "logconsole"
+      }
+    ]
+  }
+}

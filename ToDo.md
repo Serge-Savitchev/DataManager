@@ -4,6 +4,9 @@
 - Complete XML documentation. Done.
 - Complete integration tests. Done.
 - Create unit tests. Done.
-- Add logging
+- Add logging. Done.
 - Add CancellationToken. Done.
 - Authorize for Files and Data. Done.
+
+## Great challenge for me
+- Create UI using Razor
