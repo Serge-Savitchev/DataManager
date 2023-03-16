@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "DownloadBigFiles": {
-      "commandName": "Project",
-      "commandLineArgs": "usebuffer"
-    }
-  }
-}
