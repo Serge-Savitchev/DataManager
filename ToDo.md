@@ -9,4 +9,4 @@
 - Authorize for Files and Data. Done.
 
 ## Great challenge for me
-- Create UI using Razor
+- Create UI using Blazor
