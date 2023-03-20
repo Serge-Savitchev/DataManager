@@ -1,5 +1,4 @@
-﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Constants;
+﻿using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -7,11 +6,6 @@ using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DataManagerAPI.Tests.UnitTests.Services;

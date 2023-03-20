@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Constants;
 using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
@@ -8,11 +9,6 @@ using DataManagerAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DataManagerAPI.Tests.UnitTests.Services;
@@ -57,7 +53,7 @@ public class UserFilesServiceTests
         var response = await service.DeleteFile(
             new CurrentUserDto
             {
-                User = new UserDto { Id = 1, Role = RoleIds.Admin.ToString() }
+                User = new UserDto { Id = 1, Role = RoleIdsDto.Admin.ToString() }
             }, 1, 1);
 
         // Assert
@@ -94,7 +90,7 @@ public class UserFilesServiceTests
         var response = await service.DownloadFile(
             new CurrentUserDto
             {
-                User = new UserDto { Id = 1, Role = RoleIds.Admin.ToString() }
+                User = new UserDto { Id = 1, Role = RoleIdsDto.Admin.ToString() }
             }, 1, 1);
 
         // Assert
@@ -133,7 +129,7 @@ public class UserFilesServiceTests
         var response = await service.GetList(
             new CurrentUserDto
             {
-                User = new UserDto { Id = 1, Role = RoleIds.Admin.ToString() }
+                User = new UserDto { Id = 1, Role = RoleIdsDto.Admin.ToString() }
             }, 1);
 
         // Assert
@@ -174,7 +170,7 @@ public class UserFilesServiceTests
         var response = await service.UploadFile(
             new CurrentUserDto
             {
-                User = new UserDto { Id = 1, Role = RoleIds.Admin.ToString() }
+                User = new UserDto { Id = 1, Role = RoleIdsDto.Admin.ToString() }
             }, new UserFileStreamDto());
 
         // Assert

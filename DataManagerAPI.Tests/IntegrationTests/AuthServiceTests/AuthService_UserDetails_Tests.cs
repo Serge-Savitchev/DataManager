@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
@@ -13,7 +13,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task GetUserDetails_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");
@@ -35,7 +35,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task GetUserDetails_NotAdmin_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Get, $"api/auth/{registredUser.Id}");

@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
@@ -12,7 +12,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DeleteFile_Returns_Ok()
     {
         // Arrange
-        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIds.User);
+        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIdsDto.User);
 
         try
         {
@@ -78,9 +78,9 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DeleteFile_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIds.User);
+        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIdsDto.User);
 
-        using RegisteredUserTestData powerUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData powerUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         try
         {
@@ -105,8 +105,8 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DeleteFile_Admin_Returns_Ok()
     {
         // Arrange
-        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIds.User);
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIdsDto.User);
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         try
         {

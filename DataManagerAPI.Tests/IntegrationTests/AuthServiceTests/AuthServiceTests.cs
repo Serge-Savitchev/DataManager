@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
+﻿using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
@@ -27,7 +27,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task Revoke_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/revoke");
@@ -45,8 +45,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task UpdateUserRole_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
-        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIdsDto.User.ToString());
 
         string newRole = "ReadOnlyUser";
 
@@ -69,8 +69,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task UpdateUserRole_Same_Role_Returns_Conflict()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
-        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
+        using RegisteredUserTestData userToChange = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIdsDto.User.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, $"api/auth/changerole/{userToChange.Id}");
@@ -86,7 +86,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task UpdateUserRole_Incorrect_User_Returns_NotFound()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, "api/auth/changerole/100000");
@@ -103,7 +103,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task UpdateUserRole_For_DefaultAdmin_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
         string newRole = "ReadOnlyUser";
 
         // Act
@@ -123,7 +123,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task Logout_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         HttpResponseMessage responseMessage;

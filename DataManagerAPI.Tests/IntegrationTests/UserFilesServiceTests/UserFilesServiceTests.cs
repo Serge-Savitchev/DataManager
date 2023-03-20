@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
@@ -32,7 +32,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DownloadFile_Returns_Ok(string name, int size, bool bigFile)
     {
         (RegisteredUserTestData User, UserDataDto UserData, UserFileDto UserFile) uploadedFile =
-            await UploadFile(RoleIds.User, name, size, bigFile);
+            await UploadFile(RoleIdsDto.User, name, size, bigFile);
         try
         {
             // Act
@@ -67,7 +67,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task DownloadFile_IncorrectFileId_Returns_NotFound()
     {
         (RegisteredUserTestData User, UserDataDto UserData, UserFileDto UserFile) uploadedFile =
-            await UploadFile(RoleIds.User, "file", 1024, false);
+            await UploadFile(RoleIdsDto.User, "file", 1024, false);
 
         try
         {
@@ -99,7 +99,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     {
         // Act
         (RegisteredUserTestData User, UserDataDto UserData, UserFileDto UserFile) uploadedFile =
-            await UploadFile(RoleIds.User, name, size, bigFile);
+            await UploadFile(RoleIdsDto.User, name, size, bigFile);
 
         try
         {
@@ -122,7 +122,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         const int size1 = 1024, size2 = 1024 * 2;
 
         (RegisteredUserTestData User, UserDataDto UserData, UserFileDto UserFile) uploadedFile =
-            await UploadFile(RoleIds.User, name1, size1, false);
+            await UploadFile(RoleIdsDto.User, name1, size1, false);
 
         try
         {
@@ -168,8 +168,8 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     public async Task UploadFile_Incorrect_UserDataId_Returns_StatusCode(int statusCode)
     {
         // Arrange
-        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIds.User);
-        (RegisteredUserTestData User, UserDataDto UserData) otherUserData = await CreateUserData(RoleIds.ReadOnlyUser);
+        (RegisteredUserTestData User, UserDataDto UserData) newUserData = await CreateUserData(RoleIdsDto.User);
+        (RegisteredUserTestData User, UserDataDto UserData) otherUserData = await CreateUserData(RoleIdsDto.ReadOnlyUser);
 
         try
         {
@@ -213,7 +213,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
     #region Helpers
 
     private async Task<(RegisteredUserTestData User, UserDataDto UserData, UserFileDto UserFile)>
-        UploadFile(RoleIds role, string fileName, int fileSize, bool bigFile = false)
+        UploadFile(RoleIdsDto role, string fileName, int fileSize, bool bigFile = false)
     {
         (RegisteredUserTestData User, UserDataDto UserData) userData = await CreateUserData(role);
 
@@ -251,7 +251,7 @@ public partial class UserFilesServiceTests : IClassFixture<CustomWebApplicationF
         return response;
     }
 
-    private async Task<(RegisteredUserTestData User, UserDataDto UserData)> CreateUserData(RoleIds role)
+    private async Task<(RegisteredUserTestData User, UserDataDto UserData)> CreateUserData(RoleIdsDto role)
     {
         RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, role.ToString());
 

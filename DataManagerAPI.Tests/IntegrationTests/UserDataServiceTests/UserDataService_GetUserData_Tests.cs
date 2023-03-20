@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
@@ -16,7 +16,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserData_Own_Returns_Ok(string queryValue)
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
         var data = new AddUserDataDto
         {
             Title = "User Test Title",
@@ -53,8 +53,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserData_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
         var data = new AddUserDataDto
         {
             Title = "User Test Title!",
@@ -97,7 +97,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserData_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         string query = "api/userdata/1/1";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);
@@ -119,7 +119,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserDataByUserId_Own_Returns_Ok(bool useUserId)
     {
         // Arrange
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
         List<UserDataDto> dataList = new List<UserDataDto>();
         const int dataCount = 2;
 
@@ -159,8 +159,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserDataByUserId_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         List<UserDataDto> dataList = new List<UserDataDto>();
         const int dataCount = 5;
@@ -208,7 +208,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task GetUserDataByUserId_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         string query = "api/userdata/1/all";
         using var request = new HttpRequestMessage(HttpMethod.Get, query);

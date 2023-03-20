@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -12,7 +12,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task LoginUser_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIdsDto.User.ToString());
 
         LoginUserDto requestData = new LoginUserDto
         {
@@ -55,7 +55,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task LoginUser_IncorrectPassword_Returns_Unauthorized()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIdsDto.User.ToString());
 
         LoginUserDto requestData = new LoginUserDto
         {

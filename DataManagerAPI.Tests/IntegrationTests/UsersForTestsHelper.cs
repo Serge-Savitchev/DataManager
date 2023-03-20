@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
@@ -119,7 +119,7 @@ internal static class UsersForTestsHelper
             return null;
         }
 
-        var role = Enum.Parse<RoleIds>(newUser.RegisteredUser.Role, true);
+        var role = Enum.Parse<RoleIdsDto>(newUser.RegisteredUser.Role, true);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
         {
@@ -128,7 +128,7 @@ internal static class UsersForTestsHelper
 
         // register user with "Admin" and "PowerUser" roles
         // requires authentication of admin. use default admin for that.
-        if (role == RoleIds.Admin || role == RoleIds.PowerUser)
+        if (role == RoleIdsDto.Admin || role == RoleIdsDto.PowerUser)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _registerList[0].LoginData!.AccessToken);
         }

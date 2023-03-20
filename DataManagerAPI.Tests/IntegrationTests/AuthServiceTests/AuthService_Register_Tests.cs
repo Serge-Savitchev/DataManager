@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
@@ -15,8 +15,8 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task RedisterUser_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData requestData = UsersForTestsHelper.GenerateUniqueUserData(RoleIds.Admin.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData requestData = UsersForTestsHelper.GenerateUniqueUserData(RoleIdsDto.Admin.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")
@@ -41,7 +41,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task RedisterUser_UserExists_Returns_Conflict()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/register")

@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
@@ -45,7 +45,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task AddUserData_BadRequest_Returns_BadRequest()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Post, $"api/userdata/{registredUser.Id}")
@@ -64,7 +64,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task AddUserData_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         // Act
         var data = new AddUserDataDto
@@ -89,7 +89,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task AddUserData_Own_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         // Act
         var data = new AddUserDataDto
@@ -121,8 +121,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task AddUserData_AdminNotOwn_ReturnsOk()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData user = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.FindOrCreateRegisteredUser(_client, RoleIdsDto.User.ToString());
 
         // Act
         var data = new AddUserDataDto
@@ -174,7 +174,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task UpdateUserData_BadRequest_Returns_BadRequest()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         using var request = new HttpRequestMessage(HttpMethod.Put, $"api/userdata/{registredUser.Id}/1")
@@ -193,7 +193,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task UpdateUserData_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         // Act
         var data = new AddUserDataDto
@@ -218,7 +218,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task UpdateUserData_Own_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         // add new user data
         UserDataDto response0 = await AddNewUserData(registredUser,
@@ -259,8 +259,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task UpdateUserData_AdminNotOwn_ReturnsOk()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         // add new user data
 

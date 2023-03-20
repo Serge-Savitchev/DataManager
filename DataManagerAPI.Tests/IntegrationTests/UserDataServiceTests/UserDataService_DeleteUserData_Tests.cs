@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Xunit;
@@ -16,7 +16,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task DeleteUserData_Own_Returns_Ok(string queryValue)
     {
         // Arrange
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
         var data = new AddUserDataDto
         {
             Title = "User Test Title",
@@ -62,8 +62,8 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task DeleteUserData_Admin_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.User.ToString());
         var data = new AddUserDataDto
         {
             Title = "User Test Title!",
@@ -105,7 +105,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task DeleteUserData_IncorrectId_Returns_NotFound()
     {
         // Arrange
-        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.Admin.ToString());
+        using RegisteredUserTestData admin = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.Admin.ToString());
 
         // Act
         string query = "api/userdata/1/1";
@@ -132,7 +132,7 @@ public partial class UserDataServiceTests : IClassFixture<CustomWebApplicationFa
     public async Task DeleteUserData_NotOwn_Returns_Forbidden()
     {
         // Arrange
-        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIds.PowerUser.ToString());
+        using RegisteredUserTestData user = await UsersForTestsHelper.CreateNewLoggedInUser(_client, RoleIdsDto.PowerUser.ToString());
 
         string query = "api/userdata/1/1";
         using var request = new HttpRequestMessage(HttpMethod.Delete, query);

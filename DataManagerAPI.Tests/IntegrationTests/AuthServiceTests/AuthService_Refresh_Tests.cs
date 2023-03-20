@@ -1,5 +1,5 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Models;
+using DataManagerAPI.Dto.Constants;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -12,7 +12,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task RefreshToken_Returns_Ok()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         // Expiration time of JWT token is stored in seconds.
         // If time passed between Login and Refresh is < 1 second,
@@ -66,7 +66,7 @@ public partial class AuthServiceTests : IClassFixture<CustomWebApplicationFactor
     public async Task RefreshToken_IncorrectRefreshToken_Returns_Unauthorized()
     {
         // Arrange
-        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIds.User.ToString());
+        using RegisteredUserTestData registredUser = await UsersForTestsHelper.FindOrCreateLoggedInUser(_client, RoleIdsDto.User.ToString());
 
         TokenApiModelDto requestData = new TokenApiModelDto
         {
