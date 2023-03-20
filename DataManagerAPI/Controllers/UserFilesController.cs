@@ -1,8 +1,6 @@
 ﻿using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Helpers;
-using DataManagerAPI.Repository.Abstractions.Helpers;
-using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -73,7 +71,7 @@ public class UserFilesController : ControllerBase
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<UserFileStreamDto> ret = await _service.DownloadFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
+        ResultWrapperDto<UserFileStreamDto> ret = await _service.DownloadFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
         if (!ret.Success)
         {
             _logger.LogWarning("Finished");
@@ -103,7 +101,7 @@ public class UserFilesController : ControllerBase
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<UserFileDto[]> ret = await _service.GetList(GetCurrentUser(), userDataId, cancellationToken);
+        ResultWrapperDto<UserFileDto[]> ret = await _service.GetList(GetCurrentUser(), userDataId, cancellationToken);
 
         _logger.LogInformation("Finished");
 
@@ -125,7 +123,7 @@ public class UserFilesController : ControllerBase
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<int> ret = await _service.DeleteFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
+        ResultWrapperDto<int> ret = await _service.DeleteFile(GetCurrentUser(), userDataId, fileId, cancellationToken);
 
         _logger.LogInformation("Finished");
 
@@ -139,7 +137,7 @@ public class UserFilesController : ControllerBase
     /// <param name="fileId">Id of file</param>
     /// <param name="bigFile">Boolean flag ("true"/"false"). If "true", special feature of storing of big files to database is used.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    /// <returns><see cref="UserFile"/></returns>
+    /// <returns><see cref="UserFileDto"/></returns>
     [HttpPost]
     [Route("{userDataId}/{fileId}")]
     [DisableRequestSizeLimit]
@@ -162,20 +160,20 @@ public class UserFilesController : ControllerBase
 
         var reader = new MultipartReader(boundary!, Request.Body, _defaultBufferSize);
 
-        var file = new UserFile { Id = fileId, UserDataId = userDataId };
-        ResultWrapper<UserFileDto> ret = await UploadFileInternal(reader, file, flagBigFile, cancellationToken);
+        var file = new UserFileDto { Id = fileId, UserDataId = userDataId };
+        ResultWrapperDto<UserFileDto> ret = await UploadFileInternal(reader, file, flagBigFile, cancellationToken);
 
         _logger.LogInformation("Finished");
 
         return StatusCode(ret.StatusCode, ret.Data);
     }
 
-    private async Task<ResultWrapper<UserFileDto>> UploadFileInternal(MultipartReader reader, UserFile file, bool flagBigFile,
+    private async Task<ResultWrapperDto<UserFileDto>> UploadFileInternal(MultipartReader reader, UserFileDto file, bool flagBigFile,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<UserFileDto> uploadedFile = new();  // result
+        ResultWrapperDto<UserFileDto> uploadedFile = new();  // result
 
         var section = await reader.ReadNextSectionAsync();
 

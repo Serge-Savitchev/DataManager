@@ -1,5 +1,4 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DataManagerAPI.Dto;
 
@@ -33,5 +32,5 @@ public class UserDataDto
     /// <summary>
     /// List of attached files
     /// </summary>
-    public UserFile[] UserFiles { get; set; } = Array.Empty<UserFile>();
+    public UserFileDto[] UserFiles { get; set; } = Array.Empty<UserFileDto>();
 }

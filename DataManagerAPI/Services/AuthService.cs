@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Constants;
 using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
@@ -46,7 +47,7 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDto>> RegisterUser(RegisteredUserDto userToAdd
+    public async Task<ResultWrapperDto<UserDto>> RegisterUser(RegisteredUserDto userToAdd
         , CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:login:{login}", userToAdd.Login);
@@ -56,7 +57,7 @@ public class AuthService : IAuthService
 
         var result = await _repository.RegisterUserAsync(_mapper.Map<User>(userToAdd), userCredentials, cancellationToken);
 
-        var ret = new ResultWrapper<UserDto>
+        var ret = new ResultWrapperDto<UserDto>
         {
             Success = result.Success,
             Data = result.Success ? _mapper.Map<UserDto>(result.Data) : null,
@@ -71,12 +72,12 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData
+    public async Task<ResultWrapperDto<LoginUserResponseDto>> Login(LoginUserDto loginData
         , CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:login:{login}", loginData.Login);
 
-        var result = new ResultWrapper<LoginUserResponseDto>
+        var result = new ResultWrapperDto<LoginUserResponseDto>
         {
             Success = false
         };
@@ -141,7 +142,7 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> Revoke(int userId, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapperDto<int>> Revoke(int userId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId}", userId);
 
@@ -153,16 +154,22 @@ public class AuthService : IAuthService
 
         _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
-        return result;
+        return new ResultWrapperDto<int>
+        {
+            StatusCode = result.StatusCode,
+            Success = result.Success,
+            Data = result.Data,
+            Message = result.Message
+        };
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData,
+    public async Task<ResultWrapperDto<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started");
 
-        var result = new ResultWrapper<TokenApiModelDto>
+        var result = new ResultWrapperDto<TokenApiModelDto>
         {
             Success = false
         };
@@ -219,7 +226,7 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapperDto<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId}", userId);
 
@@ -234,15 +241,21 @@ public class AuthService : IAuthService
 
         _logger.LogInformation("Finished:{StatusCode},userId:{userId}", result.StatusCode, userId);
 
-        return result;
+        return new ResultWrapperDto<int>
+        {
+            StatusCode = result.StatusCode,
+            Success = result.Success,
+            Data = result.Data,
+            Message = result.Message
+        };
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapperDto<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},role:{role}", userId, newRole);
 
-        var result = new ResultWrapper<string>
+        var result = new ResultWrapperDto<string>
         {
             Success = true
         };
@@ -269,13 +282,13 @@ public class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default)
+    public async Task<ResultWrapperDto<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId}", userId);
 
         var userDetails = await _repository.GetUserDetailsByIdAsync(userId, cancellationToken);
 
-        var result = new ResultWrapper<UserDetailsDto>
+        var result = new ResultWrapperDto<UserDetailsDto>
         {
             Success = userDetails.Success,
             Message = userDetails.Message,

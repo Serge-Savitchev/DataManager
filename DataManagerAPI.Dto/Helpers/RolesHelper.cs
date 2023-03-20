@@ -1,6 +1,6 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
+﻿using DataManagerAPI.Dto.Constants;
 
-namespace DataManagerAPI.Repository.Abstractions.Helpers;
+namespace DataManagerAPI.Dto.Helpers;
 
 /// <summary>
 /// Helper for getting all user role names.
@@ -14,7 +14,7 @@ public static class RolesHelper
     public static string[] GetAllNames()
     {
         var roles = new List<string>();
-        foreach (RoleIds s in Enum.GetValues(typeof(RoleIds)))
+        foreach (RoleIdsDto s in Enum.GetValues(typeof(RoleIdsDto)))
         {
             roles.Add(s.ToString());
         }

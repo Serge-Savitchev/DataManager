@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services.Interfaces;
 using System.Data;
 
 namespace DataManagerAPI.Services;
@@ -31,7 +31,7 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> AddUserData(int userId, AddUserDataDto userDataToAdd,
+    public async Task<ResultWrapperDto<UserDataDto>> AddUserData(int userId, AddUserDataDto userDataToAdd,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId}", userId);
@@ -49,7 +49,7 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> DeleteUserData(int userId, int userDataId,
+    public async Task<ResultWrapperDto<UserDataDto>> DeleteUserData(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
@@ -64,7 +64,7 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> GetUserData(int userId, int userDataId,
+    public async Task<ResultWrapperDto<UserDataDto>> GetUserData(int userId, int userDataId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
@@ -79,13 +79,13 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto[]>> GetUserDataByUserId(int userId,
+    public async Task<ResultWrapperDto<UserDataDto[]>> GetUserDataByUserId(int userId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId}", userId);
 
         var result = await _repository.GetUserDataByUserIdAsync(userId, cancellationToken);
-        var ret = new ResultWrapper<UserDataDto[]>()
+        var ret = new ResultWrapperDto<UserDataDto[]>()
         {
             Success = result.Success,
             Data = result.Success ? result.Data!.Select(_mapper.Map<UserDataDto>).ToArray() : null,
@@ -99,7 +99,7 @@ public class UserDataService : IUserDataService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate,
+    public async Task<ResultWrapperDto<UserDataDto>> UpdateUserData(int userId, int userDataId, AddUserDataDto userDataToUpdate,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", userId, userDataId);
@@ -117,13 +117,12 @@ public class UserDataService : IUserDataService
         return ret;
     }
 
-    private ResultWrapper<UserDataDto> ConvertWrapper<T>(ResultWrapper<T> source)
+    private ResultWrapperDto<UserDataDto> ConvertWrapper<T>(ResultWrapper<T> source)
     {
-        var ret = new ResultWrapper<UserDataDto>
+        var ret = new ResultWrapperDto<UserDataDto>
         {
             Success = source.Success,
             Data = source.Success ? _mapper.Map<UserDataDto>(source.Data) : null,
-            Message = source.Message,
             StatusCode = source.StatusCode
         };
         return ret;

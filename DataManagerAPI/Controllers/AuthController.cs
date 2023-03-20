@@ -1,7 +1,7 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Helpers;
+using DataManagerAPI.Dto.Helpers;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -165,7 +165,7 @@ public class AuthController : ControllerBase
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<TokenApiModelDto> result = await _service.RefreshToken(tokens, cancellationToken);
+        ResultWrapperDto<TokenApiModelDto> result = await _service.RefreshToken(tokens, cancellationToken);
 
         _logger.LogInformation("Finished");
 
@@ -190,7 +190,7 @@ public class AuthController : ControllerBase
     {
         _logger.LogInformation("Started");
 
-        ResultWrapper<int> result = await _service.UpdateUserPassword(userId, newPassword, cancellationToken);
+        ResultWrapperDto<int> result = await _service.UpdateUserPassword(userId, newPassword, cancellationToken);
 
         _logger.LogInformation("Finished");
 

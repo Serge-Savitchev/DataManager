@@ -1,7 +1,4 @@
-﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Helpers;
-
-namespace DataManagerAPI.Services.Interfaces;
+﻿namespace DataManagerAPI.Dto.Interfaces;
 
 /// <summary>
 /// This interface provides users management.
@@ -14,7 +11,7 @@ public interface IAuthService
     /// <param name="userToAdd"><see cref="RegisteredUserDto"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>New user. <see cref="UserDto"/></returns>
-    Task<ResultWrapper<UserDto>> RegisterUser(RegisteredUserDto userToAdd, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<UserDto>> RegisterUser(RegisteredUserDto userToAdd, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Authenticates and authorizes user.
@@ -22,7 +19,7 @@ public interface IAuthService
     /// <param name="loginData"><see cref="LoginUserDto"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Pair of token. <see cref="LoginUserResponseDto"/></returns>
-    Task<ResultWrapper<LoginUserResponseDto>> Login(LoginUserDto loginData, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<LoginUserResponseDto>> Login(LoginUserDto loginData, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Logout user.
@@ -36,7 +33,7 @@ public interface IAuthService
     /// <param name="tokenData"><see cref="TokenApiModelDto"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Pair of new tokens. <see cref="TokenApiModelDto"/></returns>
-    Task<ResultWrapper<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<TokenApiModelDto>> RefreshToken(TokenApiModelDto tokenData, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Revokes user's tokens.
@@ -44,7 +41,7 @@ public interface IAuthService
     /// <param name="userId">User Id</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>User Id</returns>
-    Task<ResultWrapper<int>> Revoke(int userId, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<int>> Revoke(int userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates user's password.
@@ -53,7 +50,7 @@ public interface IAuthService
     /// <param name="newPassword">New password. <see cref="string"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>User Id</returns>
-    Task<ResultWrapper<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<int>> UpdateUserPassword(int userId, string newPassword, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update user's role.
@@ -62,7 +59,7 @@ public interface IAuthService
     /// <param name="newRole">New role name</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>New role name</returns>
-    Task<ResultWrapper<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<string>> UpdateUserRole(int userId, string newRole, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets user's details.
@@ -70,5 +67,5 @@ public interface IAuthService
     /// <param name="userId">User Id</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns><see cref="UserDetailsDto"/></returns>
-    Task<ResultWrapper<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default);
+    Task<ResultWrapperDto<UserDetailsDto>> GetUserDetails(int userId, CancellationToken cancellationToken = default);
 }

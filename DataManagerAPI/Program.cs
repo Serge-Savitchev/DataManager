@@ -1,4 +1,5 @@
 using AutoMapper;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Helpers;
 using DataManagerAPI.Middleware;
 using DataManagerAPI.NLogger.Extensions;

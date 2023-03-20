@@ -1,4 +1,4 @@
-﻿using DataManagerAPI.Repository.Abstractions.Helpers;
+﻿using DataManagerAPI.Dto.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataManagerAPI.Dto;

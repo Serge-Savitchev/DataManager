@@ -1,8 +1,7 @@
 ﻿using DataManagerAPI.Controllers;
 using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Constants;
-using DataManagerAPI.Repository.Abstractions.Helpers;
-using DataManagerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +20,7 @@ public class UserFilesControllerTests
         var userFilesService = new Mock<IUserFilesService>();
         userFilesService.Setup(x => x.DeleteFile(
             It.IsAny<CurrentUserDto?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ResultWrapper<int> { StatusCode = ResultStatusCodes.Status403Forbidden });
+            .ReturnsAsync(new ResultWrapperDto<int> { StatusCode = ResultStatusCodes.Status403Forbidden });
 
         var configuration = new Mock<IConfiguration>();
         configuration.SetupGet(x => x[It.Is<string>(s => s == "Buffering:Client:UseTemporaryFile")])
@@ -53,7 +52,7 @@ public class UserFilesControllerTests
         var userFilesService = new Mock<IUserFilesService>();
         userFilesService.Setup(x => x.DownloadFile(
             It.IsAny<CurrentUserDto?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ResultWrapper<UserFileStreamDto> { StatusCode = ResultStatusCodes.Status404NotFound });
+            .ReturnsAsync(new ResultWrapperDto<UserFileStreamDto> { StatusCode = ResultStatusCodes.Status404NotFound });
 
         var configuration = new Mock<IConfiguration>();
         configuration.SetupGet(x => x[It.Is<string>(s => s == "Buffering:Client:UseTemporaryFile")])

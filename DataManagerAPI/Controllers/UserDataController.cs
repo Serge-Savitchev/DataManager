@@ -1,7 +1,6 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Helpers;
-using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services.Interfaces;
+using DataManagerAPI.Dto.Constants;
+using DataManagerAPI.Dto.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,7 +51,7 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.AddUserData(permission.UserId, data);
+        ResultWrapperDto<UserDataDto> result = await _service.AddUserData(permission.UserId, data);
 
         _logger.LogInformation("Finished");
 
@@ -86,7 +85,7 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.UpdateUserData(permission.UserId, userDataId, data);
+        ResultWrapperDto<UserDataDto> result = await _service.UpdateUserData(permission.UserId, userDataId, data);
 
         _logger.LogInformation("Finished");
 
@@ -118,7 +117,7 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.DeleteUserData(permission.UserId, userDataId);
+        ResultWrapperDto<UserDataDto> result = await _service.DeleteUserData(permission.UserId, userDataId);
 
         _logger.LogInformation("Finished");
 
@@ -150,7 +149,7 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto> result = await _service.GetUserData(permission.UserId, userDataId);
+        ResultWrapperDto<UserDataDto> result = await _service.GetUserData(permission.UserId, userDataId);
 
         _logger.LogInformation("Finished");
 
@@ -177,7 +176,7 @@ public class UserDataController : ControllerBase
             return StatusCode(permission.Code);
         }
 
-        ResultWrapper<UserDataDto[]> result = await _service.GetUserDataByUserId(permission.UserId);
+        ResultWrapperDto<UserDataDto[]> result = await _service.GetUserDataByUserId(permission.UserId);
 
         _logger.LogInformation("Finished");
 
@@ -203,7 +202,7 @@ public class UserDataController : ControllerBase
         }
 
         if (currentUser!.User!.Id != userId &&
-            Enum.Parse<RoleIds>(currentUser.User.Role, true) != RoleIds.Admin)
+            Enum.Parse<RoleIdsDto>(currentUser.User.Role, true) != RoleIdsDto.Admin)
         {
             return (Code: StatusCodes.Status403Forbidden, UserId: currentUser.User!.Id);
         }

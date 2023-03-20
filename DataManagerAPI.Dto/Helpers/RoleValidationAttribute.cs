@@ -1,8 +1,8 @@
-﻿using DataManagerAPI.Repository.Abstractions.Models;
+﻿using DataManagerAPI.Dto.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace DataManagerAPI.Repository.Abstractions.Helpers;
+namespace DataManagerAPI.Dto.Helpers;
 
 /// <summary>
 /// Role name validator.
@@ -28,7 +28,7 @@ public sealed class RoleValidationAttribute : ValidationAttribute
             return false;
         }
 
-        if (!Enum.TryParse<RoleIds>(role, true, out _))
+        if (!Enum.TryParse<RoleIdsDto>(role, true, out _))
         {
             return false;
         }
@@ -50,7 +50,7 @@ public sealed class RoleValidationAttribute : ValidationAttribute
 
     private static string GetAvailableValues()
     {
-        StringBuilder stringBuilder = new StringBuilder();
+        var stringBuilder = new StringBuilder();
 
         foreach (var suit in RolesHelper.GetAllNames())
         {
@@ -58,7 +58,7 @@ public sealed class RoleValidationAttribute : ValidationAttribute
             {
                 stringBuilder.Append(", ");
             }
-            stringBuilder.Append(suit.ToString());
+            stringBuilder.Append(suit);
         }
 
         return stringBuilder.ToString();

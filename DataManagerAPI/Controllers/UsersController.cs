@@ -1,6 +1,6 @@
 ﻿using DataManagerAPI.Dto;
-using DataManagerAPI.Repository.Abstractions.Helpers;
-using DataManagerAPI.Services.Interfaces;
+using DataManagerAPI.Dto.Helpers;
+using DataManagerAPI.Dto.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

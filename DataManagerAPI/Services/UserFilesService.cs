@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using DataManagerAPI.Dto;
+using DataManagerAPI.Dto.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Constants;
 using DataManagerAPI.Repository.Abstractions.Helpers;
 using DataManagerAPI.Repository.Abstractions.Interfaces;
 using DataManagerAPI.Repository.Abstractions.Models;
-using DataManagerAPI.Services.Interfaces;
 
 namespace DataManagerAPI.Services;
 
@@ -35,7 +35,7 @@ public class UserFilesService : IUserFilesService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<int>> DeleteFile(CurrentUserDto? currentUser, int userDataId, int fileId,
+    public async Task<ResultWrapperDto<int>> DeleteFile(CurrentUserDto? currentUser, int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId},fileId:{fileId}", currentUser?.User?.Id, userDataId, fileId);
@@ -44,7 +44,7 @@ public class UserFilesService : IUserFilesService
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
-            var ret = new ResultWrapper<int> { StatusCode = permissions };
+            var ret = new ResultWrapperDto<int> { StatusCode = permissions };
             _logger.LogWarning("Finished:{StatusCode},userId:{userId},userDataId:{userDataId},fileId:{fileId}",
                 ret.StatusCode, currentUser?.User?.Id, userDataId, fileId);
             return ret;
@@ -55,11 +55,17 @@ public class UserFilesService : IUserFilesService
         _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId},fileId:{fileId}",
             result.StatusCode, currentUser?.User?.Id, userDataId, fileId);
 
-        return result;
+        return new ResultWrapperDto<int>
+        {
+            StatusCode = result.StatusCode,
+            Success = result.Success,
+            Data = result.Data,
+            Message = result.Message
+        };
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserFileStreamDto>> DownloadFile(CurrentUserDto? currentUser, int userDataId, int fileId,
+    public async Task<ResultWrapperDto<UserFileStreamDto>> DownloadFile(CurrentUserDto? currentUser, int userDataId, int fileId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId},fileId:{fileId}", currentUser?.User?.Id, userDataId, fileId);
@@ -68,7 +74,7 @@ public class UserFilesService : IUserFilesService
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
-            var ret = new ResultWrapper<UserFileStreamDto> { StatusCode = permissions };
+            var ret = new ResultWrapperDto<UserFileStreamDto> { StatusCode = permissions };
             _logger.LogWarning("Finished:{StatusCode},userId:{userId},userDataId:{userDataId},fileId:{fileId}",
                 ret.StatusCode, currentUser?.User?.Id, userDataId, fileId);
 
@@ -76,7 +82,7 @@ public class UserFilesService : IUserFilesService
         }
 
         ResultWrapper<UserFileStream> res = await _repository.DownloadFileAsync(userDataId, fileId, cancellationToken);
-        var result = new ResultWrapper<UserFileStreamDto>
+        var result = new ResultWrapperDto<UserFileStreamDto>
         {
             Success = res.Success,
             StatusCode = res.StatusCode,
@@ -91,7 +97,7 @@ public class UserFilesService : IUserFilesService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserFileDto[]>> GetList(CurrentUserDto? currentUser, int userDataId,
+    public async Task<ResultWrapperDto<UserFileDto[]>> GetList(CurrentUserDto? currentUser, int userDataId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId}", currentUser?.User?.Id, userDataId);
@@ -100,7 +106,7 @@ public class UserFilesService : IUserFilesService
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
-            var ret = new ResultWrapper<UserFileDto[]> { StatusCode = permissions };
+            var ret = new ResultWrapperDto<UserFileDto[]> { StatusCode = permissions };
             _logger.LogWarning("Finished:{StatusCode},userId:{userId},userDataId:{userDataId}",
                 ret.StatusCode, currentUser?.User?.Id, userDataId);
 
@@ -109,7 +115,7 @@ public class UserFilesService : IUserFilesService
 
         ResultWrapper<UserFile[]> res = await _repository.GetListAsync(userDataId, cancellationToken);
 
-        var result = new ResultWrapper<UserFileDto[]>
+        var result = new ResultWrapperDto<UserFileDto[]>
         {
             Success = res.Success,
             StatusCode = res.StatusCode,
@@ -124,7 +130,7 @@ public class UserFilesService : IUserFilesService
     }
 
     /// <inheritdoc />
-    public async Task<ResultWrapper<UserFileDto>> UploadFile(CurrentUserDto? currentUser, UserFileStreamDto fileStream,
+    public async Task<ResultWrapperDto<UserFileDto>> UploadFile(CurrentUserDto? currentUser, UserFileStreamDto fileStream,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Started:userId:{userId},userDataId:{userDataId},fileId:{fileId},name:{name}",
@@ -134,7 +140,7 @@ public class UserFilesService : IUserFilesService
 
         if (permissions != ResultStatusCodes.Status200OK)
         {
-            var ret = new ResultWrapper<UserFileDto> { StatusCode = permissions };
+            var ret = new ResultWrapperDto<UserFileDto> { StatusCode = permissions };
             _logger.LogInformation("Finished:{StatusCode},userId:{userId},userDataId:{userDataId},fileId:{fileId},name:{name}",
                 ret.StatusCode, currentUser?.User?.Id, fileStream.UserDataId, fileStream.Id, fileStream.Name);
             return ret;
@@ -142,7 +148,7 @@ public class UserFilesService : IUserFilesService
 
         ResultWrapper<UserFile> res = await _repository.UploadFileAsync(_mapper.Map<UserFileStream>(fileStream), cancellationToken);
 
-        var result = new ResultWrapper<UserFileDto>
+        var result = new ResultWrapperDto<UserFileDto>
         {
             Success = res.Success,
             StatusCode = res.StatusCode,
