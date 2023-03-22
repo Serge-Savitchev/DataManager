@@ -9,4 +9,4 @@ It provides:
 
 Connection strings for PostgreSQL batabase are defined in appsettings.*.json files of main application.
 
-***Note**. It depends on DataManagerAPI.SQLServerDB project because requests to database via Entity Framework are the same and its are implementated in DataManagerAPI.SQLServerDB project.*
+***Note**. It depends on DataManagerAPI.SQLServerDB project because requests to database via Entity Framework are the same and its are implemented in DataManagerAPI.SQLServerDB project.*
